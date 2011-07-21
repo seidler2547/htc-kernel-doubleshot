@@ -52,24 +52,6 @@
 
 #define MSMFB_MIXER_INFO       _IOWR(MSMFB_IOCTL_MAGIC, 148, \
 						struct msmfb_mixer_info_req)
-#define MSMFB_OVERLAY_PLAY_WAIT _IOWR(MSMFB_IOCTL_MAGIC, 149, \
-						struct msmfb_overlay_data)
-#define MSMFB_WRITEBACK_INIT _IO(MSMFB_IOCTL_MAGIC, 150)
-#define MSMFB_WRITEBACK_REGISTER_BUFFER _IOW(MSMFB_IOCTL_MAGIC, 151, \
-						struct msmfb_writeback_data)
-#define MSMFB_WRITEBACK_UNREGISTER_BUFFER _IOW(MSMFB_IOCTL_MAGIC, 152, \
-						struct msmfb_writeback_data)
-#define MSMFB_WRITEBACK_QUEUE_BUFFER _IOW(MSMFB_IOCTL_MAGIC, 153, \
-						struct msmfb_data)
-#define MSMFB_WRITEBACK_DEQUEUE_BUFFER _IOW(MSMFB_IOCTL_MAGIC, 154, \
-						struct msmfb_data)
-#define MSMFB_WRITEBACK_TERMINATE _IO(MSMFB_IOCTL_MAGIC, 155)
-#define MSMFB_MDP_PP _IOWR(MSMFB_IOCTL_MAGIC, 156, struct msmfb_mdp_pp)
-
-/* HTC: Define custom ioctl started from 200 */
-#define MSMFB_OVERLAY_CHANGE_ZORDER_VG_PIPES    _IOW(MSMFB_IOCTL_MAGIC, 200, unsigned int)
-#define MSMFB_GET_GAMMA_CURVY _IOWR(MSMFB_IOCTL_MAGIC, 201, struct gamma_curvy)
-
 
 #define FB_TYPE_3D_PANEL 0x10101010
 #define MDP_IMGTYPE2_START 0x10000
