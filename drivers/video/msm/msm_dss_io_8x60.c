@@ -407,7 +407,8 @@ void mipi_dsi_ahb_ctrl(u32 enable)
 		clk_enable(dsi_m_pclk);
 		clk_enable(dsi_s_pclk);
 		mipi_dsi_ahb_en();
-		mipi_dsi_sfpb_cfg();
+		if (mdp_rev >= MDP_REV_41)
+			mipi_dsi_sfpb_cfg();
 		ahb_ctrl_done = 1;
 	} else {
 		if (ahb_ctrl_done == 0) {
