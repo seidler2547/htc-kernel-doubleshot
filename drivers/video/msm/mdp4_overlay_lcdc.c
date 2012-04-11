@@ -9,11 +9,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- *
  */
 
 #include <linux/module.h>
@@ -37,9 +32,8 @@
 #include "mdp.h"
 #include "msm_fb.h"
 #include "mdp4.h"
-#include <mach/debug_display.h>
 
-#ifdef CONFIG_MSM_MDP40
+#ifdef CONFIG_FB_MSM_MDP40
 #define LCDC_BASE	0xC0000
 #else
 #define LCDC_BASE	0xE0000
@@ -121,10 +115,8 @@ int mdp_lcdc_on(struct platform_device *pdev)
 		if (ptype < 0)
 			printk(KERN_INFO "%s: format2type failed\n", __func__);
 		pipe = mdp4_overlay_pipe_alloc(ptype, MDP4_MIXER0, 0);
-		if (pipe == NULL) {
+		if (pipe == NULL)
 			printk(KERN_INFO "%s: pipe_alloc failed\n", __func__);
-			return -EINVAL;
-		}
 		pipe->pipe_used++;
 		pipe->mixer_stage  = MDP4_MIXER_STAGE_BASE;
 		pipe->mixer_num  = MDP4_MIXER0;
@@ -213,7 +205,7 @@ int mdp_lcdc_on(struct platform_device *pdev)
 	}
 
 
-#ifdef CONFIG_MSM_MDP40
+#ifdef CONFIG_FB_MSM_MDP40
 	hsync_polarity = 1;
 	vsync_polarity = 1;
 	lcdc_underflow_clr |= 0x80000000;	/* enable recovery */
@@ -244,6 +236,7 @@ int mdp_lcdc_on(struct platform_device *pdev)
 #ifdef CONFIG_MSM_BUS_SCALING
 	mdp_bus_scale_update_request(2);
 #endif
+	mdp_histogram_ctrl(TRUE);
 
 	ret = panel_next_on(pdev);
 	if (ret == 0) {
@@ -268,8 +261,7 @@ int mdp_lcdc_off(struct platform_device *pdev)
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	mdp_pipe_ctrl(MDP_OVERLAY0_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 
-	mdp_disable_irq(MDP_DMA2_TERM);	/* disable intr */
-
+	mdp_histogram_ctrl(FALSE);
 	ret = panel_next_off(pdev);
 
 	/* delay to make sure the last frame finishes */
@@ -314,7 +306,7 @@ void mdp4_lcdc_overlay_blt(struct msm_fb_data_type *mfd,
 		lcdc_pipe->blt_addr = 0;
 		change++;
 	}
-	PR_DISP_DEBUG("%s: blt_addr=%x\n", __func__, (int)lcdc_pipe->blt_addr);
+	pr_debug("%s: blt_addr=%x\n", __func__, (int)lcdc_pipe->blt_addr);
 	lcdc_pipe->blt_cnt = 0;
 	spin_unlock_irqrestore(&mdp_spin_lock, flag);
 
@@ -339,7 +331,7 @@ void mdp4_overlay_lcdc_wait4vsync(struct msm_fb_data_type *mfd)
 	spin_lock_irqsave(&mdp_spin_lock, flag);
 	mdp_enable_irq(MDP_DMA2_TERM);	/* enable intr */
 	INIT_COMPLETION(lcdc_comp);
-		mfd->dma->waiting = TRUE;
+	mfd->dma->waiting = TRUE;
 	outp32(MDP_INTR_CLEAR, INTR_PRIMARY_VSYNC);
 	mdp_intr_mask |= INTR_PRIMARY_VSYNC;
 	outp32(MDP_INTR_ENABLE, mdp_intr_mask);
@@ -396,8 +388,8 @@ void mdp4_lcdc_overlay(struct msm_fb_data_type *mfd)
 	pipe = lcdc_pipe;
 	pipe->srcp0_addr = (uint32) buf;
 	mdp4_overlay_rgb_setup(pipe);
+	mutex_unlock(&mfd->dma->ov_mutex);
 	mdp4_overlay_lcdc_vsync_push(mfd, pipe);
 	mdp4_stat.kickoff_lcdc++;
 	mdp4_overlay_resource_release();
-	mutex_unlock(&mfd->dma->ov_mutex);
 }

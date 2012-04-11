@@ -9,11 +9,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- *
  */
 #ifndef __EXTERNAL_COMMON_H__
 #define __EXTERNAL_COMMON_H__
@@ -22,7 +17,7 @@
 #ifndef DEV_DBG_PREFIX
 #define DEV_DBG_PREFIX "EXT_INTERFACE: "
 #endif
-#define DEV_DBG(args...)	pr_info(DEV_DBG_PREFIX args)
+#define DEV_DBG(args...)	pr_debug(DEV_DBG_PREFIX args)
 #else
 #define DEV_DBG(args...)	(void)0
 #endif /* DEBUG */
@@ -220,12 +215,10 @@ struct external_common_state_type {
 	uint16 video_latency, audio_latency;
 	uint8 audio_data_block_cnt;
 	boolean present_3d;
+	boolean present_hdcp;
 	uint32 audio_data_blocks[16];
 	int (*read_edid_block)(int block, uint8 *edid_buf);
 	int (*hpd_feature)(int on);
-#endif
-#ifdef CONFIG_FB_MSM_TVOUT
-	int (*tvout_enable)(int on);
 #endif
 };
 
@@ -254,11 +247,5 @@ void hdmi_common_init_panel_info(struct msm_panel_info *pinfo);
 
 int external_common_state_create(struct platform_device *pdev);
 void external_common_state_remove(void);
-#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
-extern  uint8_t ReadHPD(void);
-extern void update_mhl_status(bool isMHL, enum usb_connect_type statMHL);
-extern bool IsD0Mode(void);
-extern void SetHDCPStatus(bool Status);
-extern bool  g_bEnterEarlySuspend;
-#endif
+
 #endif /* __EXTERNAL_COMMON_H__ */

@@ -9,11 +9,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- *
  */
 
 #include <linux/module.h>
@@ -35,7 +30,6 @@
 #include "mdp.h"
 #include "msm_fb.h"
 #include "mdp4.h"
-#include <mach/debug_display.h>
 
 #define DTV_BASE	0xD0000
 
@@ -55,11 +49,10 @@ static void __mdp_outp(uint32 port, uint32 value)
 #define MDP_OUTP(port, value)	__mdp_outp((uint32)(port), (value))
 #endif
 
-atomic_t mdp_dtv_on;
 static int first_pixel_start_x;
 static int first_pixel_start_y;
 
-struct mdp4_overlay_pipe *dtv_pipe;
+static struct mdp4_overlay_pipe *dtv_pipe;
 
 int mdp4_dtv_on(struct platform_device *pdev)
 {
@@ -182,7 +175,7 @@ int mdp4_dtv_on(struct platform_device *pdev)
 	dtv_underflow_clr = mfd->panel_info.lcdc.underflow_clr;
 	dtv_hsync_skew = mfd->panel_info.lcdc.hsync_skew;
 
-	PR_DISP_INFO("%s: <ID=%d %dx%d (%d,%d,%d), (%d,%d,%d) %dMHz>\n", __func__,
+	pr_info("%s: <ID=%d %dx%d (%d,%d,%d), (%d,%d,%d) %dMHz>\n", __func__,
 		var->reserved[3], var->xres, var->yres,
 		var->right_margin, var->hsync_len, var->left_margin,
 		var->lower_margin, var->vsync_len, var->upper_margin,
@@ -252,8 +245,6 @@ int mdp4_dtv_on(struct platform_device *pdev)
 	/* Test pattern 8 x 8 pixel */
 	/* MDP_OUTP(MDP_BASE + DTV_BASE + 0x4C, 0x80000808); */
 
-	atomic_set(&mdp_dtv_on, true);
-
 	ret = panel_next_on(pdev);
 	if (ret == 0) {
 		/* enable DTV block */
@@ -273,10 +264,6 @@ int mdp4_dtv_off(struct platform_device *pdev)
 {
 	int ret = 0;
 
-	atomic_set(&mdp_dtv_on, false);
-
-	ret = panel_next_off(pdev);
-
 	/* MDP cmd block enable */
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 	MDP_OUTP(MDP_BASE + DTV_BASE, 0);
@@ -284,15 +271,24 @@ int mdp4_dtv_off(struct platform_device *pdev)
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	mdp_pipe_ctrl(MDP_OVERLAY1_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 
+	/*
+	 * wait for vsync == 16.6 ms to make sure
+	 * the last frame finishes
+	*/
+	msleep(20);
+	pr_info("%s\n", __func__);
 
-	/* delay to make sure the last frame finishes */
-	msleep(100);
-
-	PR_DISP_INFO("%s\n", __func__);
+	ret = panel_next_off(pdev);
 
 	/* dis-engage rgb2 from mixer1 */
 	if (dtv_pipe)
 		mdp4_mixer_stage_down(dtv_pipe);
+
+	/*
+	 * wait for another vsync == 16.6 ms to make sure
+	 * rgb2 dis-engaged
+	*/
+	msleep(20);
 
 	return ret;
 }
@@ -311,9 +307,7 @@ static void mdp4_overlay_dtv_wait4vsync(struct msm_fb_data_type *mfd)
 	outp32(MDP_INTR_ENABLE, mdp_intr_mask);
 	spin_unlock_irqrestore(&mdp_spin_lock, flag);
 	wait_for_completion_killable(&dtv_pipe->comp);
-	spin_lock_irqsave(&mdp_done_lock, flag);
 	mdp_disable_irq(MDP_OVERLAY1_TERM);
-	spin_unlock_irqrestore(&mdp_done_lock, flag);
 }
 
 void mdp4_overlay_dtv_vsync_push(struct msm_fb_data_type *mfd,
@@ -324,11 +318,10 @@ void mdp4_overlay_dtv_vsync_push(struct msm_fb_data_type *mfd,
 	if (pipe->flags & MDP_OV_PLAY_NOWAIT)
 		return;
 
-	if (inp32(MDP_BASE + DTV_BASE))
-		mdp4_overlay_dtv_wait4vsync(mfd);
+	mdp4_overlay_dtv_wait4vsync(mfd);
 }
 
-static void mdp4_overlay_dtv_ov_start(struct msm_fb_data_type *mfd)
+static void mdp4_overlay_dtv_wait4_ov_done(struct msm_fb_data_type *mfd)
 {
 	unsigned long flag;
 
@@ -341,23 +334,8 @@ static void mdp4_overlay_dtv_ov_start(struct msm_fb_data_type *mfd)
 	mdp_intr_mask |= INTR_OVERLAY1_DONE;
 	outp32(MDP_INTR_ENABLE, mdp_intr_mask);
 	spin_unlock_irqrestore(&mdp_spin_lock, flag);
-	mfd->ov_start = true;
-}
-
-static void mdp4_overlay_dtv_wait4_ov_done(struct msm_fb_data_type *mfd,
-	struct mdp4_overlay_pipe *pipe)
-{
-	unsigned long flag;
-	u32 data = inpdw(MDP_BASE + DTV_BASE);
-
-	mfd->ov_start = false;
-
-	if (!(data & 0x1) || (pipe == NULL))
-		return;
-	wait_for_completion_killable_timeout(&dtv_pipe->comp, HZ/10);
-	spin_lock_irqsave(&mdp_done_lock, flag);
+	wait_for_completion_killable(&dtv_pipe->comp);
 	mdp_disable_irq(MDP_OVERLAY1_TERM);
-	spin_unlock_irqrestore(&mdp_done_lock, flag);
 }
 
 void mdp4_overlay_dtv_ov_done_push(struct msm_fb_data_type *mfd,
@@ -365,24 +343,10 @@ void mdp4_overlay_dtv_ov_done_push(struct msm_fb_data_type *mfd,
 {
 
 	mdp4_overlay_reg_flush(pipe, 1);
-	mdp4_overlay_dtv_ov_start(mfd);
-
-	if (pipe->flags & MDP_OV_PLAY_NOWAIT) {
-		mfd->ov_start = false;
+	if (pipe->flags & MDP_OV_PLAY_NOWAIT)
 		return;
-	}
 
-	mdp4_overlay_dtv_wait4_ov_done(mfd, pipe);
-}
-
-void mdp4_overlay_dtv_wait_for_ov(struct msm_fb_data_type *mfd,
-	struct mdp4_overlay_pipe *pipe)
-{
-	if (mfd->ov_end) {
-		mfd->ov_end = false;
-		return;
-	}
-	mdp4_overlay_dtv_wait4_ov_done(mfd, pipe);
+	mdp4_overlay_dtv_wait4_ov_done(mfd);
 }
 
 void mdp4_external_vsync_dtv()
@@ -403,6 +367,7 @@ void mdp4_dtv_overlay(struct msm_fb_data_type *mfd)
 	struct fb_info *fbi = mfd->fbi;
 	uint8 *buf;
 	int bpp;
+	unsigned long flag;
 	struct mdp4_overlay_pipe *pipe;
 
 	if (!mfd->panel_power_on)
@@ -419,11 +384,21 @@ void mdp4_dtv_overlay(struct msm_fb_data_type *mfd)
 	pipe = dtv_pipe;
 	pipe->srcp0_addr = (uint32) buf;
 	mdp4_overlay_rgb_setup(pipe);
+	mdp4_overlay_reg_flush(pipe, 1); /* rgb2 and mixer1 */
 
-	if (mfd->ov_start) {
-		mdp4_overlay_dtv_wait4_ov_done(mfd, pipe);
-		mfd->ov_end = true;
-	}
-	mdp4_overlay_dtv_ov_done_push(mfd, pipe);
+	/* enable irq */
+	spin_lock_irqsave(&mdp_spin_lock, flag);
+	mdp_enable_irq(MDP_OVERLAY1_TERM);
+	INIT_COMPLETION(dtv_pipe->comp);
+	mfd->dma->waiting = TRUE;
+	outp32(MDP_INTR_CLEAR, INTR_OVERLAY1_DONE);
+	mdp_intr_mask |= INTR_OVERLAY1_DONE;
+	outp32(MDP_INTR_ENABLE, mdp_intr_mask);
+	spin_unlock_irqrestore(&mdp_spin_lock, flag);
+	wait_for_completion_killable(&dtv_pipe->comp);
+	mdp_disable_irq(MDP_OVERLAY1_TERM);
+
+	mdp4_stat.kickoff_dtv++;
+	mdp4_overlay_resource_release();
 	mutex_unlock(&mfd->dma->ov_mutex);
 }

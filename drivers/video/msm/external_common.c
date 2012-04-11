@@ -9,11 +9,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
- *
  */
 
 #include <linux/types.h>
@@ -23,14 +18,13 @@
 #define DEBUG
 #define DEV_DBG_PREFIX "EXT_COMMON: "
 
-#include "tvenc.h"
 #include "msm_fb.h"
 #include "external_common.h"
 
 struct external_common_state_type *external_common_state;
 EXPORT_SYMBOL(external_common_state);
 DEFINE_MUTEX(external_common_state_hpd_mutex);
-/*EXPORT_SYMBOL(external_common_state_hpd_mutex);*/
+EXPORT_SYMBOL(external_common_state_hpd_mutex);
 
 static int atoi(const char *name)
 {
@@ -289,7 +283,18 @@ static ssize_t hdmi_common_rda_3d_present(struct device *dev,
 			external_common_state->present_3d);
 	return ret;
 }
+
+static ssize_t hdmi_common_rda_hdcp_present(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	ssize_t ret = snprintf(buf, PAGE_SIZE, "%d\n",
+		external_common_state->present_hdcp);
+	DEV_DBG("%s: '%d'\n", __func__,
+			external_common_state->present_hdcp);
+	return ret;
+}
 #endif
+
 #ifdef CONFIG_FB_MSM_HDMI_3D
 static ssize_t hdmi_3d_rda_format_3d(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -365,9 +370,7 @@ static ssize_t external_common_wta_video_mode(struct device *dev,
 	external_common_state->disp_mode_list.num_of_elements = 1;
 	external_common_state->disp_mode_list.disp_mode_list[0] = video_mode;
 #elif defined(CONFIG_FB_MSM_TVOUT)
-	external_common_state->tvout_enable(0);
 	external_common_state->video_resolution = video_mode;
-	external_common_state->tvout_enable(1);
 #endif
 	DEV_DBG("%s: 'mode=%d %s' successful (sending OFF/ONLINE)\n", __func__,
 		video_mode, video_format_2string(video_mode));
@@ -388,20 +391,21 @@ static ssize_t external_common_rda_connected(struct device *dev,
 	return ret;
 }
 
-static DEVICE_ATTR(video_mode, 644,
+static DEVICE_ATTR(video_mode, S_IRUGO | S_IWUGO,
 	external_common_rda_video_mode, external_common_wta_video_mode);
 static DEVICE_ATTR(video_mode_str, S_IRUGO, external_common_rda_video_mode_str,
 	NULL);
-static DEVICE_ATTR(connected, 0644, external_common_rda_connected, NULL);
+static DEVICE_ATTR(connected, S_IRUGO, external_common_rda_connected, NULL);
 #ifdef CONFIG_FB_MSM_HDMI_COMMON
 static DEVICE_ATTR(edid_modes, S_IRUGO, hdmi_common_rda_edid_modes, NULL);
-static DEVICE_ATTR(hpd, 0644, hdmi_common_rda_hpd,
+static DEVICE_ATTR(hpd, S_IRUGO | S_IWUGO, hdmi_common_rda_hpd,
 	hdmi_common_wta_hpd);
 static DEVICE_ATTR(hdcp, S_IRUGO, hdmi_common_rda_hdcp, NULL);
 static DEVICE_ATTR(3d_present, S_IRUGO, hdmi_common_rda_3d_present, NULL);
+static DEVICE_ATTR(hdcp_present, S_IRUGO, hdmi_common_rda_hdcp_present, NULL);
 #endif
 #ifdef CONFIG_FB_MSM_HDMI_3D
-static DEVICE_ATTR(format_3d, 644, hdmi_3d_rda_format_3d,
+static DEVICE_ATTR(format_3d, S_IRUGO | S_IWUGO, hdmi_3d_rda_format_3d,
 	hdmi_3d_wta_format_3d);
 #endif
 
@@ -414,6 +418,7 @@ static struct attribute *external_common_fs_attrs[] = {
 	&dev_attr_hdcp.attr,
 	&dev_attr_hpd.attr,
 	&dev_attr_3d_present.attr,
+	&dev_attr_hdcp_present.attr,
 #endif
 #ifdef CONFIG_FB_MSM_HDMI_3D
 	&dev_attr_format_3d.attr,
@@ -453,9 +458,6 @@ int external_common_state_create(struct platform_device *pdev)
 		external_common_state->uevent_kobj);
 
 	kobject_uevent(external_common_state->uevent_kobj, KOBJ_ADD);
-#ifdef CONFIG_FB_MSM_TVOUT
-	external_common_state->tvout_enable = tvout_enable;
-#endif
 	DEV_DBG("%s: kobject_uevent(KOBJ_ADD)\n", __func__);
 	return 0;
 }
@@ -703,6 +705,7 @@ static void hdmi_edid_extract_3d_present(const uint8 *in_buf)
 	}
 }
 
+
 static void hdmi_edid_extract_latency_fields(const uint8 *in_buf)
 {
 	uint8 len;
@@ -761,6 +764,7 @@ static void hdmi_edid_extract_audio_data_blocks(const uint8 *in_buf)
 		sad += 3;
 	}
 }
+
 
 static void hdmi_edid_detail_desc(const uint8 *data_buf, uint32 *disp_mode)
 {
@@ -1009,7 +1013,6 @@ int hdmi_common_read_edid(void)
 	uint8 edid_buf[0x80 * 4];
 
 	external_common_state->present_3d = 0;
-
 	memset(&external_common_state->disp_mode_list, 0,
 		sizeof(external_common_state->disp_mode_list));
 	memset(edid_buf, 0, sizeof(edid_buf));
@@ -1036,7 +1039,8 @@ int hdmi_common_read_edid(void)
 	switch (num_og_cea_blocks) {
 	case 0: /* No CEA extension */
 		external_common_state->hdmi_sink = false;
-		DEV_DBG("HDMI DVI mode: %s\n", external_common_state->hdmi_sink?"no":"yes");
+		DEV_DBG("HDMI DVI mode: %s\n",
+			external_common_state->hdmi_sink ? "no" : "yes");
 		break;
 	case 1: /* Read block 1 */
 		status = hdmi_common_read_edid_block(1, edid_buf+0x80);
@@ -1051,9 +1055,9 @@ int hdmi_common_read_edid(void)
 			ieee_reg_id =
 				hdmi_edid_extract_ieee_reg_id(edid_buf+0x80);
 			if (ieee_reg_id == 0x0c03)
-				external_common_state->hdmi_sink = TRUE;
+				external_common_state->hdmi_sink = TRUE ;
 			else
-				external_common_state->hdmi_sink = FALSE;
+				external_common_state->hdmi_sink = FALSE ;
 			hdmi_edid_extract_latency_fields(edid_buf+0x80);
 			hdmi_edid_extract_speaker_allocation_data(
 				edid_buf+0x80);
@@ -1066,17 +1070,21 @@ int hdmi_common_read_edid(void)
 	case 4:
 		for (i = 1; i <= num_og_cea_blocks; i++) {
 			if (!(i % 2)) {
-				status = hdmi_common_read_edid_block(i, edid_buf+0x00);
-				if (status) {
-					DEV_ERR("%s: ddc read block(%d) failed: %d\n", __func__, i,
-						status);
-					goto error;
-				}
+					status = hdmi_common_read_edid_block(i,
+								edid_buf+0x00);
+					if (status) {
+						DEV_ERR("%s: ddc read block(%d)"
+						"failed: %d\n", __func__, i,
+							status);
+						goto error;
+					}
 			} else {
-				status = hdmi_common_read_edid_block(i, edid_buf+0x80);
+				status = hdmi_common_read_edid_block(i,
+							edid_buf+0x80);
 				if (status) {
-					DEV_ERR("%s: ddc read block(%d) failed:\
-						%d\n", __func__, i, status);
+					DEV_ERR("%s: ddc read block(%d)"
+					"failed:%d\n", __func__, i,
+						status);
 					goto error;
 				}
 			}
@@ -1146,11 +1154,7 @@ bool hdmi_common_get_video_format_from_drv_data(struct msm_fb_data_type *mfd)
 				: HDMI_VFRMT_1440x576i50_16_9;
 			break;
 		case 1920:
-			#ifdef HTC_SUPPORT_1080P30
-			format = HDMI_VFRMT_1920x1080p30_16_9;
-			#else /* HTC_SUPPORT_1080P30 */
-			format = HDMI_VFRMT_1920x1080p24_16_9;
-			#endif /* HTC_SUPPORT_1080P30 */
+			format = HDMI_VFRMT_1920x1080p60_16_9;
 			break;
 		}
 	}
