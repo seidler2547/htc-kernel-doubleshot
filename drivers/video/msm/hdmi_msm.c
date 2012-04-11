@@ -59,6 +59,9 @@ static int msm_hdmi_sample_rate = MSM_HDMI_SAMPLE_RATE_48KHZ;
 
 struct workqueue_struct *hdmi_work_queue;
 struct hdmi_msm_state_type *hdmi_msm_state;
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+static uint8_t PreCBusHPD;
+#endif
 
 DEFINE_MUTEX(hdmi_msm_state_mutex);
 EXPORT_SYMBOL(hdmi_msm_state_mutex);
@@ -766,6 +769,10 @@ static void hdmi_msm_hpd_state_work(struct work_struct *work)
 {
 	boolean hpd_state;
 	char *envp[2];
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+	uint8_t CBusHPD = 0;
+	CBusHPD = ReadHPD();
+#endif
 
 	if (!hdmi_msm_state || !hdmi_msm_state->hpd_initialized ||
 		!MSM_HDMI_BASE) {
@@ -816,6 +823,17 @@ static void hdmi_msm_hpd_state_work(struct work_struct *work)
 		hdmi_msm_state->hpd_cable_chg_detected = FALSE;
 		mutex_unlock(&hdmi_msm_state_mutex);
 		/* QDSP OFF preceding the HPD event notification */
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+		if (!IsD0Mode()) {
+			update_mhl_status(false, CONNECT_TYPE_UNKNOWN);
+			DEV_WARN("Sii9234 is not in D0 Mode!\n");
+			DEV_WARN("%s: Enable HPD IRQ: external common HPD state is [%u]\n",
+				 __func__, external_common_state->hpd_state);
+			HDMI_OUTP(0x0254, 4 | (external_common_state->hpd_state ? 0 : 2));
+
+			return;
+		}
+#endif
 		envp[0] = "HDCP_STATE=FAIL";
 		envp[1] = NULL;
 		DEV_INFO("HDMI HPD: QDSP OFF\n");
@@ -847,6 +865,26 @@ static void hdmi_msm_hpd_state_work(struct work_struct *work)
 				external_common_state->sdev.state, __func__);
 #endif
 		} else {
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+			DEV_INFO("CBusHPD :%d, PreCBusHPD:%d\n", CBusHPD, PreCBusHPD);
+			if ((CBusHPD) || (PreCBusHPD)) {
+				mutex_lock(&external_common_state_hpd_mutex);
+				mutex_lock(&hdmi_msm_state_mutex);
+
+				external_common_state->hpd_state = hpd_state;
+				hdmi_msm_state->hpd_prev_state = external_common_state->hpd_state;
+				DEV_DBG("%s: Fake offline, wait again (%d|%d|%d)\n",
+					__func__, hdmi_msm_state->hpd_prev_state,
+					external_common_state->hpd_state, hpd_state);
+				mutex_unlock(&external_common_state_hpd_mutex);
+				hdmi_msm_state->hpd_stable = 0;
+				hdmi_msm_state->hpd_cable_chg_detected = TRUE;
+				mutex_unlock(&hdmi_msm_state_mutex);
+				mod_timer(&hdmi_msm_state->hpd_state_timer, jiffies + HZ);
+				PreCBusHPD = CBusHPD;
+				return;
+			}
+#endif
 			DEV_INFO("HDMI HPD: sense DISCONNECTED: send OFFLINE\n"
 				);
 			kobject_uevent(external_common_state->uevent_kobj,
@@ -917,7 +955,10 @@ static void hdmi_msm_hdcp_reauth_work(struct work_struct *work)
 
 static void hdmi_msm_hdcp_work(struct work_struct *work)
 {
-
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+	if (g_bEnterEarlySuspend)
+		return;
+#endif
 	/* Only re-enable if cable still connected */
 	mutex_lock(&external_common_state_hpd_mutex);
 	if (external_common_state->hpd_state &&
@@ -2967,6 +3008,9 @@ static void hdmi_msm_hdcp_enable(void)
 		return;
 	}
 
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+	SetHDCPStatus(false);
+#endif
 	mutex_lock(&hdmi_msm_state_mutex);
 	hdmi_msm_state->hdcp_activating = TRUE;
 	mutex_unlock(&hdmi_msm_state_mutex);
@@ -3035,6 +3079,9 @@ static void hdmi_msm_hdcp_enable(void)
 		envp[1] = NULL;
 		kobject_uevent_env(external_common_state->uevent_kobj,
 		    KOBJ_CHANGE, envp);
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+		SetHDCPStatus(true);
+#endif
 	}
 	switch_set_state(&external_common_state->sdev, 1);
 	DEV_INFO("Hdmi state switch to %d: %s\n",
@@ -4251,6 +4298,24 @@ static int hdmi_msm_power_off(struct platform_device *pdev)
 
 	hdmi_msm_state->panel_power_on = FALSE;
 	return 0;
+}
+
+void hdmi_hpd_feature(int enable)
+{
+	if (external_common_state->hpd_feature) {
+		if (enable) {
+			external_common_state->hpd_feature(1);
+			mutex_lock(&external_common_state_hpd_mutex);
+			external_common_state->hpd_feature_on = 1;
+			mutex_unlock(&external_common_state_hpd_mutex);
+		} else {
+			if (hdmi_msm_state->panel_power_on == FALSE)
+				external_common_state->hpd_feature(0);
+			mutex_lock(&external_common_state_hpd_mutex);
+			external_common_state->hpd_feature_on = 0;
+			mutex_unlock(&external_common_state_hpd_mutex);
+		}
+	}
 }
 
 static int __devinit hdmi_msm_probe(struct platform_device *pdev)

@@ -1197,21 +1197,9 @@ static void add_supported_video_format(
 	DEV_DBG("EDID: format: %d [%s], %s\n",
 		video_format, video_format_2string(video_format),
 		supported ? "Supported" : "Not-Supported");
-	if (supported) {
-		if (mhl_is_connected()) {
-			const struct hdmi_disp_mode_timing_type *mhl_timing =
-				hdmi_mhl_get_supported_mode(video_format);
-			boolean mhl_supported = mhl_timing != NULL;
-			DEV_DBG("EDID: format: %d [%s], %s by MHL\n",
-			video_format, video_format_2string(video_format),
-				mhl_supported ? "Supported" : "Not-Supported");
-			if (mhl_supported)
-				disp_mode_list->disp_mode_list[
-			disp_mode_list->num_of_elements++] = video_format;
-		} else
-			disp_mode_list->disp_mode_list[
-			disp_mode_list->num_of_elements++] = video_format;
-	}
+	if (supported)
+		disp_mode_list->disp_mode_list[
+				disp_mode_list->num_of_elements++] = video_format;
 }
 
 static void hdmi_edid_get_display_mode(const uint8 *data_buf,
