@@ -1003,6 +1003,7 @@ static int mipi_novatek_lcd_on(struct platform_device *pdev)
 	struct msm_fb_data_type *mfd;
 	struct mipi_panel_info *mipi;
 	struct msm_panel_info *pinfo;
+	static int init;
 
 	mfd = platform_get_drvdata(pdev);
 	if (!mfd)
@@ -1016,9 +1017,10 @@ static int mipi_novatek_lcd_on(struct platform_device *pdev)
 
 	mipi  = &mfd->panel_info.mipi;
 
-	if (mipi->mode == DSI_VIDEO_MODE) {
-		mipi_dsi_cmds_tx(mfd, &novatek_tx_buf, novatek_video_on_cmds,
-			ARRAY_SIZE(novatek_video_on_cmds));
+	if (init == 0) {
+		mipi_novatek_panel_type_detect();
+		init = 1;
+		return 0;
 	} else {
 		if (mipi->mode == DSI_VIDEO_MODE) {
 			mipi_dsi_cmds_tx(mfd, &novatek_tx_buf, novatek_video_on_cmds,
@@ -1235,7 +1237,6 @@ int mipi_novatek_device_register(struct msm_panel_info *pinfo,
 	if (!pdev)
 		return -ENOMEM;
 
-	mipi_novatek_panel_type_detect();
 	novatek_panel_data.panel_info = *pinfo;
 
 	ret = platform_device_add_data(pdev, &novatek_panel_data,
