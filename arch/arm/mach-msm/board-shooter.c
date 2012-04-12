@@ -4357,3 +4357,14 @@ MACHINE_START(SHOOTER_U, "HTC Evo 3D GSM")
 	.timer = &msm_timer,
 	.init_early = msm8x60_init_early,
 MACHINE_END
+
+MACHINE_START(PYRAMID, "HTC Sensation")
+	.fixup = shooter_fixup,
+	.map_io = msm8x60_map_io,
+	.reserve = msm8x60_reserve,
+	.init_irq = msm8x60_init_irq,
+	.handle_irq = gic_handle_irq,
+	.init_machine = msm8x60_init,
+	.timer = &msm_timer,
+	.init_early = msm8x60_init_early,
+MACHINE_END

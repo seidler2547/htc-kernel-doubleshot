@@ -20,8 +20,10 @@
 
 #ifdef CONFIG_MACH_SHOOTER
 #define SHOOTER_PROJECT_NAME	"shooter"
-#else
+#elif defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_PROJECT_NAME	"shooter_u"
+#elif defined(CONFIG_MACH_PYRAMID)
+#define SHOOTER_PROJECT_NAME	"pyramid"
 #endif
 
 
@@ -232,7 +234,7 @@
 #define SHOOTER_SP3D_SPI_DI                 (38)
 #define SHOOTER_SP3D_SPI_CS                 (39)
 #define SHOOTER_SP3D_SPI_CLK                (40)
-#else
+#elif defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_SP3D_SPI_DO                 (41)
 #define SHOOTER_SP3D_SPI_DI                 (42)
 #define SHOOTER_SP3D_SPI_CS                 (43)
@@ -282,7 +284,7 @@
 #define SHOOTER_TP_RST             PMGPIO(23)
 #ifdef CONFIG_MACH_SHOOTER
 #define SHOOTER_TORCH_SET1         PMGPIO(32)
-#else
+#elif defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_TORCH_SET1         PMGPIO(40)
 #endif
 #define SHOOTER_TORCH_SET2         PMGPIO(31)
