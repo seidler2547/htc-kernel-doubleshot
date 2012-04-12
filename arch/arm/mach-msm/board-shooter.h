@@ -180,7 +180,12 @@
 /* TP */
 #define SHOOTER_TP_I2C_SDA           (51)
 #define SHOOTER_TP_I2C_SCL           (52)
+#ifdef CONFIG_TOUCHSCREEN_ATMEL
 #define SHOOTER_TP_ATT_N             (57)
+#else
+#define SHOOTER_TP_ATT_N             (65)
+#define SHOOTER_TP_ATT_N_XB          (50)
+#endif
 
 /* LCD */
 #define GPIO_LCM_ID	50
