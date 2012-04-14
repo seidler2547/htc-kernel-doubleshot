@@ -66,6 +66,24 @@ static uint32_t msm_aic3254_reset_gpio[] = {
 void shooter_snddev_poweramp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
+#ifdef CONFIG_MACH_PYRAMID
+	if (en) {
+		msleep(50);
+		gpio_request(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+						"AUD_HP_EN");
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN), 1);
+		set_speaker_amp(1);
+		if (!atomic_read(&aic3254_ctl))
+			curr_rx_mode |= BIT_SPEAKER;
+	} else {
+		set_speaker_amp(0);
+		gpio_request(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+						"AUD_HP_EN");
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN), 0);
+		if (!atomic_read(&aic3254_ctl))
+			curr_rx_mode &= ~BIT_SPEAKER;
+	}
+#else
 	if (en) {
 		/* enable rx route */
 		msleep(30);
@@ -83,6 +101,7 @@ void shooter_snddev_poweramp_on(int en)
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_SPEAKER;
 	}
+#endif
 }
 
 void shooter_snddev_hsed_pamp_on(int en)
@@ -282,6 +301,23 @@ void shooter_snddev_stereo_mic_pamp_on(int en)
 void shooter_snddev_fmspk_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
+#ifdef CONFIG_MACH_PYRAMID
+	if (en) {
+		gpio_request(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+						"AUD_HP_EN");
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN), 1);
+		set_speaker_amp(1);
+		if (!atomic_read(&aic3254_ctl))
+			curr_rx_mode |= BIT_FM_SPK;
+	} else {
+		set_speaker_amp(0);
+		gpio_request(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+						"AUD_HP_EN");
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN), 0);
+		if (!atomic_read(&aic3254_ctl))
+			curr_rx_mode &= ~BIT_FM_SPK;
+	}
+#else
 	if (en) {
 		msleep(50);
                 gpio_request(PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_SPK_ENO),
@@ -298,6 +334,7 @@ void shooter_snddev_fmspk_pamp_on(int en)
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_SPK;
 	}
+#endif
 }
 
 void shooter_snddev_fmhs_pamp_on(int en)
