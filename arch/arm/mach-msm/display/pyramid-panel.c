@@ -15,10 +15,12 @@
 
 #include <asm/io.h>
 #include <asm/mach-types.h>
+#include <linux/bootmem.h>
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
+#include <linux/ion.h>
 #include <linux/leds.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -32,9 +34,9 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-pyramid.h"
+#include "../board-shooter.h"
 #include "../devices-msm8x60.h"
-#include "../../../../drivers/video/msm_8x60/mdp_hw.h"
+#include "../../../../drivers/video/msm/mdp_hw.h"
 #if defined (CONFIG_FB_MSM_MDP_ABL)
 #include <linux/fb.h>
 #endif
@@ -127,7 +129,7 @@ static void pyramid_panel_power(int on)
 					" l1_3v\n", __func__);
 			return;
 		}
-		hr_msleep(5);
+		msleep(5);
 
 		if (system_rev >= 1) {
 			if (regulator_enable(l4_1v8)) {
@@ -149,17 +151,17 @@ static void pyramid_panel_power(int on)
 
 			return;
 		} else {
-			hr_msleep(10);
+			msleep(10);
 			gpio_set_value(GPIO_LCM_RST_N, 1);
-			hr_msleep(1);
+			msleep(1);
 			gpio_set_value(GPIO_LCM_RST_N, 0);
-			hr_msleep(1);
+			msleep(1);
 			gpio_set_value(GPIO_LCM_RST_N, 1);
-			hr_msleep(20);
+			msleep(20);
 		}
 	} else {
 		gpio_set_value(GPIO_LCM_RST_N, 0);
-		hr_msleep(5);
+		msleep(5);
 		if (system_rev >= 1) {
 			if (regulator_disable(l4_1v8)) {
 				PR_DISP_ERR("%s: Unable to enable the regulator:"
@@ -173,7 +175,7 @@ static void pyramid_panel_power(int on)
 				return;
 			}
 		}
-		hr_msleep(5);
+		msleep(5);
 		if (regulator_disable(l1_3v)) {
 			PR_DISP_ERR("%s: Unable to enable the regulator:"
 					" l1_3v\n", __func__);
@@ -254,6 +256,110 @@ static int lcdc_panel_power(int on)
 }
 
 #ifdef CONFIG_MSM_BUS_SCALING
+static struct msm_bus_vectors rotator_init_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab = 0,
+		.ib = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab = 0,
+		.ib = 0,
+	},
+};
+
+static struct msm_bus_vectors rotator_ui_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = 0,
+		.ib  = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1024 * 600 * 4 * 2 * 60),
+		.ib  = (1024 * 600 * 4 * 2 * 60 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_vga_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_720p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_1080p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_paths rotator_bus_scale_usecases[] = {
+	{
+		ARRAY_SIZE(rotator_init_vectors),
+		rotator_init_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_ui_vectors),
+		rotator_ui_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_vga_vectors),
+		rotator_vga_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_720p_vectors),
+		rotator_720p_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_1080p_vectors),
+		rotator_1080p_vectors,
+	},
+};
+
+struct msm_bus_scale_pdata rotator_bus_scale_pdata = {
+	rotator_bus_scale_usecases,
+	ARRAY_SIZE(rotator_bus_scale_usecases),
+	.name = "rotator",
+};
+
 static struct msm_bus_vectors mdp_init_vectors[] = {
 	/* For now, 0th array entry is reserved.
 	 * Please leave 0 as is and don't use it
@@ -581,19 +687,41 @@ static int msm_fb_detect_panel(const char *name)
 
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.detect_client = msm_fb_detect_panel,
-	.blt_mode = 1,
-	.width = 53,
-	.height = 95,
+//	.blt_mode = 1,
+//	.width = 53,
+//	.height = 95,
+};
+
+static struct resource msm_fb_resources[] = {
+	{
+		.flags  = IORESOURCE_DMA,
+	}
 };
 
 static struct platform_device msm_fb_device = {
 	.name   = "msm_fb",
 	.id     = 0,
+	.num_resources     = ARRAY_SIZE(msm_fb_resources),
+	.resource          = msm_fb_resources,
 	.dev.platform_data = &msm_fb_pdata,
 };
 
+void __init msm8x60_allocate_fb_region(void)
+{
+	void *addr;
+	unsigned long size;
+
+	size = MSM_FB_SIZE;
+	addr = alloc_bootmem_align(size, 0x1000);
+	msm_fb_resources[0].start = __pa(addr);
+	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
+	pr_info("allocating %lu bytes at %p (%lx physical) for fb\n",
+		size, addr, __pa(addr));
+
+}
+
 int mdp_core_clk_rate_table[] = {
-	59080000,
+	85330000,
 	128000000,
 	160000000,
 	200000000,
@@ -1185,12 +1313,30 @@ static struct msm_panel_common_pdata mdp_pdata = {
 #ifdef CONFIG_MSM_BUS_SCALING
 	.mdp_bus_scale_table = &mdp_bus_scale_pdata,
 #endif
+	.mdp_rev = MDP_REV_41,
+#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
+	.mem_hid = ION_CP_WB_HEAP_ID,
+#else
+	.mem_hid = MEMTYPE_EBI1,
+#endif
 	.mdp_color_enhance = pyd_mdp_color_enhance,
 	.mdp_gamma = pyd_mdp_gamma,
 #if defined (CONFIG_FB_MSM_MDP_ABL)
 	.abl_gamma_tbl = &gamma_tbl,
 #endif
 };
+
+void __init msm8x60_mdp_writeback(struct memtype_reserve* reserve_table)
+{
+	mdp_pdata.ov0_wb_size = MSM_FB_OVERLAY0_WRITEBACK_SIZE;
+	mdp_pdata.ov1_wb_size = MSM_FB_OVERLAY1_WRITEBACK_SIZE;
+#if defined(CONFIG_ANDROID_PMEM) && !defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov0_wb_size;
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov1_wb_size;
+#endif
+}
 
 static void __init msm_fb_add_devices(void)
 {
@@ -1210,25 +1356,17 @@ TODO:
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-int __init pyd_init_panel(struct resource *res, size_t size)
+void __init shooter_init_panel(void)
 {
-	int ret;
-
-	PR_DISP_INFO("%s: res=%p, size=%d\n", __func__, res, size);
 	if (panel_type == PANEL_ID_PYD_SHARP)
 		mipi_novatek_panel_data.shrink_pwm = pyd_shp_shrink_pwm;
 	else
 		mipi_novatek_panel_data.shrink_pwm = pyd_auo_shrink_pwm;
 
-	msm_fb_device.resource = res;
-	msm_fb_device.num_resources = size;
-
-	ret = platform_device_register(&msm_fb_device);
-	ret = platform_device_register(&lcdc_samsung_panel_device);
-	ret = platform_device_register(&mipi_dsi_video_sharp_wvga_panel_device);
-	ret = platform_device_register(&mipi_dsi_cmd_sharp_qhd_panel_device);
+	platform_device_register(&msm_fb_device);
+	platform_device_register(&lcdc_samsung_panel_device);
+	platform_device_register(&mipi_dsi_video_sharp_wvga_panel_device);
+	platform_device_register(&mipi_dsi_cmd_sharp_qhd_panel_device);
 
 	msm_fb_add_devices();
-
-	return 0;
 }
