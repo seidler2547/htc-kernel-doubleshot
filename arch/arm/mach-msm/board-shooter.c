@@ -2124,7 +2124,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Audio Receiver Amplifier */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),	/* 17 */
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2136,6 +2136,21 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			}
 		},
+#ifndef CONFIG_MACH_PYRAMID
+		{ /* Audio Speaker Amplifier */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_SPK_ENO),	/* 18 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.pull		= PM_GPIO_PULL_NO,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= 6,	/* LDO5 2.85 V */
+				.inv_int_pol	= 0,
+			}
+		},
+#endif
 		{ /* Timpani Reset */
 			PM8058_GPIO_PM_TO_SYS(20),
 			{
@@ -2198,6 +2213,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 #endif
+#ifndef CONFIG_MACH_PYRAMID
 		{ /* 3D CLK */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_3DCLK),
 			{
@@ -2263,7 +2279,8 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			}
 		},
-		{
+#endif
+		{ /* PMIC ID interrupt */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES),
 			{
 				.direction	= PM_GPIO_DIR_IN,
@@ -2273,6 +2290,28 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			},
 		},
+#ifdef CONFIG_MACH_PYRAMID
+		{ /* Volume Up Key */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_UP),
+			{
+				.direction      = PM_GPIO_DIR_IN,
+				.pull           = PM_GPIO_PULL_UP_31P5,
+				.vin_sel        = PM8058_GPIO_VIN_S3,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+		{ /* Volume Down key */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_DN),
+			{
+				.direction      = PM_GPIO_DIR_IN,
+				.pull           = PM_GPIO_PULL_UP_1P5,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+#endif
 	};
 
 	for (i = 0; i < ARRAY_SIZE(gpio_cfgs); ++i) {
@@ -2892,14 +2931,20 @@ static void msm_auxpcm_init(void)
 }
 
 static struct tpa2051d3_platform_data tpa2051d3_pdata = {
+#ifdef CONFIG_MACH_PYRAMID
+	.gpio_tpa2051_spk_en = SHOOTER_AUD_HP_EN,
+	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
+	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
+#else
 	.gpio_tpa2051_spk_en = SHOOTER_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 #ifdef CONFIG_MACH_SHOOTER
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0x6D, 0x4D, 0x0D},
 #else
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0xCD, 0x4D, 0x0D},
-#endif
+#endif /* CONFIG_MACH_SHOOTER */
 	.rece_cmd = {0x00, 0x02, 0x25, 0x57, 0x0D, 0x4D, 0x0D},
+#endif /* CONFIG_MACH_PYRAMID */
 };
 
 #define TPA2051D3_I2C_SLAVE_ADDR	(0xE0 >> 1)
