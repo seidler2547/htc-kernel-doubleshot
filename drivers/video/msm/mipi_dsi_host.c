@@ -1306,6 +1306,7 @@ int mipi_dsi_cmds_rx(struct msm_fb_data_type *mfd,
 int mipi_dsi_cmd_dma_tx(struct dsi_buf *tp)
 {
 	int len;
+	long timeout;
 
 #ifdef DSI_HOST_DEBUG
 	int i;
@@ -1336,7 +1337,14 @@ int mipi_dsi_cmd_dma_tx(struct dsi_buf *tp)
 	MIPI_OUTP(MIPI_DSI_BASE + 0x08c, 0x01);	/* trigger */
 	wmb();
 
-	wait_for_completion(&dsi_dma_comp);
+	timeout = wait_for_completion_timeout(&dsi_dma_comp, HZ/10);
+
+	if (!timeout) {
+		/* reset ISR on timeout */
+		u32 isr = MIPI_INP(MIPI_DSI_BASE + 0x010c);
+		MIPI_OUTP(MIPI_DSI_BASE + 0x010c, isr);
+		pr_err("[MSMFB] %s: dma_tx timeout, isr=0x%08x\n", __func__, isr);
+	}
 
 	dma_unmap_single(&dsi_dev, tp->dmap, len, DMA_TO_DEVICE);
 	tp->dmap = 0;
