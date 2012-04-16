@@ -712,8 +712,6 @@ static struct i2c_registry msm8960_i2c_devices[] __initdata = {
 		mxt_device_info,
 		ARRAY_SIZE(mxt_device_info),
 	},
-
->>>>>>> 83eac3c... msm: Add MIPI DSI novatek panel for 8960 target.
 };
 
 static void __init msm8960_sim_init(void)

@@ -70,7 +70,7 @@ int panel_next_off(struct platform_device *pdev)
 			next_pdata =
 			    (struct msm_fb_panel_data *)next_pdev->dev.
 			    platform_data;
-			if ((next_pdata) && (next_pdata->on))
+			if ((next_pdata) && (next_pdata->off))
 				ret = next_pdata->off(next_pdev);
 		}
 	}
