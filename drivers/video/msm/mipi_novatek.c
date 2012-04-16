@@ -493,11 +493,11 @@ static struct dsi_cmd_desc pyd_sharp_cmd_on_cmds[] = {
 		sizeof(set_height), set_height},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0,
 		sizeof(rgb_888), rgb_888},
-	{DTYPE_DCS_WRITE1, 1, 0, 0, 1,
-		sizeof(led_pwm2), led_pwm2},
-	{DTYPE_DCS_WRITE1, 1, 0, 0, 1,
-		sizeof(led_pwm3), led_pwm3},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0,
+		sizeof(led_pwm2), led_pwm2},
+	{DTYPE_DCS_WRITE1, 1, 0, 0, 0,
+		sizeof(led_pwm3), led_pwm3},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10,
 		sizeof(display_on), display_on},
 };
 
@@ -725,7 +725,7 @@ static struct dsi_cmd_desc novatek_cmd_on_cmds[] = {
 #endif
 
 static struct dsi_cmd_desc novatek_display_off_cmds[] = {
-	{DTYPE_DCS_WRITE, 1, 0, 0, 10,
+	{DTYPE_DCS_WRITE, 1, 0, 0, 0,
 		sizeof(display_off), display_off},
 	{DTYPE_DCS_WRITE, 1, 0, 0, 110,
 		sizeof(enter_sleep), enter_sleep}
