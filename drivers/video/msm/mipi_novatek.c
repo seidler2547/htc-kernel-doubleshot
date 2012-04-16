@@ -1021,22 +1021,22 @@ static int mipi_novatek_lcd_on(struct platform_device *pdev)
 		mipi_novatek_panel_type_detect();
 		init = 1;
 		return 0;
+	}
+
+	if (mipi->mode == DSI_VIDEO_MODE) {
+		mipi_dsi_cmds_tx(mfd, &novatek_tx_buf, novatek_video_on_cmds,
+			ARRAY_SIZE(novatek_video_on_cmds));
 	} else {
-		if (mipi->mode == DSI_VIDEO_MODE) {
-			mipi_dsi_cmds_tx(mfd, &novatek_tx_buf, novatek_video_on_cmds,
-				ARRAY_SIZE(novatek_video_on_cmds));
+		if (panel_type != PANEL_ID_NONE) {
+			PR_DISP_INFO("%s: %s\n", __func__, ptype);
+			mipi_novatek_lcd_setup(panel_type, mfd);
+			/* mipi read command verify */
+			/* clean up ack_err_status */
+			mipi_dsi_cmd_bta_sw_trigger();
+			mipi_novatek_manufacture_id(mfd);
 		} else {
-			if (panel_type != PANEL_ID_NONE) {
-				PR_DISP_INFO("%s\n", ptype);
-				mipi_novatek_lcd_setup(panel_type, mfd);
-				/* mipi read command verify */
-				/* clean up ack_err_status */
-				mipi_dsi_cmd_bta_sw_trigger();
-				mipi_novatek_manufacture_id(mfd);
-			} else {
-				printk(KERN_ERR "panel_type=0x%x not supported at power on\n", panel_type);
-				return -EINVAL;
-			}
+			printk(KERN_ERR "panel_type=0x%x not supported at power on\n", panel_type);
+			return -EINVAL;
 		}
 	}
 
