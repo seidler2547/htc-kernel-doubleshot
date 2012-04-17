@@ -2792,6 +2792,12 @@ static struct platform_device *devices[] __initdata = {
 	&msm_pil_modem,
 	&msm_pil_tzapps,
 #ifdef CONFIG_I2C_QUP
+#ifdef CONFIG_MACH_PYRAMID
+	&msm_gsbi3_qup_i2c_device,
+	&msm_gsbi8_qup_i2c_device,
+	&msm_gsbi9_qup_i2c_device,
+	&msm_gsbi12_qup_i2c_device,
+#endif
 	&msm_gsbi4_qup_i2c_device,
 	&msm_gsbi5_qup_i2c_device,
 	&msm_gsbi7_qup_i2c_device,
@@ -2816,6 +2822,9 @@ static struct platform_device *devices[] __initdata = {
 	&msm_device_ssbi_pmic2,
 #endif
 #ifdef CONFIG_I2C_SSBI
+#ifdef CONFIG_MACH_PYRAMID
+	&msm_device_ssbi2,
+#endif
 	&msm_device_ssbi3,
 #endif
 #ifdef CONFIG_USB_EHCI_HCD
@@ -3177,6 +3186,33 @@ static void gsbi_qup_i2c_gpio_config(int adap_id, int config_type)
 
 }
 
+#ifdef CONFIG_MACH_PYRAMID
+static struct msm_i2c_platform_data msm_gsbi3_qup_i2c_pdata = {
+	.clk_freq = 384000,
+	.src_clk_rate = 24000000,
+	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
+};
+
+static struct msm_i2c_platform_data msm_gsbi8_qup_i2c_pdata = {
+	.clk_freq = 100000,
+	.src_clk_rate = 24000000,
+	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
+};
+
+static struct msm_i2c_platform_data msm_gsbi9_qup_i2c_pdata = {
+	.clk_freq = 100000,
+	.src_clk_rate = 24000000,
+	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
+};
+
+static struct msm_i2c_platform_data msm_gsbi12_qup_i2c_pdata = {
+	.clk_freq = 100000,
+	.src_clk_rate = 24000000,
+	.use_gsbi_shared_mode = 1,
+	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
+};
+#endif
+
 static struct msm_i2c_platform_data msm_gsbi4_qup_i2c_pdata = {
 	.clk_freq = 384000,
 	.src_clk_rate = 24000000,
@@ -3204,9 +3240,14 @@ static struct msm_i2c_platform_data msm_gsbi10_qup_i2c_pdata = {
 
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
 static struct msm_spi_platform_data msm_gsbi1_qup_spi_pdata = {
+#ifdef CONFIG_MACH_PYRAMID
+	.max_clock_speed = 24000000,
+#else
 	.max_clock_speed = 10800000,
+#endif
 };
 
+#ifndef CONFIG_MACH_PYRAMID
 #ifdef CONFIG_MACH_SHOOTER
 static struct msm_spi_platform_data msm_gsbi2_qup_spi_pdata = {
 #else
@@ -3215,8 +3256,17 @@ static struct msm_spi_platform_data msm_gsbi3_qup_spi_pdata = {
 	.max_clock_speed = 15060000,
 };
 #endif
+#endif
 
 #ifdef CONFIG_I2C_SSBI
+
+#ifdef CONFIG_MACH_PYRAMID
+/* PMIC SSBI */
+static struct msm_i2c_ssbi_platform_data msm_ssbi2_pdata = {
+	.controller_type = MSM_SBI_CTRL_PMIC_ARBITER,
+};
+#endif
+
 /* CODEC/TSSC SSBI */
 static struct msm_i2c_ssbi_platform_data msm_ssbi3_pdata = {
 	.controller_type = MSM_SBI_CTRL_SSBI,
@@ -4054,6 +4104,12 @@ static void __init msm8x60_init_buses(void)
 	mb();
 	iounmap(gsbi_mem);
 
+#ifdef CONFIG_MACH_PYRAMID
+	msm_gsbi3_qup_i2c_device.dev.platform_data = &msm_gsbi3_qup_i2c_pdata;
+	msm_gsbi8_qup_i2c_device.dev.platform_data = &msm_gsbi8_qup_i2c_pdata;
+	msm_gsbi9_qup_i2c_device.dev.platform_data = &msm_gsbi9_qup_i2c_pdata;
+	msm_gsbi12_qup_i2c_device.dev.platform_data = &msm_gsbi12_qup_i2c_pdata;
+#endif
 	msm_gsbi4_qup_i2c_device.dev.platform_data = &msm_gsbi4_qup_i2c_pdata;
 	msm_gsbi5_qup_i2c_device.dev.platform_data = &msm_gsbi5_qup_i2c_pdata;
 	msm_gsbi7_qup_i2c_device.dev.platform_data = &msm_gsbi7_qup_i2c_pdata;
@@ -4061,10 +4117,12 @@ static void __init msm8x60_init_buses(void)
 #endif
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
 	msm_gsbi1_qup_spi_device.dev.platform_data = &msm_gsbi1_qup_spi_pdata;
+#ifndef CONFIG_MACH_PYRAMID
 #ifdef CONFIG_MACH_SHOOTER
 	msm_gsbi2_qup_spi_device.dev.platform_data = &msm_gsbi2_qup_spi_pdata;
 #else
 	msm_gsbi3_qup_spi_device.dev.platform_data = &msm_gsbi3_qup_spi_pdata;
+#endif
 #endif
 #endif
 #ifdef CONFIG_MSM_SSBI
@@ -4074,6 +4132,9 @@ static void __init msm8x60_init_buses(void)
 				&msm8x60_ssbi_pm8901_pdata;
 #endif
 #ifdef CONFIG_I2C_SSBI
+#ifdef CONFIG_MACH_PYRAMID
+	msm_device_ssbi2.dev.platform_data = &msm_ssbi2_pdata;
+#endif
 	msm_device_ssbi3.dev.platform_data = &msm_ssbi3_pdata;
 #endif
 #if defined(CONFIG_USB_EHCI_HCD)
