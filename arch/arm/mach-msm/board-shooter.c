@@ -2839,18 +2839,29 @@ static struct mpu3050_platform_data mpu3050_data = {
 	.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	.level_shifter = 0,
 	.accel = {
-		.get_slave_descr = get_accel_slave_descr,
+#ifdef CONFIG_MACH_PYRAMID
+		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
+		.address = 0x70 >> 1,
+		.orientation = { -1, 0, 0, 0, -1, 0, 0, 0, 1 },
+#else
 		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
-		.bus = EXT_SLAVE_BUS_SECONDARY,
 		.address = 0x30 >> 1,
 		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+#endif
+		.get_slave_descr = get_accel_slave_descr,
+		.bus = EXT_SLAVE_BUS_SECONDARY,
 	},
 
 	.compass = {
-		.get_slave_descr = get_compass_slave_descr,
+#ifdef CONFIG_MACH_PYRAMID
+		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
+		.address = 0x18 >> 1,
+#else
 		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
-		.bus = EXT_SLAVE_BUS_PRIMARY,
 		.address = 0x1A >> 1,
+#endif
+		.get_slave_descr = get_compass_slave_descr,
+		.bus = EXT_SLAVE_BUS_PRIMARY,
 		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	},
 };
@@ -2862,6 +2873,39 @@ static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo[] = {
 		.platform_data = &mpu3050_data,
 	},
 };
+
+#ifdef CONFIG_MACH_PYRAMID
+static struct mpu3050_platform_data mpu3050_data_XB = {
+	.int_config = 0x10,
+	.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+	.level_shifter = 0,
+
+	.accel = {
+		.get_slave_descr = get_accel_slave_descr,
+		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
+		.bus = EXT_SLAVE_BUS_SECONDARY,
+		.address = 0x70 >> 1,
+		.orientation = { -1, 0, 0, 0, -1, 0, 0, 0, 1 },
+
+	},
+
+	.compass = {
+		.get_slave_descr = get_compass_slave_descr,
+		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
+		.bus = EXT_SLAVE_BUS_PRIMARY,
+		.address = 0x1A >> 1,
+		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+	},
+};
+
+static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo_XB[] = {
+	{
+		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
+		.irq = MSM_GPIO_TO_INT(SHOOTER_GYRO_INT),
+		.platform_data = &mpu3050_data_XB,
+	},
+};
+#endif
 
 static int isl29028_power(int pwr_device, uint8_t enable)
 {
@@ -3042,6 +3086,26 @@ static void register_i2c_devices(void)
 					msm8x60_i2c_devices[i].len);
 	}
 
+#ifdef CONFIG_MACH_PYRAMID
+	if (system_rev >= 1) {
+		if (ps_type == 1) {
+			i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
+				i2c_isl29028_devices,
+				ARRAY_SIZE(i2c_isl29028_devices));
+		} else if (ps_type == 2) {
+			i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
+				i2c_isl29029_devices,
+				ARRAY_SIZE(i2c_isl29029_devices));
+		} else
+			printk(KERN_DEBUG "No Intersil chips\n");
+
+		i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
+				mpu3050_GSBI10_boardinfo_XB, ARRAY_SIZE(mpu3050_GSBI10_boardinfo_XB));
+	} else {
+		i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
+				mpu3050_GSBI10_boardinfo, ARRAY_SIZE(mpu3050_GSBI10_boardinfo));
+	}
+#else
 	i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
 		mpu3050_GSBI10_boardinfo, ARRAY_SIZE(mpu3050_GSBI10_boardinfo));
 
@@ -3055,6 +3119,7 @@ static void register_i2c_devices(void)
 			ARRAY_SIZE(i2c_isl29029_devices));
 	} else
 		printk(KERN_DEBUG "No Intersil chips\n");
+#endif
 #endif
 }
 
