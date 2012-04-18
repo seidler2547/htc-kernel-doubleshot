@@ -597,21 +597,21 @@ config MACH_SHOOTER
 	default n
 	bool "HTC Evo 3D CDMA"
 	help
-	  Support for the HTC Evo 3D CDMA board.
+	  Support for the HTC Evo 3D CDMA device.
 
 config MACH_SHOOTER_U
 	depends on ARCH_MSM8X60
 	default n
 	bool "HTC Evo 3D GSM"
 	help
-	  Support for the HTC Evo 3D GSM board.
+	  Support for the HTC Evo 3D GSM device.
 
 config MACH_PYRAMID
 	depends on ARCH_MSM8X60
 	default n
-	bool "Pyramid"
+	bool "HTC Sensation"
 	help
-	  Support for the Pyramid device.
+	  Support for the HTC Sensation device.
 
 config HTC_DEVICE
 	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID
