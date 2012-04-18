@@ -675,11 +675,11 @@ static int msm_fb_detect_panel(const char *name)
 {
 	if (!strcmp(name, "mipi_cmd_novatek_qhd"))
 		return 0;
-
+/*
 #ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL
 	else if (!strcmp(name, "hdmi_msm"))
 		return 0;
-#endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
+#endif  CONFIG_FB_MSM_HDMI_MSM_PANEL */
 
 	pr_warning("%s: not supported '%s'", __func__, name);
 	return -ENODEV;
