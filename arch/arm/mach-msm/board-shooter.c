@@ -4066,16 +4066,27 @@ static ssize_t shooter_virtual_keys_show(struct kobject *kobj,
 			struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf,
+#ifdef CONFIG_MACH_PYRAMID
+		__stringify(EV_KEY) ":" __stringify(KEY_HOME)	":62:1015:110:100"
+		":" __stringify(EV_KEY) ":" __stringify(KEY_MENU)   ":200:1015:106:100"
+		":" __stringify(EV_KEY) ":" __stringify(KEY_BACK)   ":340:1015:120:100"
+		":" __stringify(EV_KEY) ":" __stringify(KEY_SEARCH) ":482:1015:110:100"
+#else
 		__stringify(EV_KEY) ":" __stringify(KEY_HOME)   ":70:1020:90:90"
 		":" __stringify(EV_KEY) ":" __stringify(KEY_MENU)   ":190:1020:100:90"
 		":" __stringify(EV_KEY) ":" __stringify(KEY_BACK)   ":345:1020:100:90"
 		":" __stringify(EV_KEY) ":" __stringify(KEY_SEARCH) ":468:1020:90:90"
+#endif
 		"\n");
 }
 
 static struct kobj_attribute shooter_virtual_keys_attr = {
 	.attr = {
+#ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
+		.name = "virtualkeys.cy8c-touchscreen",
+#else
 		.name = "virtualkeys.atmel-touchscreen",
+#endif
 		.mode = S_IRUGO,
 	},
 	.show = &shooter_virtual_keys_show,
