@@ -1844,7 +1844,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Audio Receiver Amplifier */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),	/* 17 */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1856,21 +1856,6 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			}
 		},
-#ifndef CONFIG_MACH_PYRAMID
-		{ /* Audio Speaker Amplifier */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_SPK_ENO),	/* 18 */
-			{
-				.direction	= PM_GPIO_DIR_OUT,
-				.output_value	= 0,
-				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
-				.pull		= PM_GPIO_PULL_NO,
-				.out_strength	= PM_GPIO_STRENGTH_HIGH,
-				.function	= PM_GPIO_FUNC_NORMAL,
-				.vin_sel	= 6,	/* LDO5 2.85 V */
-				.inv_int_pol	= 0,
-			}
-		},
-#endif
 		{ /* Timpani Reset */
 			PM8058_GPIO_PM_TO_SYS(20),
 			{
@@ -1933,7 +1918,6 @@ static int pm8058_gpios_init(void)
 			}
 		},
 #endif
-#ifndef CONFIG_MACH_PYRAMID
 		{ /* 3D CLK */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_3DCLK),
 			{
@@ -1999,8 +1983,7 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			}
 		},
-#endif
-		{ /* PMIC ID interrupt */
+		{
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES),
 			{
 				.direction	= PM_GPIO_DIR_IN,
@@ -2010,28 +1993,6 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			},
 		},
-#ifdef CONFIG_MACH_PYRAMID
-		{ /* Volume Up Key */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_UP),
-			{
-				.direction      = PM_GPIO_DIR_IN,
-				.pull           = PM_GPIO_PULL_UP_31P5,
-				.vin_sel        = PM8058_GPIO_VIN_S3,
-				.function       = PM_GPIO_FUNC_NORMAL,
-				.inv_int_pol    = 0,
-			}
-		},
-		{ /* Volume Down key */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_DN),
-			{
-				.direction      = PM_GPIO_DIR_IN,
-				.pull           = PM_GPIO_PULL_UP_1P5,
-				.vin_sel        = 2,
-				.function       = PM_GPIO_FUNC_NORMAL,
-				.inv_int_pol    = 0,
-			}
-		},
-#endif
 	};
 
 	for (i = 0; i < ARRAY_SIZE(gpio_cfgs); ++i) {
@@ -2560,27 +2521,25 @@ static struct mpu3050_platform_data mpu3050_data = {
 	.level_shifter = 0,
 	.accel = {
 #ifdef CONFIG_MACH_PYRAMID
-		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
 		.address = 0x70 >> 1,
 		.orientation = { -1, 0, 0, 0, -1, 0, 0, 0, 1 },
 #else
-		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.address = 0x30 >> 1,
 		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 #endif
 		.get_slave_descr = get_accel_slave_descr,
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.bus = EXT_SLAVE_BUS_SECONDARY,
 	},
 
 	.compass = {
 #ifdef CONFIG_MACH_PYRAMID
-		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
 		.address = 0x18 >> 1,
 #else
-		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.address = 0x1A >> 1,
 #endif
 		.get_slave_descr = get_compass_slave_descr,
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.bus = EXT_SLAVE_BUS_PRIMARY,
 		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	},
@@ -2593,39 +2552,6 @@ static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo[] = {
 		.platform_data = &mpu3050_data,
 	},
 };
-
-#ifdef CONFIG_MACH_PYRAMID
-static struct mpu3050_platform_data mpu3050_data_XB = {
-	.int_config = 0x10,
-	.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
-	.level_shifter = 0,
-
-	.accel = {
-		.get_slave_descr = get_accel_slave_descr,
-		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
-		.bus = EXT_SLAVE_BUS_SECONDARY,
-		.address = 0x70 >> 1,
-		.orientation = { -1, 0, 0, 0, -1, 0, 0, 0, 1 },
-
-	},
-
-	.compass = {
-		.get_slave_descr = get_compass_slave_descr,
-		.adapt_num = MSM_GSBI10_QUP_I2C_BUS_ID, /* The i2c bus to which the mpu device is connected */
-		.bus = EXT_SLAVE_BUS_PRIMARY,
-		.address = 0x1A >> 1,
-		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
-	},
-};
-
-static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo_XB[] = {
-	{
-		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
-		.irq = MSM_GPIO_TO_INT(SHOOTER_GYRO_INT),
-		.platform_data = &mpu3050_data_XB,
-	},
-};
-#endif
 
 static int isl29028_power(int pwr_device, uint8_t enable)
 {
@@ -2695,20 +2621,14 @@ static void msm_auxpcm_init(void)
 }
 
 static struct tpa2051d3_platform_data tpa2051d3_pdata = {
-#ifdef CONFIG_MACH_PYRAMID
-	.gpio_tpa2051_spk_en = SHOOTER_AUD_HP_EN,
-	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
-	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
-#else
 	.gpio_tpa2051_spk_en = SHOOTER_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 #ifdef CONFIG_MACH_SHOOTER
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0x6D, 0x4D, 0x0D},
 #else
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0xCD, 0x4D, 0x0D},
-#endif /* CONFIG_MACH_SHOOTER */
+#endif
 	.rece_cmd = {0x00, 0x02, 0x25, 0x57, 0x0D, 0x4D, 0x0D},
-#endif /* CONFIG_MACH_PYRAMID */
 };
 
 #define TPA2051D3_I2C_SLAVE_ADDR	(0xE0 >> 1)
@@ -2806,26 +2726,6 @@ static void register_i2c_devices(void)
 					msm8x60_i2c_devices[i].len);
 	}
 
-#ifdef CONFIG_MACH_PYRAMID
-	if (system_rev >= 1) {
-		if (ps_type == 1) {
-			i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
-				i2c_isl29028_devices,
-				ARRAY_SIZE(i2c_isl29028_devices));
-		} else if (ps_type == 2) {
-			i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
-				i2c_isl29029_devices,
-				ARRAY_SIZE(i2c_isl29029_devices));
-		} else
-			printk(KERN_DEBUG "No Intersil chips\n");
-
-		i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
-				mpu3050_GSBI10_boardinfo_XB, ARRAY_SIZE(mpu3050_GSBI10_boardinfo_XB));
-	} else {
-		i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
-				mpu3050_GSBI10_boardinfo, ARRAY_SIZE(mpu3050_GSBI10_boardinfo));
-	}
-#else
 	i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
 		mpu3050_GSBI10_boardinfo, ARRAY_SIZE(mpu3050_GSBI10_boardinfo));
 
@@ -2839,7 +2739,6 @@ static void register_i2c_devices(void)
 			ARRAY_SIZE(i2c_isl29029_devices));
 	} else
 		printk(KERN_DEBUG "No Intersil chips\n");
-#endif
 #endif
 }
 
