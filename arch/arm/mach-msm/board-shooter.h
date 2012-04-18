@@ -251,7 +251,6 @@
 
 /* PMIC GPIO definition */
 #define PMGPIO(x) (x-1)
-#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_VOL_UP             (104)
 #define SHOOTER_VOL_DN             (103)
 #define SHOOTER_AUD_MIC_SEL        PMGPIO(14)
@@ -274,27 +273,10 @@
 #define SHOOTER_WIMAX_DEBUG15      PMGPIO(36)
 #define SHOOTER_AUD_REMO_PRES      PMGPIO(37)
 #define SHOOTER_WIFI_BT_SLEEP_CLK  PMGPIO(38)
-#ifdef CONFIG_MACH_SHOOTER
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_PYRAMID)
 #define SHOOTER_TORCH_SET1         PMGPIO(32)
-#elif CONFIG_MACH_SHOOTER_U
+#elif defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_TORCH_SET1         PMGPIO(40)
-#endif
-#elif defined (CONFIG_MACH_PYRAMID)
-#define SHOOTER_AUD_REMO_EN        PMGPIO(15)
-#define SHOOTER_VOL_UP             PMGPIO(16)
-#define SHOOTER_VOL_DN             PMGPIO(17)
-#define SHOOTER_AUD_HP_EN          PMGPIO(18)
-#define SHOOTER_HAP_ENABLE         PMGPIO(19)
-#define SHOOTER_AUD_QTR_RESET      PMGPIO(21)
-#define SHOOTER_TP_RST             PMGPIO(23)
-#define SHOOTER_GREEN_LED          PMGPIO(24)
-#define SHOOTER_AMBER_LED          PMGPIO(25)
-#define SHOOTER_AUD_MIC_SEL        PMGPIO(26)
-#define SHOOTER_CHG_STAT	   PMGPIO(33)
-#define SHOOTER_SDC3_DET           PMGPIO(34)
-#define SHOOTER_PS_VOUT            PMGPIO(35)
-#define SHOOTER_AUD_REMO_PRES      PMGPIO(37)
-#define SHOOTER_WIFI_BT_SLEEP_CLK  PMGPIO(38)
 #endif
 
 void __init shooter_init_mmc(void);
