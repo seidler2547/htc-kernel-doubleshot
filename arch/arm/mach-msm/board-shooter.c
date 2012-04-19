@@ -1416,12 +1416,14 @@ static struct htc_headset_8x60_platform_data htc_headset_8x60_data = {
 	.adc_remote	= {0, 1251, 1430, 3411, 4543, 6807},
 };
 
+#ifndef CONFIG_MACH_PYRAMID
 static struct htc_headset_8x60_platform_data htc_headset_8x60_data_xb = {
 	.adc_mpp	= PM8058_MPP_PM_TO_SYS(XOADC_MPP_10),
 	.adc_amux	= PM_MPP_AIN_AMUX_CH5,
 	.adc_mic_bias	= {14375, 26643},
 	.adc_remote	= {0, 1219, 1440, 3862, 4231, 6783},
 };
+#endif
 
 static struct platform_device htc_headset_8x60 = {
 	.name	= "HTC_HEADSET_8X60",
@@ -1807,7 +1809,6 @@ static struct platform_device pm8058_leds = {
 	},
 };
 
-#define PMIC_GPIO_SDC3_DET 34
 static int pm8058_gpios_init(void)
 {
 	int i;
@@ -1820,7 +1821,7 @@ static int pm8058_gpios_init(void)
 	struct pm8058_gpio_cfg gpio_cfgs[] = {
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 		{
-			PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1),
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_SDC3_DET),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_30,
@@ -1857,7 +1858,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Timpani Reset */
-			PM8058_GPIO_PM_TO_SYS(20),
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_QTR_RESET),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1918,6 +1919,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 #endif
+#ifndef CONFIG_MACH_PYRAMID
 		{ /* 3D CLK */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_3DCLK),
 			{
@@ -1983,7 +1985,8 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			}
 		},
-		{
+#endif
+		{ /* PMIC ID interrupt */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES),
 			{
 				.direction	= PM_GPIO_DIR_IN,
@@ -1993,6 +1996,28 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol	= 0,
 			},
 		},
+#ifdef CONFIG_MACH_PYRAMID
+		{ /* Volume Up Key */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_UP),
+			{
+				.direction      = PM_GPIO_DIR_IN,
+				.pull           = PM_GPIO_PULL_UP_31P5,
+				.vin_sel        = PM8058_GPIO_VIN_S3,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+		{ /* Volume Down key */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_DN),
+			{
+				.direction      = PM_GPIO_DIR_IN,
+				.pull           = PM_GPIO_PULL_UP_1P5,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+#endif
 	};
 
 	for (i = 0; i < ARRAY_SIZE(gpio_cfgs); ++i) {
@@ -2621,14 +2646,20 @@ static void msm_auxpcm_init(void)
 }
 
 static struct tpa2051d3_platform_data tpa2051d3_pdata = {
+#ifdef CONFIG_MACH_PYRAMID
+	.gpio_tpa2051_spk_en = SHOOTER_AUD_HP_EN,
+	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
+	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
+#else
 	.gpio_tpa2051_spk_en = SHOOTER_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 #ifdef CONFIG_MACH_SHOOTER
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0x6D, 0x4D, 0x0D},
 #else
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0xCD, 0x4D, 0x0D},
-#endif
+#endif /* CONFIG_MACH_SHOOTER */
 	.rece_cmd = {0x00, 0x02, 0x25, 0x57, 0x0D, 0x4D, 0x0D},
+#endif /* CONFIG_MACH_PYRAMID */
 };
 
 #define TPA2051D3_I2C_SLAVE_ADDR	(0xE0 >> 1)
@@ -4197,10 +4228,12 @@ static void __init msm8x60_init(void)
 	if (system_rev >= 1) {
 		htc_headset_pmic_data.key_gpio =
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES);
+#ifndef CONFIG_MACH_PYRAMID
 		htc_headset_pmic_data.key_enable_gpio =
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_EN);
 		htc_headset_8x60.dev.platform_data =
 			&htc_headset_8x60_data_xb;
+#endif
 		htc_headset_mgr_data.headset_config_num =
 			ARRAY_SIZE(htc_headset_mgr_config);
 		htc_headset_mgr_data.headset_config = htc_headset_mgr_config;
