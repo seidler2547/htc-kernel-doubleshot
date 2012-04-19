@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-htc-msm8x60-mmc.c
+/* linux/arch/arm/mach-msm/board-htc8x60-mmc.c
  *
  * Copyright (C) 2008 HTC Corporation.
  *
@@ -31,7 +31,7 @@
 #include <asm/mach/mmc.h>
 
 #include "devices.h"
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 #include "proc_comm.h"
 #include <mach/msm_iomap.h>
 #include <linux/mfd/pmic8058.h>

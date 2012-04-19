@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-htc-msm8x60.h
+/* linux/arch/arm/mach-msm/board-htc8x60.h
  *
  * Copyright (C) 2010-2011 HTC Corporation.
  *

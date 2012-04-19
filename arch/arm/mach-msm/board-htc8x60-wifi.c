@@ -1,4 +1,4 @@
-/* arch/arm/mach-msm/board-htc-msm8x60-wifi.c */
+/* arch/arm/mach-msm/board-htc8x60-wifi.c */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -11,7 +11,7 @@
 #include <linux/skbuff.h>
 #include <linux/wlan_plat.h>
 
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 
 int msm8x60_wifi_power(int on);
 int msm8x60_wifi_reset(int on);

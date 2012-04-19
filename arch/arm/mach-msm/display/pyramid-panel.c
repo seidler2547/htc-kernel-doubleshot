@@ -34,7 +34,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-htc-msm8x60.h"
+#include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm/mdp_hw.h"
 #if defined (CONFIG_FB_MSM_MDP_ABL)

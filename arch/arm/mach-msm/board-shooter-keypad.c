@@ -17,7 +17,7 @@
 #include <linux/gpio_event.h>
 #include <linux/gpio.h>
 #include <mach/gpio.h>
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 
 static struct gpio_event_direct_entry shooter_keypad_switch_map[] = {
 	{ MSM8X60_GPIO_KEY_POWER, 	KEY_POWER		},

@@ -30,7 +30,7 @@
 #include <mach/qdsp6v2_1x/q6asm.h>
 #include <mach/htc_acoustic_8x60.h>
 
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 #include "board-shooter-audio-data.h"
 #include <mach/qdsp6v2_1x/audio_dev_ctl.h>
 

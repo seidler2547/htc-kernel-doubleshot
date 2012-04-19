@@ -76,7 +76,7 @@
 #include "rpm_stats.h"
 #include "spm.h"
 #include "timer.h"
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 
 #include <linux/ion.h>
 #include <mach/ion.h>

@@ -613,6 +613,10 @@ config MACH_PYRAMID
 	help
 	  Support for the HTC Sensation device.
 
+config HTC_MSM8X60
+	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID
+	bool "HTC MSM8X60"
+
 config HTC_DEVICE
 	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID
 	bool

@@ -18,7 +18,7 @@
 #include <linux/gpio.h>
 #include <linux/keyreset.h>
 #include <mach/gpio.h>
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 
 /* Macros assume PMIC GPIOs start at 0 */
 #define PM8058_GPIO_BASE			NR_MSM_GPIOS

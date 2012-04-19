@@ -24,7 +24,7 @@
 #include <asm/mach-types.h>
 
 #include <linux/mfd/pmic8058.h>
-#include "board-htc-msm8x60.h"
+#include "board-htc8x60.h"
 
 static struct rfkill *bt_rfk;
 static const char bt_name[] = "bcm4329";
