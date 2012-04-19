@@ -134,14 +134,11 @@
 /* Direct Keys */
 #define MSM8X60_GPIO_SW_LCM_3D		(64)
 #define MSM8X60_GPIO_SW_LCM_2D		(68)
-#ifdef CONFIG_MACH_PYRAMID
-#define MSM8X60_GPIO_KEY_VOL_DOWN	(189)
-#define MSM8X60_GPIO_KEY_VOL_UP		(188)
-#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
-#define MSM8X60_GPIO_KEY_VOL_DOWN	(103)
-#define MSM8X60_GPIO_KEY_VOL_UP		(104)
-#define MSM8X60_GPIO_KEY_CAM_STEP2	(115)
-#define MSM8X60_GPIO_KEY_CAM_STEP1	(123)
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
+#define SHOOTER_GPIO_KEY_VOL_DOWN	(103)
+#define SHOOTER_GPIO_KEY_VOL_UP		(104)
+#define SHOOTER_GPIO_KEY_CAM_STEP2	(115)
+#define SHOOTER_GPIO_KEY_CAM_STEP1	(123)
 #endif
 #define MSM8X60_GPIO_KEY_POWER		(125)
 
@@ -291,8 +288,8 @@
 #define MSM8X60_WIFI_BT_SLEEP_CLK  PMGPIO(38)
 
 #if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
-#define MSM8X60_VOL_UP             (104)
-#define MSM8X60_VOL_DN             (103)
+#define SHOOTER_VOL_UP             (104)
+#define SHOOTER_VOL_DN             (103)
 #define MSM8X60_AUD_MIC_SEL        PMGPIO(14)
 #define SHOOTER_AUD_REMO_EN        PMGPIO(15)
 #define SHOOTER_WIMAX_DEBUG12      PMGPIO(16)
@@ -312,8 +309,8 @@
 #define SHOOTER_TORCH_SET1         PMGPIO(40)
 #endif
 #elif defined (CONFIG_MACH_PYRAMID)
-#define MSM8X60_VOL_UP             PMGPIO(16)
-#define MSM8X60_VOL_DN             PMGPIO(17)
+#define PYRAMID_VOL_UP             PMGPIO(16)
+#define PYRAMID_VOL_DN             PMGPIO(17)
 #define PYRAMID_HAP_ENABLE         PMGPIO(19)
 #define MSM8X60_AUD_MIC_SEL        PMGPIO(26)
 #define MSM8X60_PLS_INT            PMGPIO(35)

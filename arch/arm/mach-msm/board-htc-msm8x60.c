@@ -2293,7 +2293,7 @@ static int pm8058_gpios_init(void)
 		},
 #ifdef CONFIG_MACH_PYRAMID
 		{ /* Volume Up Key */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_VOL_UP),
+			PM8058_GPIO_PM_TO_SYS(PYRAMID_VOL_UP),
 			{
 				.direction      = PM_GPIO_DIR_IN,
 				.pull           = PM_GPIO_PULL_UP_31P5,
@@ -2303,7 +2303,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Volume Down key */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_VOL_DN),
+			PM8058_GPIO_PM_TO_SYS(PYRAMID_VOL_DN),
 			{
 				.direction      = PM_GPIO_DIR_IN,
 				.pull           = PM_GPIO_PULL_UP_1P5,
