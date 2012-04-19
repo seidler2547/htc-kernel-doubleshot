@@ -44,11 +44,11 @@ extern int msm_add_sdcc(unsigned int controller, struct mmc_platform_data *plat)
 
 /* ---- WIFI ---- */
 static uint32_t wifi_on_gpio_table[] = {
-	GPIO_CFG(MSM8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA), /* WLAN IRQ */
+	GPIO_CFG(HTC8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA), /* WLAN IRQ */
 };
 
 static uint32_t wifi_off_gpio_table[] = {
-	GPIO_CFG(MSM8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_4MA), /* WLAN IRQ */
+	GPIO_CFG(HTC8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_4MA), /* WLAN IRQ */
 };
 
 static void config_gpio_table(uint32_t *table, int len)
@@ -144,7 +144,7 @@ int msm8x60_wifi_power(int on)
 				  ARRAY_SIZE(wifi_off_gpio_table));
 	}
 	mdelay(1); //Delay 1 ms, Recommand by Hardware
-	gpio_set_value(MSM8X60_GPIO_WIFI_SHUTDOWN_N, on); /* WIFI_SHUTDOWN */
+	gpio_set_value(HTC8X60_GPIO_WIFI_SHUTDOWN_N, on); /* WIFI_SHUTDOWN */
 
 	mdelay(120);
 	return 0;
@@ -164,7 +164,7 @@ struct _vreg
 };
 
 /* ---- MMC ---- */
-void __init htc_msm8x60_init_mmc()
+void __init htc8x60_init_mmc()
 {
 	uint32_t id;
 	wifi_status_cb = NULL;
@@ -173,10 +173,10 @@ void __init htc_msm8x60_init_mmc()
 
 	/* SDC4: WiFi */
 	/* initial WIFI_SHUTDOWN# */
-	id = GPIO_CFG(MSM8X60_GPIO_WIFI_SHUTDOWN_N, 0, GPIO_CFG_OUTPUT,
+	id = GPIO_CFG(HTC8X60_GPIO_WIFI_SHUTDOWN_N, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA);
 	gpio_tlmm_config(id, 0);
-	gpio_set_value(MSM8X60_GPIO_WIFI_SHUTDOWN_N, 0);
+	gpio_set_value(HTC8X60_GPIO_WIFI_SHUTDOWN_N, 0);
 
 	msm_add_sdcc(4, &msm8x60_wifi_data);
 }

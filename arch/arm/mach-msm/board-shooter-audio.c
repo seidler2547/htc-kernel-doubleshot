@@ -59,7 +59,7 @@ static uint32_t msm_snddev_gpio[] = {
 };
 
 static uint32_t msm_aic3254_reset_gpio[] = {
-	GPIO_CFG(MSM8X60_AUD_CODEC_RST, 0,
+	GPIO_CFG(HTC8X60_AUD_CODEC_RST, 0,
 		GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
@@ -91,9 +91,9 @@ void shooter_snddev_hsed_pamp_on(int en)
 	if (en) {
 		/* enable rx route */
 		msleep(30);
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
 						"AUD_HP_EN");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 1);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 1);
 		set_headset_amp(1);
 
 		if (!atomic_read(&aic3254_ctl))
@@ -102,9 +102,9 @@ void shooter_snddev_hsed_pamp_on(int en)
 	} else {
 		/* disable rx route */
 		set_headset_amp(0);
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
 						"AUD_HP_EN");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 0);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_HEADSET;
 	}
@@ -116,9 +116,9 @@ void shooter_snddev_hs_spk_pamp_on(int en)
 	if (en) {
 		/* enable rx route */
 		msleep(30);
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
 						"AUD_HP_EN");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 1);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 1);
 		set_speaker_headset_amp(1);
 
 		if (!atomic_read(&aic3254_ctl))
@@ -127,9 +127,9 @@ void shooter_snddev_hs_spk_pamp_on(int en)
 	} else {
 		/* disable rx route */
 		set_speaker_headset_amp(0);
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
 						"AUD_HP_EN");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 0);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_HEADSET;
 	}
@@ -140,18 +140,18 @@ void shooter_snddev_receiver_pamp_on(int en)
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
 		/* enable rx route */
-                gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+                gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
                                                 "AUD_HP_EN");
-                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 1);
+                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 1);
 		set_handset_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_RECEIVER;
 	} else {
 		/* disable rx route */
 		set_handset_amp(0);
-                gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),
+                gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
                                                 "AUD_HP_EN");
-                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 0);
+                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_RECEIVER;
 	}
@@ -192,9 +192,9 @@ void shooter_snddev_imic_pamp_on(int en)
 			pr_aud_err("%s: Enabling int mic power failed\n", __func__);
 
 		/* select internal mic path */
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),
 						"AUD_MIC_SEL");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL), 0);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 0);
 
 		shooter_snddev_bmic_pamp_on(1);
 	} else {
@@ -220,9 +220,9 @@ void shooter_snddev_bmic_pamp_on(int en)
 			pr_aud_err("%s: Enabling int mic power failed\n", __func__);
 
 		/* select internal mic path */
-                gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL),
+                gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),
                                                 "AUD_MIC_SEL");
-                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL), 0);
+                gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 0);
 
 	} else {
 		ret = pm8058_micbias_enable(OTHC_MICBIAS_1, OTHC_SIGNAL_OFF);
@@ -239,9 +239,9 @@ void shooter_snddev_emic_pamp_on(int en)
 
 	if (en) {
 		/* select external mic path */
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),
 						"AUD_MIC_SEL");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL), 1);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 1);
 	}
 }
 
@@ -262,9 +262,9 @@ void shooter_snddev_stereo_mic_pamp_on(int en)
 			pr_aud_err("%s: Enabling back mic power failed\n", __func__);
 
 		/* select external mic path */
-		gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL),
+		gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),
 						"AUD_MIC_SEL");
-		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL), 0);
+		gpio_direction_output(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 0);
 
 	} else {
 		ret = pm8058_micbias_enable(OTHC_MICBIAS_0, OTHC_SIGNAL_OFF);
@@ -305,7 +305,7 @@ void shooter_snddev_fmhs_pamp_on(int en)
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
 		msleep(50);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 1);
 		set_headset_amp(1);
 
 		if (!atomic_read(&aic3254_ctl))
@@ -313,7 +313,7 @@ void shooter_snddev_fmhs_pamp_on(int en)
 		msleep(5);
 	} else {
 		set_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_HS;
 	}
@@ -374,17 +374,17 @@ int shooter_is_msm_i2s_slave(void)
 void shooter_spibus_enable(int en)
 {
 	uint32_t msm_spi_gpio_on[] = {
-		GPIO_CFG(MSM8X60_SPI_DO,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_CS,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_CLK, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_DO,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_CS,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_CLK, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 	};
 
 	uint32_t msm_spi_gpio_off[] = {
-		GPIO_CFG(MSM8X60_SPI_DO,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_CS,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-		GPIO_CFG(MSM8X60_SPI_CLK, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_DO,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_CS,  1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+		GPIO_CFG(HTC8X60_SPI_CLK, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 	};
 	pr_debug("%s %d\n", __func__, en);
 	if (en) {
@@ -404,9 +404,9 @@ void shooter_spibus_enable(int en)
 void shooter_reset_3254(void)
 {
 	gpio_tlmm_config(msm_aic3254_reset_gpio[0], GPIO_CFG_ENABLE);
-	gpio_set_value(MSM8X60_AUD_CODEC_RST, 0);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 0);
 	mdelay(1);
-	gpio_set_value(MSM8X60_AUD_CODEC_RST, 1);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 1);
 }
 
 void shooter_set_q6_effect_mode(int mode)
@@ -482,7 +482,7 @@ static struct q6asm_ops qops = {
 	.get_q6_effect = shooter_get_q6_effect_mode,
 };
 
-void __init htc_msm8x60_audio_init(void)
+void __init htc8x60_audio_init(void)
 {
 	mutex_init(&bt_sco_lock);
 	mutex_init(&mic_lock);
@@ -504,7 +504,7 @@ void __init htc_msm8x60_audio_init(void)
 	/* Reset AIC3254 */
 	shooter_reset_3254();
 	gpio_tlmm_config(
-		GPIO_CFG(MSM8X60_AUD_CDC_LDO_SEL, 0, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_AUD_CDC_LDO_SEL, 0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_DISABLE);
 	gpio_tlmm_config(msm_snddev_gpio[0], GPIO_CFG_DISABLE);
 	gpio_tlmm_config(msm_snddev_gpio[1], GPIO_CFG_DISABLE);

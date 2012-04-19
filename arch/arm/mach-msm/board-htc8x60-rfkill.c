@@ -33,51 +33,51 @@ static const char bt_name[] = "bcm4329";
 static uint32_t msm8x60_bt_on_table[] = {
 
 	/* BT_RTS */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_RTS,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_RTS,
 				1,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_CTS */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_CTS,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_CTS,
 				1,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_RX */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_RX,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_RX,
 				1,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_TX */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_TX,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_TX,
 				1,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA),
 
 	/* BT_HOST_WAKE */
-	GPIO_CFG(MSM8X60_GPIO_BT_HOST_WAKE,
+	GPIO_CFG(HTC8X60_GPIO_BT_HOST_WAKE,
 				0,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_CHIP_WAKE */
-	GPIO_CFG(MSM8X60_GPIO_BT_CHIP_WAKE,
+	GPIO_CFG(HTC8X60_GPIO_BT_CHIP_WAKE,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 
 	/* BT_RESET_N */
-	GPIO_CFG(MSM8X60_GPIO_BT_RESET_N,
+	GPIO_CFG(HTC8X60_GPIO_BT_RESET_N,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_SHUTDOWN_N */
-	GPIO_CFG(MSM8X60_GPIO_BT_SHUTDOWN_N,
+	GPIO_CFG(HTC8X60_GPIO_BT_SHUTDOWN_N,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
@@ -88,51 +88,51 @@ static uint32_t msm8x60_bt_on_table[] = {
 static uint32_t msm8x60_bt_off_table[] = {
 
 	/* BT_RTS */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_RTS,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_RTS,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_CTS */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_CTS,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_CTS,
 				0,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_PULL_DOWN,
 				GPIO_CFG_2MA),
 	/* BT_RX */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_RX,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_RX,
 				0,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_PULL_DOWN,
 				GPIO_CFG_2MA),
 	/* BT_TX */
-	GPIO_CFG(MSM8X60_GPIO_BT_UART1_TX,
+	GPIO_CFG(HTC8X60_GPIO_BT_UART1_TX,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 
 	/* BT_RESET_N */
-	GPIO_CFG(MSM8X60_GPIO_BT_RESET_N,
+	GPIO_CFG(HTC8X60_GPIO_BT_RESET_N,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 	/* BT_SHUTDOWN_N */
-	GPIO_CFG(MSM8X60_GPIO_BT_SHUTDOWN_N,
+	GPIO_CFG(HTC8X60_GPIO_BT_SHUTDOWN_N,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
 				GPIO_CFG_2MA),
 
 	/* BT_HOST_WAKE */
-	GPIO_CFG(MSM8X60_GPIO_BT_HOST_WAKE,
+	GPIO_CFG(HTC8X60_GPIO_BT_HOST_WAKE,
 				0,
 				GPIO_CFG_INPUT,
 				GPIO_CFG_PULL_DOWN,
 				GPIO_CFG_2MA),
 	/* BT_CHIP_WAKE */
-	GPIO_CFG(MSM8X60_GPIO_BT_CHIP_WAKE,
+	GPIO_CFG(HTC8X60_GPIO_BT_CHIP_WAKE,
 				0,
 				GPIO_CFG_OUTPUT,
 				GPIO_CFG_NO_PULL,
@@ -163,19 +163,19 @@ static void msm8x60_config_bt_on(void)
 	mdelay(5);
 
 	/* BT_RESET_N */
-	gpio_set_value(MSM8X60_GPIO_BT_RESET_N, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_RESET_N, 0);
 	mdelay(1);
 
 	/* BT_SHUTDOWN_N */
-	gpio_set_value(MSM8X60_GPIO_BT_SHUTDOWN_N, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_SHUTDOWN_N, 0);
 	mdelay(5);
 
 	/* BT_SHUTDOWN_N */
-	gpio_set_value(MSM8X60_GPIO_BT_SHUTDOWN_N, 1);
+	gpio_set_value(HTC8X60_GPIO_BT_SHUTDOWN_N, 1);
 	mdelay(1);
 
 	/* BT_RESET_N */
-	gpio_set_value(MSM8X60_GPIO_BT_RESET_N, 1);
+	gpio_set_value(HTC8X60_GPIO_BT_RESET_N, 1);
 	mdelay(2);
 
 }
@@ -183,11 +183,11 @@ static void msm8x60_config_bt_on(void)
 static void msm8x60_config_bt_off(void)
 {
 	/* BT_RESET_N */
-	gpio_set_value(MSM8X60_GPIO_BT_RESET_N, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_RESET_N, 0);
 	mdelay(1);
 
 	/* BT_SHUTDOWN_N */
-	gpio_set_value(MSM8X60_GPIO_BT_SHUTDOWN_N, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_SHUTDOWN_N, 0);
 	mdelay(1);
 
 	/* set bt off configuration*/
@@ -196,12 +196,12 @@ static void msm8x60_config_bt_off(void)
 	mdelay(2);
 
 	/* BT_RTS */
-	gpio_set_value(MSM8X60_GPIO_BT_UART1_RTS, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_UART1_RTS, 0);
 
 	/* BT_CTS */
 
 	/* BT_TX */
-	gpio_set_value(MSM8X60_GPIO_BT_UART1_TX, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_UART1_TX, 0);
 
 	/* BT_RX */
 
@@ -209,7 +209,7 @@ static void msm8x60_config_bt_off(void)
 	/* BT_HOST_WAKE */
 
 	/* BT_CHIP_WAKE */
-	gpio_set_value(MSM8X60_GPIO_BT_CHIP_WAKE, 0);
+	gpio_set_value(HTC8X60_GPIO_BT_CHIP_WAKE, 0);
 
 	printk(KERN_INFO "[BT]-- R OFF --\n");
 }
@@ -234,10 +234,10 @@ static int msm8x60_rfkill_probe(struct platform_device *pdev)
 	bool default_state = true; /* off */
 
 #if 0 /* Is this necessary? */
-	rc = gpio_request(MSM8X60_GPIO_BT_RESET_N, "bt_reset");
+	rc = gpio_request(HTC8X60_GPIO_BT_RESET_N, "bt_reset");
 	if (rc)
 		goto err_gpio_reset;
-	rc = gpio_request(MSM8X60_GPIO_BT_SHUTDOWN_N, "bt_shutdown");
+	rc = gpio_request(HTC8X60_GPIO_BT_SHUTDOWN_N, "bt_shutdown");
 	if (rc)
 		goto err_gpio_shutdown;
 #endif
@@ -272,9 +272,9 @@ err_rfkill_reg:
 	rfkill_destroy(bt_rfk);
 err_rfkill_alloc:
 #if 0
-	gpio_free(MSM8X60_GPIO_BT_SHUTDOWN_N);
+	gpio_free(HTC8X60_GPIO_BT_SHUTDOWN_N);
 err_gpio_shutdown:
-	gpio_free(MSM8X60_GPIO_BT_RESET_N);
+	gpio_free(HTC8X60_GPIO_BT_RESET_N);
 err_gpio_reset:
 #endif
 	return rc;
@@ -286,8 +286,8 @@ static int msm8x60_rfkill_remove(struct platform_device *dev)
 	/*rfkill_free(bt_rfk);*/
 	rfkill_destroy(bt_rfk);
 #if 0
-	gpio_free(MSM8X60_GPIO_BT_SHUTDOWN_N);
-	gpio_free(MSM8X60_GPIO_BT_RESET_N);
+	gpio_free(HTC8X60_GPIO_BT_SHUTDOWN_N);
+	gpio_free(HTC8X60_GPIO_BT_RESET_N);
 #endif
 
 	return 0;
@@ -302,18 +302,18 @@ static struct platform_driver msm8x60_rfkill_driver = {
 	},
 };
 
-static int __init htc_msm8x60_rfkill_init(void)
+static int __init htc8x60_rfkill_init(void)
 {
 	return platform_driver_register(&msm8x60_rfkill_driver);
 }
 
-static void __exit htc_msm8x60_rfkill_exit(void)
+static void __exit htc8x60_rfkill_exit(void)
 {
 	platform_driver_unregister(&msm8x60_rfkill_driver);
 }
 
-module_init(htc_msm8x60_rfkill_init);
-module_exit(htc_msm8x60_rfkill_exit);
-MODULE_DESCRIPTION("HTC MSM8X60 rfkill");
+module_init(htc8x60_rfkill_init);
+module_exit(htc8x60_rfkill_exit);
+MODULE_DESCRIPTION("HTC8X60 rfkill");
 MODULE_AUTHOR("Nick Pelly <npelly@google.com>");
 MODULE_LICENSE("GPL");

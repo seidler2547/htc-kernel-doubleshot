@@ -20,7 +20,7 @@
 #include "board-htc8x60.h"
 
 static struct gpio_event_direct_entry shooter_keypad_switch_map[] = {
-	{ MSM8X60_GPIO_KEY_POWER, 	KEY_POWER		},
+	{ HTC8X60_GPIO_KEY_POWER, 	KEY_POWER		},
 	{ SHOOTER_GPIO_KEY_VOL_UP,	KEY_VOLUMEUP		},
 	{ SHOOTER_GPIO_KEY_VOL_DOWN,	KEY_VOLUMEDOWN		},
 	{ SHOOTER_GPIO_KEY_CAM_STEP1,	KEY_HP			},
@@ -29,7 +29,7 @@ static struct gpio_event_direct_entry shooter_keypad_switch_map[] = {
 
 static void shooter_gpio_event_input_init(void)
 {
-	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(HTC8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_VOL_UP, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
@@ -42,7 +42,7 @@ static void shooter_gpio_event_input_init(void)
 
 	enable_irq_wake(MSM_GPIO_TO_INT(SHOOTER_GPIO_KEY_VOL_UP));
 	enable_irq_wake(MSM_GPIO_TO_INT(SHOOTER_GPIO_KEY_VOL_DOWN));
-	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_POWER));
+	enable_irq_wake(MSM_GPIO_TO_INT(HTC8X60_GPIO_KEY_POWER));
 };
 
 static struct gpio_event_input_info shooter_keypad_switch_info = {
@@ -83,7 +83,7 @@ static struct platform_device *shooter_input_devices[] __initdata = {
 	&shooter_gpio_keypad_device,
 };
 
-void __init htc_msm8x60_init_keypad(void)
+void __init htc8x60_init_keypad(void)
 {
 	shooter_gpio_event_input_init();
 	platform_add_devices(shooter_input_devices, ARRAY_SIZE(shooter_input_devices));

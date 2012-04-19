@@ -1356,7 +1356,7 @@ TODO:
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-void __init htc_msm8x60_init_panel(void)
+void __init htc8x60_init_panel(void)
 {
 	if (panel_type == PANEL_ID_PYD_SHARP)
 		mipi_novatek_panel_data.shrink_pwm = pyd_shp_shrink_pwm;

@@ -42,7 +42,7 @@ module_param_named(keycaps, keycaps, charp, 0);
 
 static struct gpio_event_direct_entry pyramid_keypad_input_map[] = {
 	{
-		.gpio = MSM8X60_GPIO_KEY_POWER,
+		.gpio = HTC8X60_GPIO_KEY_POWER,
 		.code = KEY_POWER,
 	},
 	{
@@ -57,10 +57,10 @@ static struct gpio_event_direct_entry pyramid_keypad_input_map[] = {
 
 static void pyramid_gpio_event_input_init(void)
 {
-	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT,
+	gpio_tlmm_config(GPIO_CFG(HTC8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT,
 				GPIO_CFG_PULL_UP, GPIO_CFG_4MA), GPIO_CFG_ENABLE);
 
-	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_POWER));
+	enable_irq_wake(MSM_GPIO_TO_INT(HTC8X60_GPIO_KEY_POWER));
 }
 
 static struct gpio_event_input_info pyramid_keypad_input_info = {
@@ -116,7 +116,7 @@ struct platform_device pyramid_reset_keys_device = {
 	.dev.platform_data = &pyramid_reset_keys_pdata,
 };
 
-void __init htc_msm8x60_init_keypad(void)
+void __init htc8x60_init_keypad(void)
 {
 	if (platform_device_register(&pyramid_reset_keys_device))
 		printk(KERN_WARNING "%s: register reset key fail\n", __func__);

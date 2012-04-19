@@ -207,7 +207,7 @@ static struct platform_device msm_rpm_log_device = {
 #ifdef CONFIG_HTC_BATT8x60
 static struct htc_battery_platform_data htc_battery_pdev_data = {
 	.guage_driver = GUAGE_NONE,
-	.gpio_mbat_in = MSM_GPIO_TO_INT(MSM8X60_GPIO_MBAT_IN),
+	.gpio_mbat_in = MSM_GPIO_TO_INT(HTC8X60_GPIO_MBAT_IN),
 #ifdef CONFIG_MACH_SHOOTER
 	.gpio_mbat_in_trigger_level = MBAT_IN_HIGH_TRIGGER,
 #else
@@ -1595,10 +1595,10 @@ static int configure_uart_gpios(int on)
 {
 	int ret = 0, i;
 	int uart_gpios[] = {
-		MSM8X60_GPIO_BT_UART1_TX,
-		MSM8X60_GPIO_BT_UART1_RX,
-		MSM8X60_GPIO_BT_UART1_CTS,
-		MSM8X60_GPIO_BT_UART1_RTS,
+		HTC8X60_GPIO_BT_UART1_TX,
+		HTC8X60_GPIO_BT_UART1_RX,
+		HTC8X60_GPIO_BT_UART1_CTS,
+		HTC8X60_GPIO_BT_UART1_RTS,
 	};
 	for (i = 0; i < ARRAY_SIZE(uart_gpios); i++) {
 		if (on) {
@@ -1710,7 +1710,7 @@ static struct platform_device msm_adc_device = {
 
 /* HTC_HEADSET_GPIO Driver */
 static struct htc_headset_gpio_platform_data htc_headset_gpio_data = {
-	.hpin_gpio		= MSM8X60_GPIO_AUD_HP_DET,
+	.hpin_gpio		= HTC8X60_GPIO_AUD_HP_DET,
 	.key_enable_gpio	= 0,
 	.mic_select_gpio	= 0,
 };
@@ -1823,15 +1823,15 @@ static void headset_device_register(void)
 };
 
 static uint32_t usb_ID_PIN_input_table[] = {
-	GPIO_CFG(MSM8X60_GPIO_USB_ID, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_GPIO_USB_ID, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t usb_ID_PIN_ouput_table[] = {
-	GPIO_CFG(MSM8X60_GPIO_USB_ID, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_GPIO_USB_ID, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t mhl_usb_switch_ouput_table[] = {
-	GPIO_CFG(MSM8X60_GPIO_MHL_USB_SW, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
+	GPIO_CFG(HTC8X60_GPIO_MHL_USB_SW, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
 };
 
 static struct pm8xxx_mpp_init_info usb_mpp_init_configs[] = {
@@ -1864,11 +1864,11 @@ void config_msm8x60_usb_id_gpios(bool output)
 {
 	if (output) {
 		gpio_tlmm_config(usb_ID_PIN_ouput_table[0], 0);
-		gpio_set_value(MSM8X60_GPIO_USB_ID, 1);
-		printk(KERN_INFO "%s %d output high\n",  __func__, MSM8X60_GPIO_USB_ID);
+		gpio_set_value(HTC8X60_GPIO_USB_ID, 1);
+		printk(KERN_INFO "%s %d output high\n",  __func__, HTC8X60_GPIO_USB_ID);
 	} else {
 		gpio_tlmm_config(usb_ID_PIN_input_table[0], 0);
-		printk(KERN_INFO "%s %d input none pull\n",  __func__, MSM8X60_GPIO_USB_ID);
+		printk(KERN_INFO "%s %d input none pull\n",  __func__, HTC8X60_GPIO_USB_ID);
 	}
 }
 
@@ -1884,7 +1884,7 @@ static void msm8x60_usb_dpdn_switch(int path)
 		gpio_tlmm_config(mhl_usb_switch_ouput_table[0], 0);
 
 		pr_info("[CABLE] %s: Set %s path\n", __func__, mhl ? "MHL" : "USB");
-		gpio_set_value(MSM8X60_GPIO_MHL_USB_SW, (mhl ^ !polarity) ? 1 : 0);
+		gpio_set_value(HTC8X60_GPIO_MHL_USB_SW, (mhl ^ !polarity) ? 1 : 0);
 		break;
 	}
 	}
@@ -1899,9 +1899,9 @@ static struct cable_detect_platform_data cable_detect_pdata = {
 	.vbus_mpp_config	= pm8058_usb_config,
 	.vbus_mpp_irq		= PM8058_IRQ_BASE + PM8058_CBLPWR_IRQ,
 	.detect_type		= CABLE_TYPE_PMIC_ADC,
-	.usb_id_pin_gpio	= MSM8X60_GPIO_USB_ID,
+	.usb_id_pin_gpio	= HTC8X60_GPIO_USB_ID,
 	.usb_dpdn_switch	= msm8x60_usb_dpdn_switch,
-	.mhl_reset_gpio		= MSM8X60_GPIO_MHL_RESET,
+	.mhl_reset_gpio		= HTC8X60_GPIO_MHL_RESET,
 	.mpp_data = {
 		.usbid_mpp	= PM8058_MPP_PM_TO_SYS(XOADC_MPP_4),
 		.usbid_amux	= PM_MPP_AIN_AMUX_CH5,
@@ -2101,7 +2101,7 @@ static int pm8058_gpios_init(void)
 	struct pm8058_gpio_cfg gpio_cfgs[] = {
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 		{
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_30,
@@ -2112,7 +2112,7 @@ static int pm8058_gpios_init(void)
 		},
 #endif
 		{ /* Audio Microphone Selector */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_MIC_SEL),	/* 26 */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),	/* 26 */
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2125,7 +2125,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Audio Receiver Amplifier */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_HP_EN),	/* 17 */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),	/* 17 */
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2153,7 +2153,7 @@ static int pm8058_gpios_init(void)
 		},
 #endif
 		{ /* Timpani Reset */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_QTR_RESET),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_QTR_RESET),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2166,7 +2166,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_PLS_INT),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_PLS_INT),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_1P5,
@@ -2176,7 +2176,7 @@ static int pm8058_gpios_init(void)
 			},
 		},
 		{ /* Green LED */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_GREEN_LED),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_GREEN_LED),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -2189,7 +2189,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* AMBER */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AMBER_LED),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AMBER_LED),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -2282,7 +2282,7 @@ static int pm8058_gpios_init(void)
 		},
 #endif
 		{ /* PMIC ID interrupt */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_REMO_PRES),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_1P5,
@@ -2555,9 +2555,9 @@ static int msm8x60_ts_atmel_power(int on)
 {
 	pr_info("%s: power %d\n", __func__, on);
 
-	gpio_set_value(MSM8X60_TP_RST, 0);
+	gpio_set_value(HTC8X60_TP_RST, 0);
 	msleep(5);
-	gpio_set_value(MSM8X60_TP_RST, 1);
+	gpio_set_value(HTC8X60_TP_RST, 1);
 	msleep(40);
 
 	return 0;
@@ -2575,7 +2575,7 @@ struct atmel_i2c_platform_data msm8x60_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = MSM8X60_TP_ATT_N,
+		.gpio_irq = HTC8X60_TP_ATT_N,
 		.power = msm8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
@@ -2606,7 +2606,7 @@ struct atmel_i2c_platform_data msm8x60_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = MSM8X60_TP_ATT_N,
+		.gpio_irq = HTC8X60_TP_ATT_N,
 		.power = msm8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
@@ -2637,7 +2637,7 @@ struct atmel_i2c_platform_data msm8x60_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = MSM8X60_TP_ATT_N,
+		.gpio_irq = HTC8X60_TP_ATT_N,
 		.power = msm8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
@@ -2667,7 +2667,7 @@ struct atmel_i2c_platform_data msm8x60_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = MSM8X60_TP_ATT_N,
+		.gpio_irq = HTC8X60_TP_ATT_N,
 		.power = msm8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
@@ -2692,7 +2692,7 @@ static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 	{
 		I2C_BOARD_INFO(ATMEL_QT602240_NAME, 0x94 >> 1),
 		.platform_data = &msm8x60_ts_atmel_data,
-		.irq = MSM_GPIO_TO_INT(MSM8X60_TP_ATT_N),
+		.irq = MSM_GPIO_TO_INT(HTC8X60_TP_ATT_N),
 	},
 };
 #endif /* CONFIG_TOUCHSCREEN_ATMEL */
@@ -2707,7 +2707,7 @@ static int msm8x60_ts_cy8c_set_rst(int on)
 
 	struct pm8058_gpio_cfg tp_rst[] = {
 		{ /* TW RST Set LOW */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_TP_RST),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2720,7 +2720,7 @@ static int msm8x60_ts_cy8c_set_rst(int on)
 			}
 		},
 		{ /* TW RST Set HIGH */
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_TP_RST),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -2749,8 +2749,8 @@ static int msm8x60_ts_cy8c_reset(void)
 {
 	printk(KERN_INFO "[TP] HW reset touch.\n");
 #if 0
-	printk(KERN_INFO "[TP] MSM8X60_TP_RST: %d, PM8058_GPIO_PM_TO_SYS(MSM8X60_TP_RST): %d\n",
-		MSM8X60_TP_RST, PM8058_GPIO_PM_TO_SYS(MSM8X60_TP_RST));
+	printk(KERN_INFO "[TP] HTC8X60_TP_RST: %d, PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST): %d\n",
+		HTC8X60_TP_RST, PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST));
 #endif
 	msm8x60_ts_cy8c_set_rst(0);
 	msleep(10);
@@ -2774,7 +2774,7 @@ struct cy8c_i2c_platform_data msm8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = msm8x60_ts_cy8c_power,
-		.gpio_irq = MSM8X60_TP_ATT_N_XB,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
 		/*.filter_level = {40, 80, 942, 982},*/
 		.reset = msm8x60_ts_cy8c_reset,
 	},
@@ -2791,7 +2791,7 @@ struct cy8c_i2c_platform_data msm8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = msm8x60_ts_cy8c_power,
-		.gpio_irq = MSM8X60_TP_ATT_N_XB,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
 		/*.filter_level = {40, 80, 942, 982},*/
 	},
 
@@ -2807,7 +2807,7 @@ struct cy8c_i2c_platform_data msm8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = msm8x60_ts_cy8c_power,
-		.gpio_irq = MSM8X60_TP_ATT_N_XB,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
 		.reset = msm8x60_ts_cy8c_reset,
 	},
 };
@@ -2830,7 +2830,7 @@ static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 	{
 		I2C_BOARD_INFO(CYPRESS_TMA_NAME, 0x67),
 		.platform_data = &msm8x60_ts_cy8c_data,
-		.irq = MSM_GPIO_TO_INT(MSM8X60_TP_ATT_N_XB)
+		.irq = MSM_GPIO_TO_INT(HTC8X60_TP_ATT_N_XB)
 	},
 };
 #endif /* CONFIG_TOUCHSCREEN_CYPRESS_TMA */
@@ -2870,7 +2870,7 @@ static struct mpu3050_platform_data mpu3050_data = {
 static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo[] = {
 	{
 		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
-		.irq = MSM_GPIO_TO_INT(MSM8X60_GYRO_INT),
+		.irq = MSM_GPIO_TO_INT(HTC8X60_GYRO_INT),
 		.platform_data = &mpu3050_data,
 	},
 };
@@ -2902,7 +2902,7 @@ static struct mpu3050_platform_data mpu3050_data_XB = {
 static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo_XB[] = {
 	{
 		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
-		.irq = MSM_GPIO_TO_INT(MSM8X60_GYRO_INT),
+		.irq = MSM_GPIO_TO_INT(HTC8X60_GYRO_INT),
 		.platform_data = &mpu3050_data_XB,
 	},
 };
@@ -2914,7 +2914,7 @@ static int isl29028_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29028_platform_data isl29028_pdata = {
-	.intr = PM8058_GPIO_PM_TO_SYS(MSM8X60_PLS_INT),
+	.intr = PM8058_GPIO_PM_TO_SYS(HTC8X60_PLS_INT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29028_power,
@@ -2926,7 +2926,7 @@ static struct i2c_board_info i2c_isl29028_devices[] = {
 	{
 		I2C_BOARD_INFO(ISL29028_I2C_NAME, 0x8A >> 1),
 		.platform_data = &isl29028_pdata,
-		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, MSM8X60_PLS_INT),
+		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_PLS_INT),
 	},
 };
 
@@ -2936,7 +2936,7 @@ static int isl29029_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29029_platform_data isl29029_pdata = {
-	.intr = PM8058_GPIO_PM_TO_SYS(MSM8X60_PLS_INT),
+	.intr = PM8058_GPIO_PM_TO_SYS(HTC8X60_PLS_INT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29029_power,
@@ -2948,16 +2948,16 @@ static struct i2c_board_info i2c_isl29029_devices[] = {
 	{
 		I2C_BOARD_INFO(ISL29029_I2C_NAME, 0x8A >> 1),
 		.platform_data = &isl29029_pdata,
-		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, MSM8X60_PLS_INT),
+		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_PLS_INT),
 	},
 };
 
 #ifdef CONFIG_MSM8X60_AUDIO
 static uint32_t msm_spi_gpio[] = {
-	GPIO_CFG(MSM8X60_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(MSM8X60_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-	GPIO_CFG(MSM8X60_SPI_CS,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(MSM8X60_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_CS,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t auxpcm_gpio_table[] = {
@@ -2977,7 +2977,7 @@ static void msm_auxpcm_init(void)
 
 static struct tpa2051d3_platform_data tpa2051d3_pdata = {
 #ifdef CONFIG_MACH_PYRAMID
-	.gpio_tpa2051_spk_en = MSM8X60_AUD_HP_EN,
+	.gpio_tpa2051_spk_en = HTC8X60_AUD_HP_EN,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
 #else
@@ -3030,8 +3030,8 @@ struct i2c_registry {
 };
 
 static struct tps65200_platform_data tps65200_data = {
-	.gpio_chg_stat = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, MSM8X60_CHG_STAT),
-	.gpio_chg_int  = MSM_GPIO_TO_INT(MSM8X60_GPIO_CHG_INT),
+	.gpio_chg_stat = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_CHG_STAT),
+	.gpio_chg_int  = MSM_GPIO_TO_INT(HTC8X60_GPIO_CHG_INT),
 };
 
 #ifdef CONFIG_SUPPORT_DQ_BATTERY
@@ -3465,23 +3465,23 @@ static void __init msm8x60_reserve(void)
 
 #ifdef CONFIG_I2C_QUP
 static uint32_t gsbi4_gpio_table[] = {
-	GPIO_CFG(MSM8X60_CAM_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(MSM8X60_CAM_I2C_SCL, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_CAM_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_CAM_I2C_SCL, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi5_gpio_table[] = {
-	GPIO_CFG(MSM8X60_TP_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(MSM8X60_TP_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_TP_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_TP_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi7_gpio_table[] = {
-	GPIO_CFG(MSM8X60_GENERAL_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(MSM8X60_GENERAL_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_GENERAL_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_GENERAL_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi10_gpio_table[] = {
-	GPIO_CFG(MSM8X60_SENSOR_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
-	GPIO_CFG(MSM8X60_SENSOR_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
+	GPIO_CFG(HTC8X60_SENSOR_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
+	GPIO_CFG(HTC8X60_SENSOR_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
 };
 
 
@@ -4240,18 +4240,18 @@ static unsigned int msm8x60_sdcc_slot_status(struct device *dev)
 {
 	int status;
 
-	status = gpio_request(PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET)
+	status = gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET)
 				, "SD_HW_Detect");
 	if (status) {
 		pr_err("%s:Failed to request GPIO %d\n", __func__,
-				PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 	} else {
 		status = gpio_direction_input(
-				PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 		if (!status)
 			status = !(gpio_get_value_cansleep(
-				PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET)));
-		gpio_free(PM8058_GPIO_PM_TO_SYS(MSM8X60_SDC3_DET));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET)));
+		gpio_free(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 	}
 	return (unsigned int) status;
 }
@@ -4291,7 +4291,7 @@ static struct mmc_platform_data msm8x60_sdc3_data = {
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 	.status      = msm8x60_sdcc_slot_status,
 	.status_irq  = PM8058_GPIO_IRQ(PM8058_IRQ_BASE,
-				       MSM8X60_SDC3_DET),
+				       HTC8X60_SDC3_DET),
 	.irq_flags   = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 #endif
 	.msmsdcc_fmin	= 144000,
@@ -4368,7 +4368,7 @@ static void __init msm8x60_init_mmc(void)
 	msm_add_sdcc(3, &msm8x60_sdc3_data);
 #endif
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
-	htc_msm8x60_init_mmc();
+	htc8x60_init_mmc();
 #endif
 }
 
@@ -4503,7 +4503,7 @@ static void __init msm8x60_init_buses(void)
 	bt_export_bd_address();
 #endif
 #ifdef CONFIG_SERIAL_MSM_HS
-	msm_uart_dm1_pdata.wakeup_irq = gpio_to_irq(MSM8X60_GPIO_BT_HOST_WAKE);
+	msm_uart_dm1_pdata.wakeup_irq = gpio_to_irq(HTC8X60_GPIO_BT_HOST_WAKE);
 	msm_device_uart_dm1.dev.platform_data = &msm_uart_dm1_pdata;
 #endif
 #ifdef CONFIG_MSM_BUS_SCALING
@@ -4580,7 +4580,7 @@ static void __init msm8x60_init(void)
 	/* Accessory */
 	if (system_rev >= 1) {
 		htc_headset_pmic_data.key_gpio =
-			PM8058_GPIO_PM_TO_SYS(MSM8X60_AUD_REMO_PRES);
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES);
 #ifndef CONFIG_MACH_PYRAMID
 		htc_headset_pmic_data.key_enable_gpio =
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_EN);
@@ -4612,7 +4612,7 @@ static void __init msm8x60_init(void)
 	platform_add_devices(asoc_devices, ARRAY_SIZE(asoc_devices));
 
 	register_i2c_devices();
-	htc_msm8x60_init_panel();
+	htc8x60_init_panel();
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
 	msm8x60_ts_cy8c_set_system_rev(system_rev);
 #endif
@@ -4628,8 +4628,8 @@ static void __init msm8x60_init(void)
 	msm_adc_pdata.target_hw = MSM_8x60;
 #endif
 
-	htc_msm8x60_init_keypad();
-	htc_msm8x60_wifi_init();
+	htc8x60_init_keypad();
+	htc8x60_wifi_init();
 	headset_device_register();
 
 	properties_kobj = kobject_create_and_add("board_properties", NULL);
@@ -4647,7 +4647,7 @@ static void __init msm8x60_init(void)
         gpio_tlmm_config(msm_spi_gpio[3], GPIO_CFG_DISABLE);
         msm_auxpcm_init();
         msm_snddev_init();
-        htc_msm8x60_audio_init();
+        htc8x60_audio_init();
 #endif
 }
 

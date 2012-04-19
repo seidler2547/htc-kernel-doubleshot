@@ -78,8 +78,8 @@ int __init msm8x60_init_wifi_mem(void)
 static struct resource msm8x60_wifi_resources[] = {
 	[0] = {
 		.name	= "bcm4329_wlan_irq",
-		.start	= MSM_GPIO_TO_INT(MSM8X60_GPIO_WIFI_IRQ),
-		.end	= MSM_GPIO_TO_INT(MSM8X60_GPIO_WIFI_IRQ),
+		.start	= MSM_GPIO_TO_INT(HTC8X60_GPIO_WIFI_IRQ),
+		.end	= MSM_GPIO_TO_INT(HTC8X60_GPIO_WIFI_IRQ),
 		.flags	= IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHLEVEL | IORESOURCE_IRQ_SHAREABLE,
 	},
 };
@@ -260,7 +260,7 @@ int msm8x60_wifi_get_mac_addr(unsigned char *buf)
 	return 0;
 }
 
-int __init htc_msm8x60_wifi_init(void)
+int __init htc8x60_wifi_init(void)
 {
 	int ret;
 

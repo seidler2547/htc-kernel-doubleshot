@@ -1307,7 +1307,7 @@ TODO: HTC
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-void __init htc_msm8x60_init_panel(void)
+void __init htc8x60_init_panel(void)
 {
 	if(panel_type == 	PANEL_ID_SHR_SHARP_OTM ||
 		panel_type == 	PANEL_ID_SHR_SHARP_OTM_C2)
