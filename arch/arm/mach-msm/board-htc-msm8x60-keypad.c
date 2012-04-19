@@ -1,4 +1,4 @@
-/* arch/arm/mach-msm/board-shooter-keypad.c
+/* arch/arm/mach-msm/board-msm8x60-keypad.c
  *
  * Copyright (C) 2008 Google, Inc.
  *
@@ -17,74 +17,74 @@
 #include <linux/gpio_event.h>
 #include <linux/gpio.h>
 #include <mach/gpio.h>
-#include "board-shooter.h"
+#include "board-htc-msm8x60.h"
 
-static struct gpio_event_direct_entry shooter_keypad_switch_map[] = {
-	{ SHOOTER_GPIO_KEY_POWER, 	KEY_POWER		},
-	{ SHOOTER_GPIO_KEY_VOL_UP,	KEY_VOLUMEUP		},
-	{ SHOOTER_GPIO_KEY_VOL_DOWN,	KEY_VOLUMEDOWN		},
-	{ SHOOTER_GPIO_KEY_CAM_STEP1,	KEY_HP			},
-	{ SHOOTER_GPIO_KEY_CAM_STEP2,	KEY_CAMERA		},
+static struct gpio_event_direct_entry msm8x60_keypad_switch_map[] = {
+	{ MSM8X60_GPIO_KEY_POWER, 	KEY_POWER		},
+	{ MSM8X60_GPIO_KEY_VOL_UP,	KEY_VOLUMEUP		},
+	{ MSM8X60_GPIO_KEY_VOL_DOWN,	KEY_VOLUMEDOWN		},
+	{ MSM8X60_GPIO_KEY_CAM_STEP1,	KEY_HP			},
+	{ MSM8X60_GPIO_KEY_CAM_STEP2,	KEY_CAMERA		},
 };
 
-static void shooter_gpio_event_input_init(void)
+static void msm8x60_gpio_event_input_init(void)
 {
-	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
-	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_VOL_UP, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_VOL_UP, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
-	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_VOL_DOWN, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_VOL_DOWN, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
-	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_CAM_STEP1, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_CAM_STEP1, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
-	gpio_tlmm_config(GPIO_CFG(SHOOTER_GPIO_KEY_CAM_STEP2, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
+	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_CAM_STEP2, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 
-	enable_irq_wake(MSM_GPIO_TO_INT(SHOOTER_GPIO_KEY_VOL_UP));
-	enable_irq_wake(MSM_GPIO_TO_INT(SHOOTER_GPIO_KEY_VOL_DOWN));
-	enable_irq_wake(MSM_GPIO_TO_INT(SHOOTER_GPIO_KEY_POWER));
+	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_VOL_UP));
+	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_VOL_DOWN));
+	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_POWER));
 };
 
-static struct gpio_event_input_info shooter_keypad_switch_info = {
+static struct gpio_event_input_info msm8x60_keypad_switch_info = {
 	.info.func = gpio_event_input_func,
 	.info.no_suspend = true,
 	.flags = 0,
 	.type = EV_KEY,
-	.keymap = shooter_keypad_switch_map,
-	.keymap_size = ARRAY_SIZE(shooter_keypad_switch_map)
+	.keymap = msm8x60_keypad_switch_map,
+	.keymap_size = ARRAY_SIZE(msm8x60_keypad_switch_map)
 };
 
-static struct gpio_event_info *shooter_keypad_info[] = {
-	&shooter_keypad_switch_info.info,
+static struct gpio_event_info *msm8x60_keypad_info[] = {
+	&msm8x60_keypad_switch_info.info,
 };
 
-static int shooter_gpio_keypad_power(
+static int msm8x60_gpio_keypad_power(
 		const struct gpio_event_platform_data *pdata, bool on)
 {
 	return 0;
 };
 
-static struct gpio_event_platform_data shooter_keypad_data = {
-	.name = "shooter-keypad",
-	.info = shooter_keypad_info,
-	.info_count = ARRAY_SIZE(shooter_keypad_info),
-	.power = shooter_gpio_keypad_power,
+static struct gpio_event_platform_data msm8x60_keypad_data = {
+	.name = "msm8x60-keypad",
+	.info = msm8x60_keypad_info,
+	.info_count = ARRAY_SIZE(msm8x60_keypad_info),
+	.power = msm8x60_gpio_keypad_power,
 };
 
-static struct platform_device shooter_gpio_keypad_device = {
+static struct platform_device msm8x60_gpio_keypad_device = {
 	.name = GPIO_EVENT_DEV_NAME,
 	.id = 1,
 	.dev        = {
-		.platform_data  = &shooter_keypad_data,
+		.platform_data  = &msm8x60_keypad_data,
 	},
 };
 
-static struct platform_device *shooter_input_devices[] __initdata = {
-	&shooter_gpio_keypad_device,
+static struct platform_device *msm8x60_input_devices[] __initdata = {
+	&msm8x60_gpio_keypad_device,
 };
 
-void __init shooter_init_keypad(void)
+void __init htc_msm8x60_init_keypad(void)
 {
-	shooter_gpio_event_input_init();
-	platform_add_devices(shooter_input_devices, ARRAY_SIZE(shooter_input_devices));
+	msm8x60_gpio_event_input_init();
+	platform_add_devices(msm8x60_input_devices, ARRAY_SIZE(msm8x60_input_devices));
 };

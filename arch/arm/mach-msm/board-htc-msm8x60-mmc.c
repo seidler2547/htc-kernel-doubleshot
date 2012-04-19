@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-shooter-mmc.c
+/* linux/arch/arm/mach-msm/board-htc-msm8x60-mmc.c
  *
  * Copyright (C) 2008 HTC Corporation.
  *
@@ -31,7 +31,7 @@
 #include <asm/mach/mmc.h>
 
 #include "devices.h"
-#include "board-shooter.h"
+#include "board-htc-msm8x60.h"
 #include "proc_comm.h"
 #include <mach/msm_iomap.h>
 #include <linux/mfd/pmic8058.h>
@@ -44,11 +44,11 @@ extern int msm_add_sdcc(unsigned int controller, struct mmc_platform_data *plat)
 
 /* ---- WIFI ---- */
 static uint32_t wifi_on_gpio_table[] = {
-	GPIO_CFG(SHOOTER_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA), /* WLAN IRQ */
+	GPIO_CFG(MSM8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA), /* WLAN IRQ */
 };
 
 static uint32_t wifi_off_gpio_table[] = {
-	GPIO_CFG(SHOOTER_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_4MA), /* WLAN IRQ */
+	GPIO_CFG(MSM8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_4MA), /* WLAN IRQ */
 };
 
 static void config_gpio_table(uint32_t *table, int len)
@@ -66,7 +66,7 @@ static void config_gpio_table(uint32_t *table, int len)
 
 /* BCM4329 returns wrong sdio_vsn(1) when we read cccr,
    we use predefined value (sdio_vsn=2) here to initial sdio driver well */
-static struct embedded_sdio_data shooter_wifi_emb_data = {
+static struct embedded_sdio_data msm8x60_wifi_emb_data = {
 	.cccr	= {
 		.sdio_vsn	= 2,
 		.multi_block	= 1,
@@ -81,7 +81,7 @@ static void (*wifi_status_cb)(int card_present, void *dev_id);
 static void *wifi_status_cb_devid;
 
 static int
-shooter_wifi_status_register(void (*callback)(int card_present, void *dev_id),
+msm8x60_wifi_status_register(void (*callback)(int card_present, void *dev_id),
 				void *dev_id)
 {
 	if (wifi_status_cb)
@@ -92,21 +92,21 @@ shooter_wifi_status_register(void (*callback)(int card_present, void *dev_id),
 	return 0;
 }
 
-static int shooter_wifi_cd;	/* WiFi virtual 'card detect' status */
+static int msm8x60_wifi_cd;	/* WiFi virtual 'card detect' status */
 
-static unsigned int shooter_wifi_status(struct device *dev)
+static unsigned int msm8x60_wifi_status(struct device *dev)
 {
-	return shooter_wifi_cd;
+	return msm8x60_wifi_cd;
 }
 
-static unsigned int shooter_wifislot_type = MMC_TYPE_SDIO_WIFI;
-static struct mmc_platform_data shooter_wifi_data = {
+static unsigned int msm8x60_wifislot_type = MMC_TYPE_SDIO_WIFI;
+static struct mmc_platform_data msm8x60_wifi_data = {
 	.ocr_mask	= MMC_VDD_28_29,
-	.status		= shooter_wifi_status,
-	.register_status_notify = shooter_wifi_status_register,
-	.embedded_sdio	= &shooter_wifi_emb_data,
+	.status		= msm8x60_wifi_status,
+	.register_status_notify = msm8x60_wifi_status_register,
+	.embedded_sdio	= &msm8x60_wifi_emb_data,
 	.mmc_bus_width	= MMC_CAP_4_BIT_DATA,
-	.slot_type	= &shooter_wifislot_type,
+	.slot_type	= &msm8x60_wifislot_type,
 	.msmsdcc_fmin	= 400000,
 	.msmsdcc_fmid	= 24000000,
 	.msmsdcc_fmax	= 48000000,
@@ -114,19 +114,19 @@ static struct mmc_platform_data shooter_wifi_data = {
 	.pclk_src_dfab	= 1,
 };
 
-int shooter_wifi_set_carddetect(int val)
+int msm8x60_wifi_set_carddetect(int val)
 {
 	printk(KERN_INFO "%s: %d\n", __func__, val);
-	shooter_wifi_cd = val;
+	msm8x60_wifi_cd = val;
 	if (wifi_status_cb)
 		wifi_status_cb(val, wifi_status_cb_devid);
 	else
 		printk(KERN_WARNING "%s: Nobody to notify\n", __func__);
 	return 0;
 }
-EXPORT_SYMBOL(shooter_wifi_set_carddetect);
+EXPORT_SYMBOL(msm8x60_wifi_set_carddetect);
 
-int shooter_wifi_power(int on)
+int msm8x60_wifi_power(int on)
 {
 	const unsigned SDC4_HDRV_PULL_CTL_ADDR = (unsigned) MSM_TLMM_BASE + 0x20A0;
 
@@ -144,14 +144,14 @@ int shooter_wifi_power(int on)
 				  ARRAY_SIZE(wifi_off_gpio_table));
 	}
 	mdelay(1); //Delay 1 ms, Recommand by Hardware
-	gpio_set_value(SHOOTER_GPIO_WIFI_SHUTDOWN_N, on); /* WIFI_SHUTDOWN */
+	gpio_set_value(MSM8X60_GPIO_WIFI_SHUTDOWN_N, on); /* WIFI_SHUTDOWN */
 
 	mdelay(120);
 	return 0;
 }
-EXPORT_SYMBOL(shooter_wifi_power);
+EXPORT_SYMBOL(msm8x60_wifi_power);
 
-int shooter_wifi_reset(int on)
+int msm8x60_wifi_reset(int on)
 {
 	printk(KERN_INFO "%s: do nothing\n", __func__);
 	return 0;
@@ -164,7 +164,7 @@ struct _vreg
 };
 
 /* ---- MMC ---- */
-void __init shooter_init_mmc()
+void __init htc_msm8x60_init_mmc()
 {
 	uint32_t id;
 	wifi_status_cb = NULL;
@@ -173,10 +173,10 @@ void __init shooter_init_mmc()
 
 	/* SDC4: WiFi */
 	/* initial WIFI_SHUTDOWN# */
-	id = GPIO_CFG(SHOOTER_GPIO_WIFI_SHUTDOWN_N, 0, GPIO_CFG_OUTPUT,
+	id = GPIO_CFG(MSM8X60_GPIO_WIFI_SHUTDOWN_N, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA);
 	gpio_tlmm_config(id, 0);
-	gpio_set_value(SHOOTER_GPIO_WIFI_SHUTDOWN_N, 0);
+	gpio_set_value(MSM8X60_GPIO_WIFI_SHUTDOWN_N, 0);
 
-	msm_add_sdcc(4, &shooter_wifi_data);
+	msm_add_sdcc(4, &msm8x60_wifi_data);
 }

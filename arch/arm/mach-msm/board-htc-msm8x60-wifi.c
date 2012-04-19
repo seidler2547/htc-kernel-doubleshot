@@ -1,4 +1,4 @@
-/* arch/arm/mach-msm/board-shooter-wifi.c */
+/* arch/arm/mach-msm/board-htc-msm8x60-wifi.c */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -11,12 +11,12 @@
 #include <linux/skbuff.h>
 #include <linux/wlan_plat.h>
 
-#include "board-shooter.h"
+#include "board-htc-msm8x60.h"
 
-int shooter_wifi_power(int on);
-int shooter_wifi_reset(int on);
-int shooter_wifi_set_carddetect(int on);
-int shooter_wifi_get_mac_addr(unsigned char *buf);
+int msm8x60_wifi_power(int on);
+int msm8x60_wifi_reset(int on);
+int msm8x60_wifi_set_carddetect(int on);
+int msm8x60_wifi_get_mac_addr(unsigned char *buf);
 
 #define PREALLOC_WLAN_NUMBER_OF_SECTIONS	4
 #define PREALLOC_WLAN_NUMBER_OF_BUFFERS		160
@@ -45,7 +45,7 @@ static wifi_mem_prealloc_t wifi_mem_array[PREALLOC_WLAN_NUMBER_OF_SECTIONS] = {
 	{ NULL, (WLAN_SECTION_SIZE_3 + PREALLOC_WLAN_SECTION_HEADER) }
 };
 
-static void *shooter_wifi_mem_prealloc(int section, unsigned long size)
+static void *msm8x60_wifi_mem_prealloc(int section, unsigned long size)
 {
 	if (section == PREALLOC_WLAN_NUMBER_OF_SECTIONS)
 		return wlan_static_skb;
@@ -56,7 +56,7 @@ static void *shooter_wifi_mem_prealloc(int section, unsigned long size)
 	return wifi_mem_array[section].mem_ptr;
 }
 
-int __init shooter_init_wifi_mem(void)
+int __init msm8x60_init_wifi_mem(void)
 {
 	int i;
 
@@ -75,36 +75,36 @@ int __init shooter_init_wifi_mem(void)
 	return 0;
 }
 
-static struct resource shooter_wifi_resources[] = {
+static struct resource msm8x60_wifi_resources[] = {
 	[0] = {
 		.name	= "bcm4329_wlan_irq",
-		.start	= MSM_GPIO_TO_INT(SHOOTER_GPIO_WIFI_IRQ),
-		.end	= MSM_GPIO_TO_INT(SHOOTER_GPIO_WIFI_IRQ),
+		.start	= MSM_GPIO_TO_INT(MSM8X60_GPIO_WIFI_IRQ),
+		.end	= MSM_GPIO_TO_INT(MSM8X60_GPIO_WIFI_IRQ),
 		.flags	= IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHLEVEL | IORESOURCE_IRQ_SHAREABLE,
 	},
 };
 
-static struct wifi_platform_data shooter_wifi_control = {
-	.set_power	= shooter_wifi_power,
-	.set_reset	= shooter_wifi_reset,
-	.set_carddetect	= shooter_wifi_set_carddetect,
-	.mem_prealloc	= shooter_wifi_mem_prealloc,
-	.get_mac_addr	= shooter_wifi_get_mac_addr,
+static struct wifi_platform_data msm8x60_wifi_control = {
+	.set_power	= msm8x60_wifi_power,
+	.set_reset	= msm8x60_wifi_reset,
+	.set_carddetect	= msm8x60_wifi_set_carddetect,
+	.mem_prealloc	= msm8x60_wifi_mem_prealloc,
+	.get_mac_addr	= msm8x60_wifi_get_mac_addr,
 };
 
-static struct platform_device shooter_wifi_device = {
+static struct platform_device msm8x60_wifi_device = {
 	.name		= "bcm4329_wlan",
 	.id		= 1,
-	.num_resources	= ARRAY_SIZE(shooter_wifi_resources),
-	.resource	= shooter_wifi_resources,
+	.num_resources	= ARRAY_SIZE(msm8x60_wifi_resources),
+	.resource	= msm8x60_wifi_resources,
 	.dev		= {
-		.platform_data = &shooter_wifi_control,
+		.platform_data = &msm8x60_wifi_control,
 	},
 };
 
 extern unsigned char *get_wifi_nvs_ram(void);
 
-static unsigned shooter_wifi_update_nvs(char *str)
+static unsigned msm8x60_wifi_update_nvs(char *str)
 {
 #define NVS_LEN_OFFSET		0x0C
 #define NVS_DATA_OFFSET		0x40
@@ -231,7 +231,7 @@ get_mac_from_wifi_nvs_ram(char* buf, unsigned int buf_len)
 }
 
 #define ETHER_ADDR_LEN 6
-int shooter_wifi_get_mac_addr(unsigned char *buf)
+int msm8x60_wifi_get_mac_addr(unsigned char *buf)
 {
 	static u8 ether_mac_addr[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0xFF};
 	char mac[WIFI_MAX_MAC_LEN];
@@ -254,13 +254,13 @@ int shooter_wifi_get_mac_addr(unsigned char *buf)
 
 	memcpy(buf, ether_mac_addr, sizeof(ether_mac_addr));
 
-	printk("shooter_wifi_get_mac_addr = %02x %02x %02x %02x %02x %02x \n",
+	printk("msm8x60_wifi_get_mac_addr = %02x %02x %02x %02x %02x %02x \n",
 		ether_mac_addr[0],ether_mac_addr[1],ether_mac_addr[2],ether_mac_addr[3],ether_mac_addr[4],ether_mac_addr[5]);
 
 	return 0;
 }
 
-int __init shooter_wifi_init(void)
+int __init htc_msm8x60_wifi_init(void)
 {
 	int ret;
 
@@ -268,11 +268,11 @@ int __init shooter_wifi_init(void)
 #ifdef HW_OOB
 	strip_nvs_param("sd_oobonly");
 #else
-	shooter_wifi_update_nvs("sd_oobonly=1\n");
+	msm8x60_wifi_update_nvs("sd_oobonly=1\n");
 #endif
-	shooter_wifi_update_nvs("btc_params80=0\n");
-	shooter_wifi_update_nvs("btc_params6=30\n");
-	shooter_init_wifi_mem();
-	ret = platform_device_register(&shooter_wifi_device);
+	msm8x60_wifi_update_nvs("btc_params80=0\n");
+	msm8x60_wifi_update_nvs("btc_params6=30\n");
+	msm8x60_init_wifi_mem();
+	ret = platform_device_register(&msm8x60_wifi_device);
 	return ret;
 }

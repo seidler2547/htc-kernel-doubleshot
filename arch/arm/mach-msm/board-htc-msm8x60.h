@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-shooter.h
+/* linux/arch/arm/mach-msm/board-htc-msm8x60.h
  *
  * Copyright (C) 2010-2011 HTC Corporation.
  *
@@ -12,20 +12,19 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __ARCH_ARM_MACH_MSM_BOARD_SHOOTER_H
-#define __ARCH_ARM_MACH_MSM_BOARD_SHOOTER_H
+#ifndef __ARCH_ARM_MACH_MSM_BOARD_HTC_MSM8X60_H
+#define __ARCH_ARM_MACH_MSM_BOARD_HTC_MSM8X60_H
 
 #include <mach/board.h>
 #include <mach/msm_memtypes.h>
 
 #ifdef CONFIG_MACH_SHOOTER
-#define SHOOTER_PROJECT_NAME	"shooter"
+#define MSM8X60_PROJECT_NAME	"shooter"
 #elif defined(CONFIG_MACH_SHOOTER_U)
-#define SHOOTER_PROJECT_NAME	"shooter_u"
+#define MSM8X60_PROJECT_NAME	"shooter_u"
 #elif defined(CONFIG_MACH_PYRAMID)
-#define SHOOTER_PROJECT_NAME	"pyramid"
+#define MSM8X60_PROJECT_NAME	"pyramid"
 #endif
-
 
 /* deal with memory allocation */
 
@@ -132,106 +131,111 @@
 
 /* GPIO definition */
 
-
 /* Direct Keys */
-#define SHOOTER_GPIO_SW_LCM_3D       (64)
-#define SHOOTER_GPIO_SW_LCM_2D       (68)
-#define SHOOTER_GPIO_KEY_VOL_DOWN    (103)
-#define SHOOTER_GPIO_KEY_VOL_UP      (104)
-#define SHOOTER_GPIO_KEY_CAM_STEP2   (115)
-#define SHOOTER_GPIO_KEY_CAM_STEP1   (123)
-#define SHOOTER_GPIO_KEY_POWER       (125)
+#define MSM8X60_GPIO_SW_LCM_3D		(64)
+#define MSM8X60_GPIO_SW_LCM_2D		(68)
+#define MSM8X60_GPIO_KEY_VOL_DOWN	(103)
+#define MSM8X60_GPIO_KEY_VOL_UP		(104)
+#define MSM8X60_GPIO_KEY_CAM_STEP2	(115)
+#define MSM8X60_GPIO_KEY_CAM_STEP1	(123)
+#define MSM8X60_GPIO_KEY_POWER		(125)
 
 /* Battery */
-#define SHOOTER_GPIO_MBAT_IN		   (61)
-#define SHOOTER_GPIO_CHG_INT		   (126)
+#define MSM8X60_GPIO_MBAT_IN		(61)
+#define MSM8X60_GPIO_CHG_INT		(126)
 
 /* Wifi */
-#define SHOOTER_GPIO_WIFI_IRQ              (46)
-#define SHOOTER_GPIO_WIFI_SHUTDOWN_N       (96)
+#define MSM8X60_GPIO_WIFI_IRQ		(46)
+#define MSM8X60_GPIO_WIFI_SHUTDOWN_N	(96)
 
 /* WiMax */
-#define SHOOTER_GPIO_WIMAX_UART_SIN        (41)
-#define SHOOTER_GPIO_WIMAX_UART_SOUT       (42)
-#define SHOOTER_GPIO_V_WIMAX_1V2_RF_EN     (43)
-#define SHOOTER_GPIO_WIMAX_EXT_RST         (49)
-#define SHOOTER_GPIO_V_WIMAX_DVDD_EN       (94)
-#define SHOOTER_GPIO_V_WIMAX_PVDD_EN       (105)
-#define SHOOTER_GPIO_WIMAX_SDIO_D0         (143)
-#define SHOOTER_GPIO_WIMAX_SDIO_D1         (144)
-#define SHOOTER_GPIO_WIMAX_SDIO_D2         (145)
-#define SHOOTER_GPIO_WIMAX_SDIO_D3         (146)
-#define SHOOTER_GPIO_WIMAX_SDIO_CMD        (151)
-#define SHOOTER_GPIO_WIMAX_SDIO_CLK_CPU    (152)
-#define SHOOTER_GPIO_CPU_WIMAX_SW          (156)
-#define SHOOTER_GPIO_CPU_WIMAX_UART_EN     (157)
+#define MSM8X60_GPIO_WIMAX_UART_SIN	(41)
+#define MSM8X60_GPIO_WIMAX_UART_SOUT	(42)
+#define MSM8X60_GPIO_V_WIMAX_1V2_RF_EN	(43)
+#define MSM8X60_GPIO_WIMAX_EXT_RST	(49)
+#define MSM8X60_GPIO_V_WIMAX_DVDD_EN	(94)
+#define MSM8X60_GPIO_V_WIMAX_PVDD_EN	(105)
+#define MSM8X60_GPIO_WIMAX_SDIO_D0	(143)
+#define MSM8X60_GPIO_WIMAX_SDIO_D1	(144)
+#define MSM8X60_GPIO_WIMAX_SDIO_D2	(145)
+#define MSM8X60_GPIO_WIMAX_SDIO_D3	(146)
+#define MSM8X60_GPIO_WIMAX_SDIO_CMD	(151)
+#define MSM8X60_GPIO_WIMAX_SDIO_CLK_CPU	(152)
+#define MSM8X60_GPIO_CPU_WIMAX_SW	(156)
+#define MSM8X60_GPIO_CPU_WIMAX_UART_EN	(157)
 
 /* Sensors */
-#define SHOOTER_SENSOR_I2C_SDA		(72)
-#define SHOOTER_SENSOR_I2C_SCL		(73)
-#define SHOOTER_GYRO_INT            (127)
+#define MSM8X60_SENSOR_I2C_SDA		(72)
+#define MSM8X60_SENSOR_I2C_SCL		(73)
+#define MSM8X60_GYRO_INT		(127)
 
 /* General */
-#define SHOOTER_GENERAL_I2C_SDA		(59)
-#define SHOOTER_GENERAL_I2C_SCL		(60)
+#define MSM8X60_GENERAL_I2C_SDA		(59)
+#define MSM8X60_GENERAL_I2C_SCL		(60)
 
 /* Microp */
 
 /* TP */
-#define SHOOTER_TP_I2C_SDA           (51)
-#define SHOOTER_TP_I2C_SCL           (52)
+#define MSM8X60_TP_I2C_SDA		(51)
+#define MSM8X60_TP_I2C_SCL		(52)
 #ifdef CONFIG_TOUCHSCREEN_ATMEL
-#define SHOOTER_TP_ATT_N             (57)
-#else
-#define SHOOTER_TP_ATT_N             (65)
-#define SHOOTER_TP_ATT_N_XB          (50)
+#define MSM8X60_TP_ATT_N		(57)
+#elif defined(CONFIG_TOUCHSCREEN_CYPRESS_TMA)
+#define MSM8X60_TP_ATT_N		(65)
+#define MSM8X60_TP_ATT_N_XB		(50)
 #endif
 
 /* LCD */
-#define GPIO_LCM_ID	50
-#define GPIO_LCM_RST_N	66
+#define GPIO_LCM_ID			(50)
+#define GPIO_LCM_RST_N			(66)
 
 /* Audio */
-#define SHOOTER_AUD_CODEC_RST        (67)
-#define SHOOTER_AUD_CDC_LDO_SEL      (116)
+#define MSM8X60_AUD_CODEC_RST		(67)
+#define MSM8X60_AUD_CDC_LDO_SEL		(116)
+
 /* BT */
-#define SHOOTER_GPIO_BT_HOST_WAKE      (45)
-#define SHOOTER_GPIO_BT_UART1_TX       (53)
-#define SHOOTER_GPIO_BT_UART1_RX       (54)
-#define SHOOTER_GPIO_BT_UART1_CTS      (55)
-#define SHOOTER_GPIO_BT_UART1_RTS      (56)
-#define SHOOTER_GPIO_BT_SHUTDOWN_N     (100)
-#define SHOOTER_GPIO_BT_CHIP_WAKE      (130)
-#define SHOOTER_GPIO_BT_RESET_N        (142)
+#define MSM8X60_GPIO_BT_HOST_WAKE	(45)
+#define MSM8X60_GPIO_BT_UART1_TX	(53)
+#define MSM8X60_GPIO_BT_UART1_RX	(54)
+#define MSM8X60_GPIO_BT_UART1_CTS	(55)
+#define MSM8X60_GPIO_BT_UART1_RTS	(56)
+#define MSM8X60_GPIO_BT_SHUTDOWN_N	(100)
+#define MSM8X60_GPIO_BT_CHIP_WAKE	(130)
+#define MSM8X60_GPIO_BT_RESET_N		(142)
 
 /* USB */
-#define SHOOTER_GPIO_USB_ID             (63)
-#define SHOOTER_GPIO_MHL_RESET          (70)
-#define SHOOTER_GPIO_MHL_INT            (71)
-#define SHOOTER_GPIO_MHL_USB_EN        (139)
-#define SHOOTER_GPIO_MHL_USB_SW         (99)
+#define MSM8X60_GPIO_USB_ID		(63)
+#define MSM8X60_GPIO_MHL_RESET		(70)
+#define MSM8X60_GPIO_MHL_INT		(71)
+#define MSM8X60_GPIO_MHL_USB_EN		(139)
+#define MSM8X60_GPIO_MHL_USB_SW		(99)
 
 /* Camera */
+#ifdef CONFIG_MACH_PYRAMID
+#define MSM8X60_CAM_CAM1_ID		(10)
+#endif
 
 /* Flashlight */
-#define SHOOTER_FLASH_EN             (29)
-#define SHOOTER_TORCH_EN             (30)
+#define MSM8X60_FLASH_EN		(29)
+#define MSM8X60_TORCH_EN		(30)
 
 /* Accessory */
-#define SHOOTER_GPIO_AUD_HP_DET        (31)
+#define MSM8X60_GPIO_AUD_HP_DET		(31)
 
 /* SPI */
-#define SHOOTER_SPI_DO                 (33)
-#define SHOOTER_SPI_DI                 (34)
-#define SHOOTER_SPI_CS                 (35)
-#define SHOOTER_SPI_CLK                (36)
+#define MSM8X60_SPI_DO			(33)
+#define MSM8X60_SPI_DI			(34)
+#define MSM8X60_SPI_CS			(35)
+#define MSM8X60_SPI_CLK			(36)
 
 /* LCM */
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_CTL_3D_1		(131)
 #define SHOOTER_CTL_3D_2		(132)
 #define SHOOTER_CTL_3D_3		(133)
 #define SHOOTER_CTL_3D_4		(134)
 #define SHOOTER_LCM_3D_PDz		(135)
+#endif
 
 /* CAMERA SPI */
 #ifdef CONFIG_MACH_SHOOTER
@@ -247,9 +251,10 @@
 #endif
 
 /* CAMERA GPIO */
-#define SHOOTER_CAM_I2C_SDA           (47)
-#define SHOOTER_CAM_I2C_SCL           (48)
+#define MSM8X60_CAM_I2C_SDA		(47)
+#define MSM8X60_CAM_I2C_SCL		(48)
 
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_SP3D_GATE              (107)
 #define SHOOTER_SP3D_CORE_GATE         (58)
 #define SHOOTER_SP3D_SYS_RST           (102)
@@ -263,64 +268,58 @@
 #define SHOOTER_WEBCAM_STB		(140)
 #define SHOOTER_WEBCAM_RST		(138)
 #define SHOOTER_CAM_SEL			(141)
+#endif
 
 
 /* PMIC */
 
 /* PMIC GPIO definition */
 #define PMGPIO(x) (x-1)
+#define MSM8X60_AUD_HP_EN          PMGPIO(18)
+#define MSM8X60_AUD_QTR_RESET      PMGPIO(21)
+#define MSM8X60_TP_RST             PMGPIO(23)
+#define MSM8X60_GREEN_LED          PMGPIO(24)
+#define MSM8X60_AMBER_LED          PMGPIO(25)
+#define MSM8X60_CHG_STAT           PMGPIO(33)
+#define MSM8X60_SDC3_DET           PMGPIO(34)
+#define MSM8X60_AUD_REMO_PRES      PMGPIO(37)
+#define MSM8X60_WIFI_BT_SLEEP_CLK  PMGPIO(38)
+
 #if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
-#define SHOOTER_VOL_UP             (104)
-#define SHOOTER_VOL_DN             (103)
-#define SHOOTER_AUD_MIC_SEL        PMGPIO(14)
+#define MSM8X60_VOL_UP             (104)
+#define MSM8X60_VOL_DN             (103)
+#define MSM8X60_AUD_MIC_SEL        PMGPIO(14)
 #define SHOOTER_AUD_REMO_EN        PMGPIO(15)
 #define SHOOTER_WIMAX_DEBUG12      PMGPIO(16)
 #define SHOOTER_WIMAX_HOST_WAKEUP  PMGPIO(17)
-#define SHOOTER_AUD_HP_EN          PMGPIO(18)
 #define SHOOTER_AUD_SPK_ENO        PMGPIO(19)
 #define SHOOTER_3DLCM_PD           PMGPIO(20)
-#define SHOOTER_PS_VOUT            PMGPIO(22)
-#define SHOOTER_TP_RST             PMGPIO(23)
-#define SHOOTER_GREEN_LED          PMGPIO(24)
-#define SHOOTER_AMBER_LED          PMGPIO(25)
+#define MSM8X60_PLS_INT            PMGPIO(22)
 #define SHOOTER_3DCLK              PMGPIO(26)
 #define SHOOTER_WIMAX_DEBUG14_XA   PMGPIO(28)
 #define SHOOTER_WIMAX_DEBUG15_XA   PMGPIO(30)
 #define SHOOTER_TORCH_SET2         PMGPIO(31)
-#define SHOOTER_CHG_STAT	   PMGPIO(33)
 #define SHOOTER_WIMAX_DEBUG14      PMGPIO(35)
 #define SHOOTER_WIMAX_DEBUG15      PMGPIO(36)
-#define SHOOTER_AUD_REMO_PRES      PMGPIO(37)
-#define SHOOTER_WIFI_BT_SLEEP_CLK  PMGPIO(38)
 #ifdef CONFIG_MACH_SHOOTER
 #define SHOOTER_TORCH_SET1         PMGPIO(32)
-#elif CONFIG_MACH_SHOOTER_U
+#elif defined(CONFIG_MACH_SHOOTER_U)
 #define SHOOTER_TORCH_SET1         PMGPIO(40)
 #endif
 #elif defined (CONFIG_MACH_PYRAMID)
-#define SHOOTER_AUD_REMO_EN        PMGPIO(15)
-#define SHOOTER_VOL_UP             PMGPIO(16)
-#define SHOOTER_VOL_DN             PMGPIO(17)
-#define SHOOTER_AUD_HP_EN          PMGPIO(18)
-#define SHOOTER_HAP_ENABLE         PMGPIO(19)
-#define SHOOTER_AUD_QTR_RESET      PMGPIO(21)
-#define SHOOTER_TP_RST             PMGPIO(23)
-#define SHOOTER_GREEN_LED          PMGPIO(24)
-#define SHOOTER_AMBER_LED          PMGPIO(25)
-#define SHOOTER_AUD_MIC_SEL        PMGPIO(26)
-#define SHOOTER_CHG_STAT	   PMGPIO(33)
-#define SHOOTER_SDC3_DET           PMGPIO(34)
-#define SHOOTER_PS_VOUT            PMGPIO(35)
-#define SHOOTER_AUD_REMO_PRES      PMGPIO(37)
-#define SHOOTER_WIFI_BT_SLEEP_CLK  PMGPIO(38)
+#define MSM8X60_VOL_UP             PMGPIO(16)
+#define MSM8X60_VOL_DN             PMGPIO(17)
+#define PYRAMID_HAP_ENABLE         PMGPIO(19)
+#define MSM8X60_AUD_MIC_SEL        PMGPIO(26)
+#define MSM8X60_PLS_INT            PMGPIO(35)
 #endif
 
-void __init shooter_init_mmc(void);
-void __init shooter_audio_init(void);
-void __init shooter_init_keypad(void);
-int __init shooter_wifi_init(void);
-void __init shooter_init_panel(void);
+void __init htc_msm8x60_init_mmc(void);
+void __init htc_msm8x60_audio_init(void);
+void __init htc_msm8x60_init_keypad(void);
+int __init htc_msm8x60_wifi_init(void);
+void __init htc_msm8x60_init_panel(void);
 void msm8x60_allocate_fb_region(void);
 void msm8x60_mdp_writeback(struct memtype_reserve *reserve_table);
 
-#endif /* __ARCH_ARM_MACH_MSM_BOARD_SHOOTER_H */
+#endif /* __ARCH_ARM_MACH_MSM_BOARD_HTC_MSM8X60_H */
