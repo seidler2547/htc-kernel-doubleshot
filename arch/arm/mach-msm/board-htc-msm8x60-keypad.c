@@ -23,8 +23,10 @@ static struct gpio_event_direct_entry msm8x60_keypad_switch_map[] = {
 	{ MSM8X60_GPIO_KEY_POWER, 	KEY_POWER		},
 	{ MSM8X60_GPIO_KEY_VOL_UP,	KEY_VOLUMEUP		},
 	{ MSM8X60_GPIO_KEY_VOL_DOWN,	KEY_VOLUMEDOWN		},
+#ifndef CONFIG_MACH_PYRAMID
 	{ MSM8X60_GPIO_KEY_CAM_STEP1,	KEY_HP			},
 	{ MSM8X60_GPIO_KEY_CAM_STEP2,	KEY_CAMERA		},
+#endif
 };
 
 static void msm8x60_gpio_event_input_init(void)
@@ -35,10 +37,12 @@ static void msm8x60_gpio_event_input_init(void)
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_VOL_DOWN, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
+#ifndef CONFIG_MACH_PYRAMID
 	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_CAM_STEP1, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 	gpio_tlmm_config(GPIO_CFG(MSM8X60_GPIO_KEY_CAM_STEP2, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP,
 				GPIO_CFG_2MA), GPIO_CFG_ENABLE);
+#endif
 
 	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_VOL_UP));
 	enable_irq_wake(MSM_GPIO_TO_INT(MSM8X60_GPIO_KEY_VOL_DOWN));
