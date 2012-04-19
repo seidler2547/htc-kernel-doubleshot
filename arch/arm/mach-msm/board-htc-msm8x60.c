@@ -2914,7 +2914,7 @@ static int isl29028_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29028_platform_data isl29028_pdata = {
-	.intr = MSM8X60_PLS_INT,
+	.intr = PM8058_GPIO_PM_TO_SYS(MSM8X60_PLS_INT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29028_power,
@@ -2936,7 +2936,7 @@ static int isl29029_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29029_platform_data isl29029_pdata = {
-	.intr = MSM8X60_PLS_INT,
+	.intr = PM8058_GPIO_PM_TO_SYS(MSM8X60_PLS_INT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29029_power,
