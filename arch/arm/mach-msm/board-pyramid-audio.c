@@ -438,7 +438,7 @@ static struct q6asm_ops qops = {
 	.get_q6_effect = pyramid_get_q6_effect_mode,
 };
 
-void __init pyramid_audio_init(void)
+void __init htc_msm8x60_audio_init(void)
 {
 	mutex_init(&bt_sco_lock);
 	mutex_init(&mic_lock);
