@@ -370,6 +370,14 @@ config LEDS_PMIC8058
 	  (Power Management IC) chip on Qualcomm reference boards,
 	  for example SURF and FFAs.
 
+config LEDS_HTC_PM8058
+	tristate "LED Support for PM8058 on HTC MSM8X60 Boards"
+	default n
+	help
+	  This option enables support for PM8058 LEDS on HTC MSM8X60
+	  devices like the Evo 3D and Sensation.
+
+
 config LEDS_INTEL_SS4200
 	tristate "LED driver for Intel NAS SS4200 series"
 	depends on LEDS_CLASS
