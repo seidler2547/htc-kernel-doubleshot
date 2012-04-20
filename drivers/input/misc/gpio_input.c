@@ -89,7 +89,11 @@ static enum hrtimer_restart gpio_event_input_timer_func(struct hrtimer *timer)
 					i, key_entry->gpio);
 		}
 		npolarity = !(gpio_flags & GPIOEDF_ACTIVE_HIGH);
+#ifdef CONFIG_MACH_PYRAMID
+		pressed = gpio_get_value_cansleep(key_entry->gpio) ^ npolarity;
+#else
 		pressed = gpio_get_value(key_entry->gpio) ^ npolarity;
+#endif
 		if (debounce & DEBOUNCE_POLL) {
 			if (pressed == !(debounce & DEBOUNCE_PRESSED)) {
 				ds->debounce_count++;
@@ -195,7 +199,11 @@ static irqreturn_t gpio_event_input_irq_handler(int irq, void *dev_id)
 		}
 		spin_unlock_irqrestore(&ds->irq_lock, irqflags);
 	} else {
+#ifdef CONFIG_MACH_PYRAMID
+		pressed = gpio_get_value_cansleep(key_entry->gpio) ^
+#else
 		pressed = gpio_get_value(key_entry->gpio) ^
+#endif
 			!(ds->info->flags & GPIOEDF_ACTIVE_HIGH);
 		if (ds->info->flags & GPIOEDF_PRINT_KEYS)
 			pr_info("gpio_event_input_irq_handler: key %x-%x, %d "
