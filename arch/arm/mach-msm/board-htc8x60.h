@@ -121,7 +121,7 @@
 #define HTC8X60_GPIO_PANA_GYRO_SLEEP	(70)
 #define HTC8X60_GPIO_GYRO_ID		(130)
 #define HTC8X60_GPIO_GYRO_DIAG		(41)
-#endif CONFIG_MACH_RUBY
+#endif
 
 /* Direct Keys */
 #define HTC8X60_GPIO_SW_LCM_3D       (64)
@@ -135,6 +135,8 @@
 #ifndef CONFIG_MACH_RUBY
 #define HTC8X60_GPIO_KEY_CAM_STEP2   (115)
 #define HTC8X60_GPIO_KEY_CAM_STEP1   (123)
+#else
+#define HTC8X60_GPIO_KEY_CAPTURE     (94)
 #endif
 #endif
 #define HTC8X60_GPIO_KEY_POWER       (125)
@@ -144,10 +146,8 @@
 #define HTC8X60_GPIO_CHG_INT		   (126)
 
 /* Wifi */
-#ifndef CONFIG_MACH_RUBY
 #define HTC8X60_GPIO_WIFI_IRQ              (46)
 #define HTC8X60_GPIO_WIFI_SHUTDOWN_N       (96)
-#endif
 
 /* WiMax */
 #define HTC8X60_GPIO_WIMAX_UART_SIN        (41)
@@ -171,11 +171,11 @@
 #define HTC8X60_SENSOR_I2C_SCL		(73)
 #define HTC8X60_GYRO_INT		(127)
 #else
-#define HTC8X60_GPIO_SENSOR_I2C_SCL	(115)
-#define HTC8X60_GPIO_SENSOR_I2C_SDA	(116)
-#define HTC8X60_GPIO_GYRO_INT		(126)
-#define HTC8X60_GPIO_COMPASS_INT	(128)
-#define HTC8X60_GPIO_GSENSOR_INT_N	(127)
+#define HTC8X60_SENSOR_I2C_SCL	(115)
+#define HTC8X60_SENSOR_I2C_SDA	(116)
+#define HTC8X60_GYRO_INT		(126)
+#define HTC8X60_COMPASS_INT	(128)
+#define HTC8X60_GSENSOR_INT_N	(127)
 
 #define HTC8X60_LAYOUTS	{ \
 			{ { 0,  1, 0}, {-1,  0,  0}, {0, 0, 1} }, \
@@ -196,7 +196,7 @@
 #define HTC8X60_TP_I2C_SCL           (52)
 #ifdef CONFIG_TOUCHSCREEN_ATMEL
 #ifdef CONFIG_MACH_RUBY
-#define RUBY_TP_ATT_N                (117)
+#define HTC8X60_TP_ATT_N                (117)
 #else
 #define HTC8X60_TP_ATT_N             (57)
 #endif
@@ -235,21 +235,16 @@
 #define HTC8X60_GPIO_BT_RESET_N        (142)
 
 /* USB */
-#ifndef CONFIG_MACH_RUBY
 #define HTC8X60_GPIO_USB_ID             (63)
 #define HTC8X60_GPIO_MHL_RESET          (70)
 #define HTC8X60_GPIO_MHL_INT            (71)
 #define HTC8X60_GPIO_MHL_USB_EN        (139)
 #define HTC8X60_GPIO_MHL_USB_SW         (99)
 
-#else
 /* USB and UART */
+#ifdef CONFIG_MACH_RUBY
 #define HTC8X60_GPIO_UART_RX           (105)
 #define HTC8X60_GPIO_UART_TX           (106)
-
-/* Cable detect */
-#define HTC8X60_GPIO_MHL_USB_SEL	(1)
-#define HTC8X60_GPIO_USB_ID		(63)
 #endif
 
 /* Camera */
@@ -270,6 +265,12 @@
 #define HTC8X60_SPI_DI                 (34)
 #define HTC8X60_SPI_CS                 (35)
 #define HTC8X60_SPI_CLK                (36)
+
+/* SD */
+#ifdef CONFIG_MACH_RUBY
+#define HTC8X60_SD_DETECT_PIN		(37)
+#define HTC8X60_PSNENOR_INTz		(123)
+#endif
 
 /* LCM */
 #if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
