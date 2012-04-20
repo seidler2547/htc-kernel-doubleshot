@@ -15,10 +15,12 @@
 
 #include <asm/io.h>
 #include <asm/mach-types.h>
+#include <linux/bootmem.h>
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
+#include <linux/ion.h>
 #include <linux/leds.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -38,7 +40,7 @@
 #include "../devices.h"
 #include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
-#include "../../../../drivers/video/msm_8x60/mdp_hw.h"
+#include "../../../../drivers/video/msm/mdp_hw.h"
 
 extern int panel_type;
 void mdp_color_enhancement(const struct mdp_reg *reg_seq, int size);
@@ -84,16 +86,16 @@ static void ruby_panel_power(int on)
 		}
 
 		/* LCM Reset */
-		rc = gpio_request(RUBY_GPIO_LCM_RST_N,
+		rc = gpio_request(GPIO_LCM_RST_N,
 			"LCM_RST_N");
 		if (rc) {
 			printk(KERN_ERR "%s:LCM gpio %d request"
 				"failed\n", __func__,
-				 RUBY_GPIO_LCM_RST_N);
+				 GPIO_LCM_RST_N);
 			return;
 		}
 
-		//gpio_direction_output(RUBY_GPIO_LCM_RST_N, 0);
+		//gpio_direction_output(GPIO_LCM_RST_N, 0);
 		init = 1;
 	}
 
@@ -113,7 +115,7 @@ static void ruby_panel_power(int on)
 					" l19_2v85\n", __func__);
 			return;
 		}
-		hr_msleep(5);
+		msleep(5);
 
 		if (regulator_enable(rgl_l20)) {
 			pr_err("%s: Unable to enable the regulator:"
@@ -125,23 +127,23 @@ static void ruby_panel_power(int on)
 			init = 2;
 			return;
 		} else {
-			hr_msleep(10);
-			gpio_set_value(RUBY_GPIO_LCM_RST_N, 1);
-			hr_msleep(1);
-			gpio_set_value(RUBY_GPIO_LCM_RST_N, 0);
-			hr_msleep(1);
-			gpio_set_value(RUBY_GPIO_LCM_RST_N, 1);
-			hr_msleep(20);
+			msleep(10);
+			gpio_set_value(GPIO_LCM_RST_N, 1);
+			msleep(1);
+			gpio_set_value(GPIO_LCM_RST_N, 0);
+			msleep(1);
+			gpio_set_value(GPIO_LCM_RST_N, 1);
+			msleep(20);
 		}
 	} else {
-		gpio_set_value(RUBY_GPIO_LCM_RST_N, 0);
-		hr_msleep(5);
+		gpio_set_value(GPIO_LCM_RST_N, 0);
+		msleep(5);
 		if (regulator_disable(rgl_l20)) {
 			pr_err("%s: Unable to enable the regulator:"
 				" l20_1v8\n", __func__);
 			return;
 		}
-		hr_msleep(5);
+		msleep(5);
 		if (regulator_disable(rgl_l19)) {
 			pr_err("%s: Unable to enable the regulator:"
 					" l19_2v85\n", __func__);
@@ -158,13 +160,13 @@ fail:
 }
 
 static uint32_t lcd_on_gpio[] = {
-	GPIO_CFG(RUBY_GPIO_LCM_ID0, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-//	GPIO_CFG(RUBY_GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(GPIO_LCM_ID0, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+//	GPIO_CFG(GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t lcd_off_gpio[] = {
-	GPIO_CFG(RUBY_GPIO_LCM_ID0, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-//	GPIO_CFG(RUBY_GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(GPIO_LCM_ID0, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+//	GPIO_CFG(GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static int mipi_panel_power(int on)
@@ -182,7 +184,7 @@ static int mipi_panel_power(int on)
 		gpio_tlmm_config(lcd_on_gpio[0], GPIO_CFG_ENABLE);
 	else {
 		gpio_tlmm_config(lcd_off_gpio[0], GPIO_CFG_ENABLE);
-		gpio_set_value(RUBY_GPIO_LCM_ID0, 0);
+		gpio_set_value(GPIO_LCM_ID0, 0);
 	}
 
 	ruby_panel_power(on);
@@ -191,6 +193,110 @@ static int mipi_panel_power(int on)
 }
 
 #ifdef CONFIG_MSM_BUS_SCALING
+static struct msm_bus_vectors rotator_init_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab = 0,
+		.ib = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab = 0,
+		.ib = 0,
+	},
+};
+
+static struct msm_bus_vectors rotator_ui_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = 0,
+		.ib  = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1024 * 600 * 4 * 2 * 60),
+		.ib  = (1024 * 600 * 4 * 2 * 60 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_vga_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_720p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_1080p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_paths rotator_bus_scale_usecases[] = {
+	{
+		ARRAY_SIZE(rotator_init_vectors),
+		rotator_init_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_ui_vectors),
+		rotator_ui_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_vga_vectors),
+		rotator_vga_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_720p_vectors),
+		rotator_720p_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_1080p_vectors),
+		rotator_1080p_vectors,
+	},
+};
+
+struct msm_bus_scale_pdata rotator_bus_scale_pdata = {
+	rotator_bus_scale_usecases,
+	ARRAY_SIZE(rotator_bus_scale_usecases),
+	.name = "rotator",
+};
+
 static struct msm_bus_vectors mdp_init_vectors[] = {
 	/* For now, 0th array entry is reserved.
 	 * Please leave 0 as is and don't use it
@@ -318,13 +424,14 @@ static struct msm_bus_paths mdp_bus_scale_usecases[] = {
 		mdp_1080p_vectors,
 	},
 };
+
 static struct msm_bus_scale_pdata mdp_bus_scale_pdata = {
 	mdp_bus_scale_usecases,
 	ARRAY_SIZE(mdp_bus_scale_usecases),
 	.name = "mdp",
 };
-
 #endif
+
 #ifdef CONFIG_MSM_BUS_SCALING
 static struct msm_bus_vectors dtv_bus_init_vectors[] = {
 	/* For now, 0th array entry is reserved.
@@ -460,20 +567,40 @@ static int msm_fb_detect_panel(const char *name)
 
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.detect_client = msm_fb_detect_panel,
-	.width = 53,
-	.height = 95,
+//	.width = 53,
+//	.height = 95,
+};
+
+static struct resource msm_fb_resources[] = {
+	{
+		.flags  = IORESOURCE_DMA,
+	}
 };
 
 static struct platform_device msm_fb_device = {
 	.name   = "msm_fb",
 	.id     = 0,
-	//.num_resources     = ARRAY_SIZE(msm_fb_resources),
-	//.resource          = msm_fb_resources,
+	.num_resources     = ARRAY_SIZE(msm_fb_resources),
+	.resource          = msm_fb_resources,
 	.dev.platform_data = &msm_fb_pdata,
 };
 
+void __init msm8x60_allocate_fb_region(void)
+{
+	void *addr;
+	unsigned long size;
+
+	size = MSM_FB_SIZE;
+	addr = alloc_bootmem_align(size, 0x1000);
+	msm_fb_resources[0].start = __pa(addr);
+	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
+	pr_info("allocating %lu bytes at %p (%lx physical) for fb\n",
+		size, addr, __pa(addr));
+
+}
+
 int mdp_core_clk_rate_table[] = {
-	59080000,
+	85330000,
 	128000000,
 	160000000,
 	200000000,
@@ -789,9 +916,27 @@ static struct msm_panel_common_pdata mdp_pdata = {
 #ifdef CONFIG_MSM_BUS_SCALING
 	.mdp_bus_scale_table = &mdp_bus_scale_pdata,
 #endif
+	.mdp_rev = MDP_REV_41,
+#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
+	.mem_hid = ION_CP_WB_HEAP_ID,
+#else
+	.mem_hid = MEMTYPE_EBI1,
+#endif
 	.mdp_color_enhance = ruby_mdp_color_enhance,
 	.mdp_gamma = ruby_mdp_gamma,
 };
+
+void __init msm8x60_mdp_writeback(struct memtype_reserve* reserve_table)
+{
+	mdp_pdata.ov0_wb_size = MSM_FB_OVERLAY0_WRITEBACK_SIZE;
+	mdp_pdata.ov1_wb_size = MSM_FB_OVERLAY1_WRITEBACK_SIZE;
+#if defined(CONFIG_ANDROID_PMEM) && !defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov0_wb_size;
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov1_wb_size;
+#endif
+}
 
 static void __init msm_fb_add_devices(void)
 {
@@ -810,24 +955,14 @@ TODO:
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-int __init htc8x60_init_panel(struct resource *res, size_t size)
+void __init htc8x60_init_panel(void)
 {
-	int ret=0;
-
-	//if (panel_type == PANEL_ID_RIR_AUO_OTM_C3 || panel_type == PANEL_ID_RIR_AUO_OTM_C2 || panel_type == PANEL_ID_RIR_AUO_OTM)
-	//	mipi_dsi_cmd_sharp_qhd_panel_device.name = "mipi_orise";
-
 	PR_DISP_INFO("%s: %s\n", __func__, mipi_dsi_cmd_sharp_qhd_panel_device.name);
 
 	mipi_novatek_panel_data.shrink_pwm = ruby_shrink_pwm;
 
-	msm_fb_device.resource = res;
-	msm_fb_device.num_resources = size;
-
-	ret = platform_device_register(&msm_fb_device);
-	ret = platform_device_register(&mipi_dsi_cmd_sharp_qhd_panel_device);
+	platform_device_register(&msm_fb_device);
+	platform_device_register(&mipi_dsi_cmd_sharp_qhd_panel_device);
 
 	msm_fb_add_devices();
-
-	return 0;
 }
