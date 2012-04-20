@@ -2655,35 +2655,54 @@ static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 
 static struct mpu3050_platform_data mpu3050_data = {
 	.int_config = 0x10,
+#ifndef CONFIG_MACH_RUBY
 	.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+#else
+	.orientation = { 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+#endif
 	.level_shifter = 0,
 	.accel = {
 #ifdef CONFIG_MACH_PYRAMID
 		.address = 0x70 >> 1,
 		.orientation = { -1, 0, 0, 0, -1, 0, 0, 0, 1 },
-#else
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
+#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 		.address = 0x30 >> 1,
 		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
+#elif defined(CONFIG_MACH_RUBY)
+		.address = 0x30 >> 1,
+		.orientation = { 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+		.adapt_num = 10, /* The i2c bus to which the mpu device is connected */
 #endif
 		.get_slave_descr = get_accel_slave_descr,
-		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.bus = EXT_SLAVE_BUS_SECONDARY,
 	},
 
 	.compass = {
 #ifdef CONFIG_MACH_PYRAMID
 		.address = 0x18 >> 1,
-#else
+		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
+#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 		.address = 0x1A >> 1,
+		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
+#elif defined(CONFIG_MACH_RUBY)
+		.address = 0x1A >> 1,
+		.orientation = { 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+		.adapt_num = 10, /* The i2c bus to which the mpu device is connected */
 #endif
 		.get_slave_descr = get_compass_slave_descr,
-		.adapt_num = 5, /* The i2c bus to which the mpu device is connected */
 		.bus = EXT_SLAVE_BUS_PRIMARY,
-		.orientation = { -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	},
 };
 
+#ifndef CONFIG_MACH_RUBY
 static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo[] = {
+#else
+static struct i2c_board_info __initdata mpu3050_GSBI12_boardinfo[] = {
+#endif
 	{
 		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
 		.irq = MSM_GPIO_TO_INT(HTC8X60_GYRO_INT),
@@ -2876,6 +2895,7 @@ static void register_i2c_devices(void)
 					msm8x60_i2c_devices[i].len);
 	}
 
+#ifndef CONFIG_MACH_RUBY
 	i2c_register_board_info(MSM_GSBI10_QUP_I2C_BUS_ID,
 		mpu3050_GSBI10_boardinfo, ARRAY_SIZE(mpu3050_GSBI10_boardinfo));
 
@@ -2889,6 +2909,12 @@ static void register_i2c_devices(void)
 			ARRAY_SIZE(i2c_isl29029_devices));
 	} else
 		printk(KERN_DEBUG "No Intersil chips\n");
+#else
+
+	i2c_register_board_info(MSM_GSBI12_QUP_I2C_BUS_ID,
+		mpu3050_GSBI12_boardinfo, ARRAY_SIZE(mpu3050_GSBI12_boardinfo));
+	
+#endif
 #endif
 }
 
