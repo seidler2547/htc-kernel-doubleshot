@@ -2763,7 +2763,7 @@ static struct tpa2051d3_platform_data tpa2051d3_pdata = {
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_HP_EN,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
-#elif CONFIG_MACH_RUBY
+#elif defined(CONFIG_MACH_RUBY)
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
@@ -2904,16 +2904,18 @@ static struct platform_device *devices[] __initdata = {
 	&msm_pil_modem,
 	&msm_pil_tzapps,
 #ifdef CONFIG_I2C_QUP
-#ifdef CONFIG_MACH_PYRAMID
-	&msm_gsbi3_qup_i2c_device,
-	&msm_gsbi8_qup_i2c_device,
-	&msm_gsbi9_qup_i2c_device,
-	&msm_gsbi12_qup_i2c_device,
-#endif
 	&msm_gsbi4_qup_i2c_device,
 	&msm_gsbi5_qup_i2c_device,
 	&msm_gsbi7_qup_i2c_device,
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
+	&msm_gsbi3_qup_i2c_device,
+	&msm_gsbi12_qup_i2c_device,
+#elif defined(CONFIG_MACH_PYRAMID)
+	&msm_gsbi8_qup_i2c_device,
+	&msm_gsbi9_qup_i2c_device,
+#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_PYRAMID)
 	&msm_gsbi10_qup_i2c_device,
+#endif
 #endif
 #ifdef CONFIG_BT
 	&htc8x60_rfkill,
@@ -2925,7 +2927,7 @@ static struct platform_device *devices[] __initdata = {
 	&msm_gsbi1_qup_spi_device,
 #ifdef CONFIG_MACH_SHOOTER
 	&msm_gsbi2_qup_spi_device,
-#else
+#elif defined(CONFIG_MACH_SHOOTER_U)
 	&msm_gsbi3_qup_spi_device,
 #endif
 #endif
@@ -2934,6 +2936,10 @@ static struct platform_device *devices[] __initdata = {
 	&msm_device_ssbi_pmic2,
 #endif
 #ifdef CONFIG_I2C_SSBI
+#ifdef CONFIG_MACH_RUBY
+	&msm_device_ssbi1,
+	&msm_device_ssbi2,
+#endif
 #ifdef CONFIG_MACH_PYRAMID
 	&msm_device_ssbi2,
 #endif
@@ -3246,11 +3252,22 @@ static uint32_t gsbi7_gpio_table[] = {
 	GPIO_CFG(HTC8X60_GENERAL_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
+#ifndef CONFIG_MACH_RUBY
 static uint32_t gsbi10_gpio_table[] = {
 	GPIO_CFG(HTC8X60_SENSOR_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
 	GPIO_CFG(HTC8X60_SENSOR_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
 };
+#else
+static uint32_t gsbi3_gpio_table[] = {
+	GPIO_CFG(RUBY_NFC_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(RUBY_NFC_I2C_SCL, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+};
 
+static uint32_t gsbi12_gpio_table[] = {
+	GPIO_CFG(RUBY_GPIO_SENSOR_I2C_SDA, 2, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(RUBY_GPIO_SENSOR_I2C_SCL, 2, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+};
+#endif
 
 static void gsbi_qup_i2c_gpio_config(int adap_id, int config_type)
 {
@@ -3286,6 +3303,7 @@ static void gsbi_qup_i2c_gpio_config(int adap_id, int config_type)
 		gpio_tlmm_config(gsbi7_gpio_table[1], GPIO_CFG_DISABLE);
 	}
 
+#ifndef CONFIG_MACH_RUBY
 	if ((adap_id == MSM_GSBI10_QUP_I2C_BUS_ID) && (config_type == 1)) {
 		gpio_tlmm_config(gsbi10_gpio_table[0], GPIO_CFG_ENABLE);
 		gpio_tlmm_config(gsbi10_gpio_table[1], GPIO_CFG_ENABLE);
@@ -3295,16 +3313,46 @@ static void gsbi_qup_i2c_gpio_config(int adap_id, int config_type)
 		gpio_tlmm_config(gsbi10_gpio_table[0], GPIO_CFG_DISABLE);
 		gpio_tlmm_config(gsbi10_gpio_table[1], GPIO_CFG_DISABLE);
 	}
+#else
+	if ((adap_id == MSM_GSBI3_QUP_I2C_BUS_ID) && (config_type == 1)) {
+		gpio_tlmm_config(gsbi3_gpio_table[0], GPIO_CFG_ENABLE);
+		gpio_tlmm_config(gsbi3_gpio_table[1], GPIO_CFG_ENABLE);
+	}
+
+	if ((adap_id == MSM_GSBI3_QUP_I2C_BUS_ID) && (config_type == 0)) {
+		gpio_tlmm_config(gsbi3_gpio_table[0], GPIO_CFG_DISABLE);
+		gpio_tlmm_config(gsbi3_gpio_table[1], GPIO_CFG_DISABLE);
+	}
+
+	if ((adap_id == MSM_GSBI12_QUP_I2C_BUS_ID) && (config_type == 1)) {
+		gpio_tlmm_config(gsbi12_gpio_table[0], GPIO_CFG_ENABLE);
+		gpio_tlmm_config(gsbi12_gpio_table[1], GPIO_CFG_ENABLE);
+	}
+
+	if ((adap_id == MSM_GSBI12_QUP_I2C_BUS_ID) && (config_type == 0)) {
+		gpio_tlmm_config(gsbi12_gpio_table[0], GPIO_CFG_DISABLE);
+		gpio_tlmm_config(gsbi12_gpio_table[1], GPIO_CFG_DISABLE);
+	}
+#endif
 
 }
 
-#ifdef CONFIG_MACH_PYRAMID
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
 static struct msm_i2c_platform_data msm_gsbi3_qup_i2c_pdata = {
 	.clk_freq = 384000,
 	.src_clk_rate = 24000000,
 	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
 };
 
+static struct msm_i2c_platform_data msm_gsbi12_qup_i2c_pdata = {
+	.clk_freq = 100000,
+	.src_clk_rate = 24000000,
+	.use_gsbi_shared_mode = 1,
+	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
+};
+#endif
+
+#ifdef CONFIG_MACH_PYRAMID
 static struct msm_i2c_platform_data msm_gsbi8_qup_i2c_pdata = {
 	.clk_freq = 100000,
 	.src_clk_rate = 24000000,
@@ -3314,13 +3362,6 @@ static struct msm_i2c_platform_data msm_gsbi8_qup_i2c_pdata = {
 static struct msm_i2c_platform_data msm_gsbi9_qup_i2c_pdata = {
 	.clk_freq = 100000,
 	.src_clk_rate = 24000000,
-	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
-};
-
-static struct msm_i2c_platform_data msm_gsbi12_qup_i2c_pdata = {
-	.clk_freq = 100000,
-	.src_clk_rate = 24000000,
-	.use_gsbi_shared_mode = 1,
 	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
 };
 #endif
@@ -3343,11 +3384,13 @@ static struct msm_i2c_platform_data msm_gsbi7_qup_i2c_pdata = {
 	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
 };
 
+#ifndef CONFIG_MACH_RUBY
 static struct msm_i2c_platform_data msm_gsbi10_qup_i2c_pdata = {
 	.clk_freq = 384000,
 	.src_clk_rate = 24000000,
 	.msm_i2c_config_gpio = gsbi_qup_i2c_gpio_config,
 };
+#endif
 #endif
 
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
@@ -3359,7 +3402,7 @@ static struct msm_spi_platform_data msm_gsbi1_qup_spi_pdata = {
 #endif
 };
 
-#ifndef CONFIG_MACH_PYRAMID
+#if !defined(CONFIG_MACH_PYRAMID) && !defined(CONFIG_MACH_RUBY)
 #ifdef CONFIG_MACH_SHOOTER
 static struct msm_spi_platform_data msm_gsbi2_qup_spi_pdata = {
 #else
@@ -3372,6 +3415,16 @@ static struct msm_spi_platform_data msm_gsbi3_qup_spi_pdata = {
 
 #ifdef CONFIG_I2C_SSBI
 
+#ifdef CONFIG_MACH_RUBY
+#endif
+static struct msm_ssbi_platform_data msm_ssbi1_pdata = {
+	.controller_type = MSM_SBI_CTRL_PMIC_ARBITER,
+};
+
+/* PMIC SSBI */
+static struct msm_ssbi_platform_data msm_ssbi2_pdata = {
+	.controller_type = MSM_SBI_CTRL_PMIC_ARBITER,
+};
 #ifdef CONFIG_MACH_PYRAMID
 /* PMIC SSBI */
 static struct msm_i2c_ssbi_platform_data msm_ssbi2_pdata = {
@@ -4227,20 +4280,22 @@ static void __init msm8x60_init_buses(void)
 	mb();
 	iounmap(gsbi_mem);
 
-#ifdef CONFIG_MACH_PYRAMID
-	msm_gsbi3_qup_i2c_device.dev.platform_data = &msm_gsbi3_qup_i2c_pdata;
-	msm_gsbi8_qup_i2c_device.dev.platform_data = &msm_gsbi8_qup_i2c_pdata;
-	msm_gsbi9_qup_i2c_device.dev.platform_data = &msm_gsbi9_qup_i2c_pdata;
-	msm_gsbi12_qup_i2c_device.dev.platform_data = &msm_gsbi12_qup_i2c_pdata;
-#endif
 	msm_gsbi4_qup_i2c_device.dev.platform_data = &msm_gsbi4_qup_i2c_pdata;
 	msm_gsbi5_qup_i2c_device.dev.platform_data = &msm_gsbi5_qup_i2c_pdata;
 	msm_gsbi7_qup_i2c_device.dev.platform_data = &msm_gsbi7_qup_i2c_pdata;
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
+	msm_gsbi3_qup_i2c_device.dev.platform_data = &msm_gsbi3_qup_i2c_pdata;
+	msm_gsbi12_qup_i2c_device.dev.platform_data = &msm_gsbi12_qup_i2c_pdata;
+#elif defined(CONFIG_MACH_PYRAMID)
+	msm_gsbi8_qup_i2c_device.dev.platform_data = &msm_gsbi8_qup_i2c_pdata;
+	msm_gsbi9_qup_i2c_device.dev.platform_data = &msm_gsbi9_qup_i2c_pdata;
+#elif defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 	msm_gsbi10_qup_i2c_device.dev.platform_data = &msm_gsbi10_qup_i2c_pdata;
+#endif
 #endif
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
 	msm_gsbi1_qup_spi_device.dev.platform_data = &msm_gsbi1_qup_spi_pdata;
-#ifndef CONFIG_MACH_PYRAMID
+#if !defined(CONFIG_MACH_PYRAMID) && !defined(CONFIG_MACH_RUBY)
 #ifdef CONFIG_MACH_SHOOTER
 	msm_gsbi2_qup_spi_device.dev.platform_data = &msm_gsbi2_qup_spi_pdata;
 #else
@@ -4255,6 +4310,10 @@ static void __init msm8x60_init_buses(void)
 				&msm8x60_ssbi_pm8901_pdata;
 #endif
 #ifdef CONFIG_I2C_SSBI
+#ifdef CONFIG_MACH_RUBY
+	msm_device_ssbi1.dev.platform_data = &msm_ssbi1_pdata;
+	msm_device_ssbi2.dev.platform_data = &msm_ssbi2_pdata;
+#endif
 #ifdef CONFIG_MACH_PYRAMID
 	msm_device_ssbi2.dev.platform_data = &msm_ssbi2_pdata;
 #endif
