@@ -14,18 +14,12 @@
  */
 
 #include <linux/platform_device.h>
-#include <linux/input.h>
-#include <linux/interrupt.h>
 #include <linux/gpio_event.h>
-#include <linux/keyreset.h>
-#include <asm/mach-types.h>
 #include <linux/gpio.h>
+#include <linux/keyreset.h>
 #include <mach/gpio.h>
 
 #include "board-htc8x60.h"
-
-#include <linux/mfd/pmic8058.h>
-#include <linux/input/pmic8058-keypad.h>
 
 /* Macros assume PMIC GPIOs start at 0 */
 #define PM8058_GPIO_BASE			NR_MSM_GPIOS
@@ -62,18 +56,17 @@ static struct gpio_event_direct_entry pyramid_keypad_input_map[] = {
 	},
 };
 
-static uint32_t inputs_gpio_table[] = {
-		GPIO_CFG(HTC8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT,
-			 GPIO_CFG_PULL_UP, GPIO_CFG_4MA),
-	};
-
-static void pyramid_setup_input_gpio(void)
+static void pyramid_gpio_event_input_init(void)
 {
-	gpio_tlmm_config(inputs_gpio_table[0], GPIO_CFG_ENABLE);
+	gpio_tlmm_config(GPIO_CFG(HTC8X60_GPIO_KEY_POWER, 0, GPIO_CFG_INPUT,
+				GPIO_CFG_PULL_UP, GPIO_CFG_4MA), GPIO_CFG_ENABLE);
+
+	enable_irq_wake(MSM_GPIO_TO_INT(HTC8X60_GPIO_KEY_POWER));
 }
 
 static struct gpio_event_input_info pyramid_keypad_input_info = {
 	.info.func = gpio_event_input_func,
+	.info.no_suspend = true,
 	.flags = GPIOEDF_PRINT_KEYS,
 	.type = EV_KEY,
 #if BITS_PER_LONG != 64 && !defined(CONFIG_KTIME_SCALAR)
@@ -83,17 +76,23 @@ static struct gpio_event_input_info pyramid_keypad_input_info = {
 # endif
 	.keymap = pyramid_keypad_input_map,
 	.keymap_size = ARRAY_SIZE(pyramid_keypad_input_map),
-	.setup_input_gpio = pyramid_setup_input_gpio,
 };
 
 static struct gpio_event_info *pyramid_keypad_info[] = {
 	&pyramid_keypad_input_info.info,
 };
 
+static int pyramid_gpio_keypad_power(
+		const struct gpio_event_platform_data *pdata, bool on)
+{
+	return 0;
+}
+
 static struct gpio_event_platform_data pyramid_keypad_data = {
 	.name = "pyramid-keypad",
 	.info = pyramid_keypad_info,
 	.info_count = ARRAY_SIZE(pyramid_keypad_info),
+	.power = pyramid_gpio_keypad_power,
 };
 
 static struct platform_device pyramid_keypad_input_device = {
@@ -104,15 +103,7 @@ static struct platform_device pyramid_keypad_input_device = {
 	},
 };
 
-/*
-static int pyramid_reset_keys_up[] = {
-	KEY_VOLUMEUP,
-	0
-};
-*/
-
 static struct keyreset_platform_data pyramid_reset_keys_pdata = {
-	/* .keys_up = pyramid_reset_keys_up, */
 	.keys_down = {
 		KEY_POWER,
 		KEY_VOLUMEDOWN,
@@ -128,10 +119,9 @@ struct platform_device pyramid_reset_keys_device = {
 
 void __init htc8x60_init_keypad(void)
 {
-	printk(KERN_DEBUG "%s\n", __func__);
-
 	if (platform_device_register(&pyramid_reset_keys_device))
 		printk(KERN_WARNING "%s: register reset key fail\n", __func__);
 
+	pyramid_gpio_event_input_init();
 	platform_device_register(&pyramid_keypad_input_device);
 }
