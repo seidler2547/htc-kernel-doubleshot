@@ -77,7 +77,7 @@
 #include "rpm_stats.h"
 #include "spm.h"
 #include "timer.h"
-#include "board-shooter.h"
+#include "board-htc8x60.h"
 
 #include <linux/ion.h>
 #include <mach/ion.h>
@@ -177,8 +177,8 @@ static struct platform_device msm_gemini_device = {
 #endif
 
 #ifdef CONFIG_BT
-static struct platform_device shooter_rfkill = {
-	.name = "shooter_rfkill",
+static struct platform_device htc8x60_rfkill = {
+	.name = "htc8x60_rfkill",
 	.id = -1,
 };
 #endif
@@ -208,7 +208,7 @@ static struct platform_device msm_rpm_log_device = {
 #ifdef CONFIG_HTC_BATT8x60
 static struct htc_battery_platform_data htc_battery_pdev_data = {
 	.guage_driver = GUAGE_NONE,
-	.gpio_mbat_in = MSM_GPIO_TO_INT(SHOOTER_GPIO_MBAT_IN),
+	.gpio_mbat_in = MSM_GPIO_TO_INT(HTC8X60_GPIO_MBAT_IN),
 #ifdef CONFIG_MACH_SHOOTER
 	.gpio_mbat_in_trigger_level = MBAT_IN_HIGH_TRIGGER,
 #else
@@ -1259,10 +1259,10 @@ static int configure_uart_gpios(int on)
 {
 	int ret = 0, i;
 	int uart_gpios[] = {
-		SHOOTER_GPIO_BT_UART1_TX,
-		SHOOTER_GPIO_BT_UART1_RX,
-		SHOOTER_GPIO_BT_UART1_CTS,
-		SHOOTER_GPIO_BT_UART1_RTS,
+		HTC8X60_GPIO_BT_UART1_TX,
+		HTC8X60_GPIO_BT_UART1_RX,
+		HTC8X60_GPIO_BT_UART1_CTS,
+		HTC8X60_GPIO_BT_UART1_RTS,
 	};
 	for (i = 0; i < ARRAY_SIZE(uart_gpios); i++) {
 		if (on) {
@@ -1374,7 +1374,7 @@ static struct platform_device msm_adc_device = {
 
 /* HTC_HEADSET_GPIO Driver */
 static struct htc_headset_gpio_platform_data htc_headset_gpio_data = {
-	.hpin_gpio		= SHOOTER_GPIO_AUD_HP_DET,
+	.hpin_gpio		= HTC8X60_GPIO_AUD_HP_DET,
 	.key_enable_gpio	= 0,
 	.mic_select_gpio	= 0,
 };
@@ -1487,15 +1487,15 @@ static void headset_device_register(void)
 };
 
 static uint32_t usb_ID_PIN_input_table[] = {
-	GPIO_CFG(SHOOTER_GPIO_USB_ID, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_GPIO_USB_ID, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t usb_ID_PIN_ouput_table[] = {
-	GPIO_CFG(SHOOTER_GPIO_USB_ID, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_GPIO_USB_ID, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t mhl_usb_switch_ouput_table[] = {
-	GPIO_CFG(SHOOTER_GPIO_MHL_USB_SW, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
+	GPIO_CFG(HTC8X60_GPIO_MHL_USB_SW, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
 };
 
 static struct pm8xxx_mpp_init_info usb_mpp_init_configs[] = {
@@ -1524,19 +1524,19 @@ static void pm8058_usb_config(void)
 	mpp_init_setup(usb_mpp_init_configs, ARRAY_SIZE(usb_mpp_init_configs));
 }
 
-void config_shooter_usb_id_gpios(bool output)
+void config_htc8x60_usb_id_gpios(bool output)
 {
 	if (output) {
 		gpio_tlmm_config(usb_ID_PIN_ouput_table[0], 0);
-		gpio_set_value(SHOOTER_GPIO_USB_ID, 1);
-		printk(KERN_INFO "%s %d output high\n",  __func__, SHOOTER_GPIO_USB_ID);
+		gpio_set_value(HTC8X60_GPIO_USB_ID, 1);
+		printk(KERN_INFO "%s %d output high\n",  __func__, HTC8X60_GPIO_USB_ID);
 	} else {
 		gpio_tlmm_config(usb_ID_PIN_input_table[0], 0);
-		printk(KERN_INFO "%s %d input none pull\n",  __func__, SHOOTER_GPIO_USB_ID);
+		printk(KERN_INFO "%s %d input none pull\n",  __func__, HTC8X60_GPIO_USB_ID);
 	}
 }
 
-static void shooter_usb_dpdn_switch(int path)
+static void htc8x60_usb_dpdn_switch(int path)
 {
 	switch (path) {
 	case PATH_USB:
@@ -1548,7 +1548,7 @@ static void shooter_usb_dpdn_switch(int path)
 		gpio_tlmm_config(mhl_usb_switch_ouput_table[0], 0);
 
 		pr_info("[CABLE] %s: Set %s path\n", __func__, mhl ? "MHL" : "USB");
-		gpio_set_value(SHOOTER_GPIO_MHL_USB_SW, (mhl ^ !polarity) ? 1 : 0);
+		gpio_set_value(HTC8X60_GPIO_MHL_USB_SW, (mhl ^ !polarity) ? 1 : 0);
 		break;
 	}
 	}
@@ -1563,14 +1563,14 @@ static struct cable_detect_platform_data cable_detect_pdata = {
 	.vbus_mpp_config	= pm8058_usb_config,
 	.vbus_mpp_irq		= PM8058_IRQ_BASE + PM8058_CBLPWR_IRQ,
 	.detect_type		= CABLE_TYPE_PMIC_ADC,
-	.usb_id_pin_gpio	= SHOOTER_GPIO_USB_ID,
-	.usb_dpdn_switch	= shooter_usb_dpdn_switch,
-	.mhl_reset_gpio		= SHOOTER_GPIO_MHL_RESET,
+	.usb_id_pin_gpio	= HTC8X60_GPIO_USB_ID,
+	.usb_dpdn_switch	= htc8x60_usb_dpdn_switch,
+	.mhl_reset_gpio		= HTC8X60_GPIO_MHL_RESET,
 	.mpp_data = {
 		.usbid_mpp	= PM8058_MPP_PM_TO_SYS(XOADC_MPP_4),
 		.usbid_amux	= PM_MPP_AIN_AMUX_CH5,
 	},
-	.config_usb_id_gpios	= config_shooter_usb_id_gpios,
+	.config_usb_id_gpios	= config_htc8x60_usb_id_gpios,
 #ifdef CONFIG_FB_MSM_HDMI_MHL
 	.mhl_1v2_power		= mhl_sii9234_1v2_power,
 #endif
@@ -1821,7 +1821,7 @@ static int pm8058_gpios_init(void)
 	struct pm8058_gpio_cfg gpio_cfgs[] = {
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 		{
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_SDC3_DET),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_30,
@@ -1832,7 +1832,7 @@ static int pm8058_gpios_init(void)
 		},
 #endif
 		{ /* Audio Microphone Selector */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_MIC_SEL),	/* 26 */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL),	/* 26 */
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1845,7 +1845,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Audio Receiver Amplifier */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_HP_EN),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HP_EN),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1858,7 +1858,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Timpani Reset */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_QTR_RESET),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_QTR_RESET),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1871,7 +1871,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_PS_VOUT),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_PS_VOUT),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_1P5,
@@ -1881,7 +1881,7 @@ static int pm8058_gpios_init(void)
 			},
 		},
 		{ /* Green LED */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_GREEN_LED),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_GREEN_LED),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -1894,7 +1894,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* AMBER */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AMBER_LED),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AMBER_LED),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -1908,7 +1908,7 @@ static int pm8058_gpios_init(void)
 		},
 #ifdef CONFIG_MACH_SHOOTER
 		{ /* WIMAX HOST WAKEUP */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_WIMAX_HOST_WAKEUP),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_WIMAX_HOST_WAKEUP),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.output_value	= 0,
@@ -1921,7 +1921,7 @@ static int pm8058_gpios_init(void)
 #endif
 #ifndef CONFIG_MACH_PYRAMID
 		{ /* 3D CLK */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_3DCLK),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_3DCLK),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1934,7 +1934,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* 3DLCM_PD */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_3DLCM_PD),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_3DLCM_PD),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1947,7 +1947,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* TORCH_SET1 for Flashlight */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_TORCH_SET1),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TORCH_SET1),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1960,7 +1960,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* TORCH_SET2 for Flashlight */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_TORCH_SET2),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TORCH_SET2),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1973,7 +1973,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_EN),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_EN),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -1987,7 +1987,7 @@ static int pm8058_gpios_init(void)
 		},
 #endif
 		{ /* PMIC ID interrupt */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES),
 			{
 				.direction	= PM_GPIO_DIR_IN,
 				.pull		= PM_GPIO_PULL_UP_1P5,
@@ -1998,7 +1998,7 @@ static int pm8058_gpios_init(void)
 		},
 #ifdef CONFIG_MACH_PYRAMID
 		{ /* Volume Up Key */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_UP),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_VOL_UP),
 			{
 				.direction      = PM_GPIO_DIR_IN,
 				.pull           = PM_GPIO_PULL_UP_31P5,
@@ -2008,7 +2008,7 @@ static int pm8058_gpios_init(void)
 			}
 		},
 		{ /* Volume Down key */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_VOL_DN),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_VOL_DN),
 			{
 				.direction      = PM_GPIO_DIR_IN,
 				.pull           = PM_GPIO_PULL_UP_1P5,
@@ -2256,19 +2256,19 @@ static struct msm_ssbi_platform_data msm8x60_ssbi_pm8058_pdata __devinitdata = {
 #endif  /* CONFIG_PMIC8058 */
 
 #ifdef CONFIG_TOUCHSCREEN_ATMEL
-static int shooter_ts_atmel_power(int on)
+static int htc8x60_ts_atmel_power(int on)
 {
 	pr_info("%s: power %d\n", __func__, on);
 
-	gpio_set_value(SHOOTER_TP_RST, 0);
+	gpio_set_value(HTC8X60_TP_RST, 0);
 	msleep(5);
-	gpio_set_value(SHOOTER_TP_RST, 1);
+	gpio_set_value(HTC8X60_TP_RST, 1);
 	msleep(40);
 
 	return 0;
 }
 
-struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
+struct atmel_i2c_platform_data htc8x60_ts_atmel_data[] = {
 	{
 		.version = 0x020,
 		.source = 1, /* ALPS, Nissha */
@@ -2280,8 +2280,8 @@ struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = SHOOTER_TP_ATT_N,
-		.power = shooter_ts_atmel_power,
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.power = htc8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
 		.config_T8 = {9, 0, 5, 2, 0, 0, 5, 15, 4, 170},
@@ -2311,8 +2311,8 @@ struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = SHOOTER_TP_ATT_N,
-		.power = shooter_ts_atmel_power,
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.power = htc8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
 		.config_T8 = {8, 0, 5, 2, 0, 0, 5, 15, 4, 170},
@@ -2342,8 +2342,8 @@ struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = SHOOTER_TP_ATT_N,
-		.power = shooter_ts_atmel_power,
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.power = htc8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
 		.config_T8 = {9, 0, 5, 2, 0, 0, 5, 15},
@@ -2372,8 +2372,8 @@ struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 20,
-		.gpio_irq = SHOOTER_TP_ATT_N,
-		.power = shooter_ts_atmel_power,
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.power = htc8x60_ts_atmel_power,
 		.config_T6 = {0, 0, 0, 0, 0, 0},
 		.config_T7 = {16, 8, 50},
 		.config_T8 = {8, 0, 5, 2, 0, 0, 5, 15},
@@ -2396,14 +2396,14 @@ struct atmel_i2c_platform_data shooter_ts_atmel_data[] = {
 static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 	{
 		I2C_BOARD_INFO(ATMEL_QT602240_NAME, 0x94 >> 1),
-		.platform_data = &shooter_ts_atmel_data,
-		.irq = MSM_GPIO_TO_INT(SHOOTER_TP_ATT_N),
+		.platform_data = &htc8x60_ts_atmel_data,
+		.irq = MSM_GPIO_TO_INT(HTC8X60_TP_ATT_N),
 	},
 };
 #endif /* CONFIG_TOUCHSCREEN_ATMEL */
 
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
-static int shooter_ts_cy8c_set_rst(int on)
+static int htc8x60_ts_cy8c_set_rst(int on)
 {
 	struct pm8058_gpio_cfg {
 		int                gpio;
@@ -2412,7 +2412,7 @@ static int shooter_ts_cy8c_set_rst(int on)
 
 	struct pm8058_gpio_cfg tp_rst[] = {
 		{ /* TW RST Set LOW */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_TP_RST),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 0,
@@ -2425,7 +2425,7 @@ static int shooter_ts_cy8c_set_rst(int on)
 			}
 		},
 		{ /* TW RST Set HIGH */
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_TP_RST),
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
 				.output_value	= 1,
@@ -2441,31 +2441,31 @@ static int shooter_ts_cy8c_set_rst(int on)
 	return pm8xxx_gpio_config(tp_rst[on].gpio,	&tp_rst[on].cfg);
 }
 
-static int shooter_ts_cy8c_power(int on)
+static int htc8x60_ts_cy8c_power(int on)
 {
 	printk(KERN_INFO "%s():\n", __func__);
 	if (on)
-		shooter_ts_cy8c_set_rst(1);
+		htc8x60_ts_cy8c_set_rst(1);
 
 	return 0;
 }
 
-static int shooter_ts_cy8c_reset(void)
+static int htc8x60_ts_cy8c_reset(void)
 {
 	printk(KERN_INFO "[TP] HW reset touch.\n");
 #if 0
-	printk(KERN_INFO "[TP] SHOOTER_TP_RST: %d, PM8058_GPIO_PM_TO_SYS(SHOOTER_TP_RST): %d\n",
-		SHOOTER_TP_RST, PM8058_GPIO_PM_TO_SYS(SHOOTER_TP_RST));
+	printk(KERN_INFO "[TP] HTC8X60_TP_RST: %d, PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST): %d\n",
+		HTC8X60_TP_RST, PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST));
 #endif
-	shooter_ts_cy8c_set_rst(0);
+	htc8x60_ts_cy8c_set_rst(0);
 	msleep(10);
-	shooter_ts_cy8c_set_rst(1);
+	htc8x60_ts_cy8c_set_rst(1);
 	msleep(200);
 
 	return 0;
 }
 
-struct cy8c_i2c_platform_data shooter_ts_cy8c_data[] = {
+struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
 	{
 		.version = 0x0C,
 		.timeout = 1,
@@ -2478,10 +2478,10 @@ struct cy8c_i2c_platform_data shooter_ts_cy8c_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 512,
-		.power = shooter_ts_cy8c_power,
-		.gpio_irq = SHOOTER_TP_ATT_N_XB,
+		.power = htc8x60_ts_cy8c_power,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
 		/*.filter_level = {40, 80, 942, 982},*/
-		.reset = shooter_ts_cy8c_reset,
+		.reset = htc8x60_ts_cy8c_reset,
 	},
 
 	{
@@ -2495,8 +2495,8 @@ struct cy8c_i2c_platform_data shooter_ts_cy8c_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 512,
-		.power = shooter_ts_cy8c_power,
-		.gpio_irq = SHOOTER_TP_ATT_N_XB,
+		.power = htc8x60_ts_cy8c_power,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
 		/*.filter_level = {40, 80, 942, 982},*/
 	},
 
@@ -2511,31 +2511,31 @@ struct cy8c_i2c_platform_data shooter_ts_cy8c_data[] = {
 		.abs_pressure_max = 255,
 		.abs_width_min = 0,
 		.abs_width_max = 512,
-		.power = shooter_ts_cy8c_power,
-		.gpio_irq = SHOOTER_TP_ATT_N_XB,
-		.reset = shooter_ts_cy8c_reset,
+		.power = htc8x60_ts_cy8c_power,
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
+		.reset = htc8x60_ts_cy8c_reset,
 	},
 };
 
 #define PVT_VERSION	0x80
 
-static void shooter_ts_cy8c_set_system_rev(uint8_t rev)
+static void htc8x60_ts_cy8c_set_system_rev(uint8_t rev)
 {
 	ssize_t i = 0;
 #if 0
-	printk(KERN_INFO "[TP] sizeof shooter_ts_cy8c_data:%d, system_ver:%d\n",
-	 sizeof(shooter_ts_cy8c_data)/sizeof(struct cy8c_i2c_platform_data), rev);
+	printk(KERN_INFO "[TP] sizeof htc8x60_ts_cy8c_data:%d, system_ver:%d\n",
+	 sizeof(htc8x60_ts_cy8c_data)/sizeof(struct cy8c_i2c_platform_data), rev);
 #endif
 	if (rev >= PVT_VERSION)
-		for (i = 0; i < sizeof(shooter_ts_cy8c_data)/sizeof(struct cy8c_i2c_platform_data); i++)
-			shooter_ts_cy8c_data[i].auto_reset = 1;
+		for (i = 0; i < sizeof(htc8x60_ts_cy8c_data)/sizeof(struct cy8c_i2c_platform_data); i++)
+			htc8x60_ts_cy8c_data[i].auto_reset = 1;
 }
 
 static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 	{
 		I2C_BOARD_INFO(CYPRESS_TMA_NAME, 0x67),
-		.platform_data = &shooter_ts_cy8c_data,
-		.irq = MSM_GPIO_TO_INT(SHOOTER_TP_ATT_N_XB)
+		.platform_data = &htc8x60_ts_cy8c_data,
+		.irq = MSM_GPIO_TO_INT(HTC8X60_TP_ATT_N_XB)
 	},
 };
 #endif /* CONFIG_TOUCHSCREEN_CYPRESS_TMA */
@@ -2573,7 +2573,7 @@ static struct mpu3050_platform_data mpu3050_data = {
 static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo[] = {
 	{
 		I2C_BOARD_INFO("mpu3050", 0xD0 >> 1),
-		.irq = MSM_GPIO_TO_INT(SHOOTER_GYRO_INT),
+		.irq = MSM_GPIO_TO_INT(HTC8X60_GYRO_INT),
 		.platform_data = &mpu3050_data,
 	},
 };
@@ -2584,7 +2584,7 @@ static int isl29028_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29028_platform_data isl29028_pdata = {
-	.intr = PM8058_GPIO_PM_TO_SYS(SHOOTER_PS_VOUT),
+	.intr = PM8058_GPIO_PM_TO_SYS(HTC8X60_PS_VOUT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29028_power,
@@ -2596,7 +2596,7 @@ static struct i2c_board_info i2c_isl29028_devices[] = {
 	{
 		I2C_BOARD_INFO(ISL29028_I2C_NAME, 0x8A >> 1),
 		.platform_data = &isl29028_pdata,
-		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, SHOOTER_PS_VOUT),
+		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_PS_VOUT),
 	},
 };
 
@@ -2606,7 +2606,7 @@ static int isl29029_power(int pwr_device, uint8_t enable)
 };
 
 static struct isl29029_platform_data isl29029_pdata = {
-	.intr = PM8058_GPIO_PM_TO_SYS(SHOOTER_PS_VOUT),
+	.intr = PM8058_GPIO_PM_TO_SYS(HTC8X60_PS_VOUT),
 	.levels = {17, 79, 258, 588, 918, 1250, 1962, 2673, 3384, 4095},
 	.golden_adc = 0x4E2,
 	.power = isl29029_power,
@@ -2618,16 +2618,16 @@ static struct i2c_board_info i2c_isl29029_devices[] = {
 	{
 		I2C_BOARD_INFO(ISL29029_I2C_NAME, 0x8A >> 1),
 		.platform_data = &isl29029_pdata,
-		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, SHOOTER_PS_VOUT),
+		.irq = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_PS_VOUT),
 	},
 };
 
 #ifdef CONFIG_MSM8X60_AUDIO
 static uint32_t msm_spi_gpio[] = {
-	GPIO_CFG(SHOOTER_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(SHOOTER_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-	GPIO_CFG(SHOOTER_SPI_CS,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(SHOOTER_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_DI,  0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_CS,  0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(HTC8X60_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t auxpcm_gpio_table[] = {
@@ -2647,11 +2647,11 @@ static void msm_auxpcm_init(void)
 
 static struct tpa2051d3_platform_data tpa2051d3_pdata = {
 #ifdef CONFIG_MACH_PYRAMID
-	.gpio_tpa2051_spk_en = SHOOTER_AUD_HP_EN,
+	.gpio_tpa2051_spk_en = HTC8X60_AUD_HP_EN,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
 #else
-	.gpio_tpa2051_spk_en = SHOOTER_AUD_SPK_ENO,
+	.gpio_tpa2051_spk_en = HTC8X60_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 #ifdef CONFIG_MACH_SHOOTER
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0x6D, 0x4D, 0x0D},
@@ -2675,7 +2675,7 @@ void msm_snddev_voltage_on(void)
 {
 }
 
-void __init shooter_audio_init(void);
+void __init htc8x60_audio_init(void);
 
 void msm_snddev_voltage_off(void)
 {
@@ -2700,8 +2700,8 @@ struct i2c_registry {
 };
 
 static struct tps65200_platform_data tps65200_data = {
-	.gpio_chg_stat = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, SHOOTER_CHG_STAT),
-	.gpio_chg_int  = MSM_GPIO_TO_INT(SHOOTER_GPIO_CHG_INT),
+	.gpio_chg_stat = PM8058_GPIO_IRQ(PM8058_IRQ_BASE, HTC8X60_CHG_STAT),
+	.gpio_chg_int  = MSM_GPIO_TO_INT(HTC8X60_GPIO_CHG_INT),
 };
 
 #ifdef CONFIG_SUPPORT_DQ_BATTERY
@@ -2799,7 +2799,7 @@ static struct platform_device *devices[] __initdata = {
 	&msm_gsbi10_qup_i2c_device,
 #endif
 #ifdef CONFIG_BT
-	&shooter_rfkill,
+	&htc8x60_rfkill,
 #endif
 #ifdef CONFIG_SERIAL_MSM_HS
 	&msm_device_uart_dm1,
@@ -3115,23 +3115,23 @@ static void __init msm8x60_reserve(void)
 
 #ifdef CONFIG_I2C_QUP
 static uint32_t gsbi4_gpio_table[] = {
-	GPIO_CFG(SHOOTER_CAM_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(SHOOTER_CAM_I2C_SCL, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_CAM_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_CAM_I2C_SCL, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi5_gpio_table[] = {
-	GPIO_CFG(SHOOTER_TP_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(SHOOTER_TP_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_TP_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_TP_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi7_gpio_table[] = {
-	GPIO_CFG(SHOOTER_GENERAL_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(SHOOTER_GENERAL_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_GENERAL_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_GENERAL_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 
 static uint32_t gsbi10_gpio_table[] = {
-	GPIO_CFG(SHOOTER_SENSOR_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
-	GPIO_CFG(SHOOTER_SENSOR_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
+	GPIO_CFG(HTC8X60_SENSOR_I2C_SDA, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
+	GPIO_CFG(HTC8X60_SENSOR_I2C_SCL, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIOMUX_DRV_8MA),
 };
 
 
@@ -3910,7 +3910,7 @@ static unsigned int msm8x60_sdcc_slot_status(struct device *dev)
 #endif
 
 #ifdef CONFIG_MMC_MSM_SDC1_SUPPORT
-static unsigned int shooter_emmcslot_type = MMC_TYPE_MMC;
+static unsigned int htc8x60_emmcslot_type = MMC_TYPE_MMC;
 static struct mmc_platform_data msm8x60_sdc1_data = {
 	.ocr_mask       = MMC_VDD_27_28 | MMC_VDD_28_29,
 	.translate_vdd  = msm_sdcc_setup_power,
@@ -3925,12 +3925,12 @@ static struct mmc_platform_data msm8x60_sdc1_data = {
 	.nonremovable	= 1,
 	.pclk_src_dfab	= 1,
 	.disable_runtime_pm = 1,
-	.slot_type	= &shooter_emmcslot_type,
+	.slot_type	= &htc8x60_emmcslot_type,
 };
 #endif
 
 #ifdef CONFIG_MMC_MSM_SDC3_SUPPORT
-static unsigned int shooter_sdslot_type = MMC_TYPE_SD;
+static unsigned int htc8x60_sdslot_type = MMC_TYPE_SD;
 static struct mmc_platform_data msm8x60_sdc3_data = {
 	.ocr_mask       = MMC_VDD_27_28 | MMC_VDD_28_29,
 	.translate_vdd  = msm_sdcc_setup_power,
@@ -3950,7 +3950,7 @@ static struct mmc_platform_data msm8x60_sdc3_data = {
 	.nonremovable	= 0,
 	.pclk_src_dfab  = 1,
 	.disable_runtime_pm = 1,
-	.slot_type	= &shooter_sdslot_type,
+	.slot_type	= &htc8x60_sdslot_type,
 };
 #endif
 
@@ -4018,7 +4018,7 @@ static void __init msm8x60_init_mmc(void)
 	msm_add_sdcc(3, &msm8x60_sdc3_data);
 #endif
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
-	shooter_init_mmc();
+	htc8x60_init_mmc();
 #endif
 }
 
@@ -4057,7 +4057,7 @@ static struct msm_rpm_platform_data msm_rpm_data = {
 };
 #endif
 
-static ssize_t shooter_virtual_keys_show(struct kobject *kobj,
+static ssize_t htc8x60_virtual_keys_show(struct kobject *kobj,
 			struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf,
@@ -4075,7 +4075,7 @@ static ssize_t shooter_virtual_keys_show(struct kobject *kobj,
 		"\n");
 }
 
-static struct kobj_attribute shooter_virtual_keys_attr = {
+static struct kobj_attribute htc8x60_virtual_keys_attr = {
 	.attr = {
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
 		.name = "virtualkeys.cy8c-touchscreen",
@@ -4084,16 +4084,16 @@ static struct kobj_attribute shooter_virtual_keys_attr = {
 #endif
 		.mode = S_IRUGO,
 	},
-	.show = &shooter_virtual_keys_show,
+	.show = &htc8x60_virtual_keys_show,
 };
 
-static struct attribute *shooter_properties_attrs[] = {
-	&shooter_virtual_keys_attr.attr,
+static struct attribute *htc8x60_properties_attrs[] = {
+	&htc8x60_virtual_keys_attr.attr,
 	NULL
 };
 
-static struct attribute_group shooter_properties_attr_group = {
-	.attrs = shooter_properties_attrs,
+static struct attribute_group htc8x60_properties_attr_group = {
+	.attrs = htc8x60_properties_attrs,
 };
 
 static void __init msm8x60_init_buses(void)
@@ -4150,7 +4150,7 @@ static void __init msm8x60_init_buses(void)
 	bt_export_bd_address();
 #endif
 #ifdef CONFIG_SERIAL_MSM_HS
-	msm_uart_dm1_pdata.wakeup_irq = gpio_to_irq(SHOOTER_GPIO_BT_HOST_WAKE);
+	msm_uart_dm1_pdata.wakeup_irq = gpio_to_irq(HTC8X60_GPIO_BT_HOST_WAKE);
 	msm_device_uart_dm1.dev.platform_data = &msm_uart_dm1_pdata;
 #endif
 #ifdef CONFIG_MSM_BUS_SCALING
@@ -4227,10 +4227,10 @@ static void __init msm8x60_init(void)
 	/* Accessory */
 	if (system_rev >= 1) {
 		htc_headset_pmic_data.key_gpio =
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_PRES);
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES);
 #ifndef CONFIG_MACH_PYRAMID
 		htc_headset_pmic_data.key_enable_gpio =
-			PM8058_GPIO_PM_TO_SYS(SHOOTER_AUD_REMO_EN);
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_EN);
 		htc_headset_8x60.dev.platform_data =
 			&htc_headset_8x60_data_xb;
 #endif
@@ -4255,9 +4255,9 @@ static void __init msm8x60_init(void)
 	platform_add_devices(asoc_devices, ARRAY_SIZE(asoc_devices));
 
 	register_i2c_devices();
-	shooter_init_panel();
+	htc8x60_init_panel();
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
-	shooter_ts_cy8c_set_system_rev(system_rev);
+	htc8x60_ts_cy8c_set_system_rev(system_rev);
 #endif
 	msm_pm_set_platform_data(msm_pm_data, ARRAY_SIZE(msm_pm_data));
 	msm_pm_set_rpm_wakeup_irq(RPM_SCSS_CPU0_WAKE_UP_IRQ);
@@ -4271,14 +4271,14 @@ static void __init msm8x60_init(void)
 	msm_adc_pdata.target_hw = MSM_8x60;
 #endif
 
-	shooter_init_keypad();
-	shooter_wifi_init();
+	htc8x60_init_keypad();
+	htc8x60_wifi_init();
 	headset_device_register();
 
 	properties_kobj = kobject_create_and_add("board_properties", NULL);
 	if (properties_kobj)
 		rc = sysfs_create_group(properties_kobj,
-                                &shooter_properties_attr_group);
+                                &htc8x60_properties_attr_group);
 	if (!properties_kobj || rc)
 		pr_err("failed to create board_properties\n");
 
@@ -4290,7 +4290,7 @@ static void __init msm8x60_init(void)
         gpio_tlmm_config(msm_spi_gpio[3], GPIO_CFG_DISABLE);
         msm_auxpcm_init();
         msm_snddev_init();
-        shooter_audio_init();
+        htc8x60_audio_init();
 #endif
 }
 
@@ -4299,7 +4299,7 @@ static void __init msm8x60_init_early(void)
 	msm8x60_allocate_fb_region();
 }
 
-static void __init shooter_fixup(struct machine_desc *desc, struct tag *tags,
+static void __init htc8x60_fixup(struct machine_desc *desc, struct tag *tags,
 				char **cmdline, struct meminfo *mi)
 {
 	mem_size_mb = parse_tag_memsize((const struct tag *)tags);
@@ -4313,7 +4313,7 @@ static void __init shooter_fixup(struct machine_desc *desc, struct tag *tags,
 }
 
 MACHINE_START(SHOOTER, "HTC Evo 3D CDMA")
-	.fixup = shooter_fixup,
+	.fixup = htc8x60_fixup,
 	.map_io = msm8x60_map_io,
 	.reserve = msm8x60_reserve,
 	.init_irq = msm8x60_init_irq,
@@ -4324,7 +4324,7 @@ MACHINE_START(SHOOTER, "HTC Evo 3D CDMA")
 MACHINE_END
 
 MACHINE_START(SHOOTER_U, "HTC Evo 3D GSM")
-	.fixup = shooter_fixup,
+	.fixup = htc8x60_fixup,
 	.map_io = msm8x60_map_io,
 	.reserve = msm8x60_reserve,
 	.init_irq = msm8x60_init_irq,
@@ -4335,7 +4335,7 @@ MACHINE_START(SHOOTER_U, "HTC Evo 3D GSM")
 MACHINE_END
 
 MACHINE_START(PYRAMID, "HTC Sensation")
-	.fixup = shooter_fixup,
+	.fixup = htc8x60_fixup,
 	.map_io = msm8x60_map_io,
 	.reserve = msm8x60_reserve,
 	.init_irq = msm8x60_init_irq,

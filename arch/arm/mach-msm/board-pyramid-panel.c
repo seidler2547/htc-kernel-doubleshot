@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-mecha-panel.c
+/* linux/arch/arm/mach-msm/board-pyramid-panel.c
  *
  * Copyright (c) 2011 HTC.
  *
@@ -34,7 +34,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-shooter.h"
+#include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm/mdp_hw.h"
 #if defined (CONFIG_FB_MSM_MDP_ABL)
@@ -1356,7 +1356,7 @@ TODO:
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-void __init shooter_init_panel(void)
+void __init htc8x60_init_panel(void)
 {
 	if (panel_type == PANEL_ID_PYD_SHARP)
 		mipi_novatek_panel_data.shrink_pwm = pyd_shp_shrink_pwm;

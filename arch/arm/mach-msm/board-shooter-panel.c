@@ -38,7 +38,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-shooter.h"
+#include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm/mdp_hw.h"
 
@@ -1307,7 +1307,7 @@ TODO: HTC
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-void __init shooter_init_panel(void)
+void __init htc8x60_init_panel(void)
 {
 	if(panel_type == 	PANEL_ID_SHR_SHARP_OTM ||
 		panel_type == 	PANEL_ID_SHR_SHARP_OTM_C2)
@@ -1340,14 +1340,14 @@ static void shooter_3Dpanel_on(bool bLandscape)
 
 	if(system_rev >= 1) {
 		pwm_gpio_config.output_value = 1;
-		rc = pm8xxx_gpio_config(SHOOTER_3DLCM_PD, &pwm_gpio_config);
+		rc = pm8xxx_gpio_config(HTC8X60_3DLCM_PD, &pwm_gpio_config);
 		if (rc < 0)
-			pr_err("%s pmic gpio config gpio %d failed\n", __func__, SHOOTER_3DLCM_PD);
+			pr_err("%s pmic gpio config gpio %d failed\n", __func__, HTC8X60_3DLCM_PD);
 	}
 
-	rc = pm8xxx_gpio_config(SHOOTER_3DCLK, &clk_gpio_config_on);
+	rc = pm8xxx_gpio_config(HTC8X60_3DCLK, &clk_gpio_config_on);
 	if (rc < 0)
-		pr_err("%s pmic gpio config gpio %d failed\n", __func__, SHOOTER_3DCLK);
+		pr_err("%s pmic gpio config gpio %d failed\n", __func__, HTC8X60_3DCLK);
 
 	pwm_disable(pwm_3d);
 	pwm_conf.pwm_size = 9;
@@ -1362,16 +1362,16 @@ static void shooter_3Dpanel_on(bool bLandscape)
 
 	if(bLandscape) {
 		mdp_color_enhancement(mdp_sharp_barrier_on, ARRAY_SIZE(mdp_sharp_barrier_on));
-		gpio_set_value(SHOOTER_CTL_3D_1, 1);
-		gpio_set_value(SHOOTER_CTL_3D_2, 1);
-		gpio_set_value(SHOOTER_CTL_3D_3, 1);
-		gpio_set_value(SHOOTER_CTL_3D_4, 0);
+		gpio_set_value(HTC8X60_CTL_3D_1, 1);
+		gpio_set_value(HTC8X60_CTL_3D_2, 1);
+		gpio_set_value(HTC8X60_CTL_3D_3, 1);
+		gpio_set_value(HTC8X60_CTL_3D_4, 0);
 	} else {
 		mdp_color_enhancement(mdp_sharp_barrier_on, ARRAY_SIZE(mdp_sharp_barrier_on));
-		gpio_set_value(SHOOTER_CTL_3D_1, 1);
-		gpio_set_value(SHOOTER_CTL_3D_2, 1);
-		gpio_set_value(SHOOTER_CTL_3D_3, 0);
-		gpio_set_value(SHOOTER_CTL_3D_4, 1);
+		gpio_set_value(HTC8X60_CTL_3D_1, 1);
+		gpio_set_value(HTC8X60_CTL_3D_2, 1);
+		gpio_set_value(HTC8X60_CTL_3D_3, 0);
+		gpio_set_value(HTC8X60_CTL_3D_4, 1);
 	}
 
 }
@@ -1386,20 +1386,20 @@ static void shooter_3Dpanel_off(void)
 
 	if(system_rev >= 1) {
 		pwm_gpio_config.output_value = 0;
-		rc = pm8xxx_gpio_config(SHOOTER_3DLCM_PD, &pwm_gpio_config);
+		rc = pm8xxx_gpio_config(HTC8X60_3DLCM_PD, &pwm_gpio_config);
 		if (rc < 0)
-			pr_err("%s pmic gpio config gpio %d failed\n", __func__, SHOOTER_3DLCM_PD);
+			pr_err("%s pmic gpio config gpio %d failed\n", __func__, HTC8X60_3DLCM_PD);
 	}
 	mdp_color_enhancement(mdp_sharp_barrier_off, ARRAY_SIZE(mdp_sharp_barrier_off));
 	pwm_disable(pwm_3d);
 
-	rc = pm8xxx_gpio_config(SHOOTER_3DCLK, &clk_gpio_config_off);
+	rc = pm8xxx_gpio_config(HTC8X60_3DCLK, &clk_gpio_config_off);
 	if (rc < 0)
-		pr_err("%s pmic gpio config gpio %d failed\n", __func__, SHOOTER_3DCLK);
-	gpio_set_value(SHOOTER_CTL_3D_1, 0);
-	gpio_set_value(SHOOTER_CTL_3D_2, 0);
-	gpio_set_value(SHOOTER_CTL_3D_3, 0);
-	gpio_set_value(SHOOTER_CTL_3D_4, 0);
+		pr_err("%s pmic gpio config gpio %d failed\n", __func__, HTC8X60_3DCLK);
+	gpio_set_value(HTC8X60_CTL_3D_1, 0);
+	gpio_set_value(HTC8X60_CTL_3D_2, 0);
+	gpio_set_value(HTC8X60_CTL_3D_3, 0);
+	gpio_set_value(HTC8X60_CTL_3D_4, 0);
 	led_brightness_switch("lcd-backlight", last_br_2d);
 }
 
