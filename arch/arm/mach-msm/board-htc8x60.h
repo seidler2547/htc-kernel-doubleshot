@@ -24,6 +24,8 @@
 #define HTC8X60_PROJECT_NAME	"shooter_u"
 #elif defined(CONFIG_MACH_PYRAMID)
 #define HTC8X60_PROJECT_NAME	"pyramid"
+#elif defined(CONFIG_MACH_RUBY)
+#define HTC8X60_PROJECT_NAME	"ruby"
 #endif
 
 /* deal with memory allocation */

@@ -620,8 +620,16 @@ config MACH_PYRAMID
 	help
 	  Support for the HTC Sensation device.
 
+config MACH_RUBY
+	depends on ARCH_MSM8X60 && MACH_HTC8X60
+	default n
+	bool "Ruby"
+	select SMP_PARALLEL_START
+	help
+	  Support for the HTC Amaze 4G device.
+
 config HTC_DEVICE
-	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID
+	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID  || MACH_RUBY
 	bool
 
 config MACH_MSM8960_SIM
