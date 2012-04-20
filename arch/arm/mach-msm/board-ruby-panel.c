@@ -36,7 +36,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-ruby.h"
+#include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm_8x60/mdp_hw.h"
 
@@ -810,7 +810,7 @@ TODO:
 1.find a better way to handle msm_fb_resources, to avoid passing it across file.
 2.error handling
  */
-int __init ruby_init_panel(struct resource *res, size_t size)
+int __init htc8x60_init_panel(struct resource *res, size_t size)
 {
 	int ret=0;
 
