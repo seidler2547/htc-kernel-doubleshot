@@ -29,7 +29,7 @@
 #include <mach/qdsp6v2/snddev_hdmi.h>
 #include <mach/htc_acoustic_8x60.h>
 
-#include "board-ruby.h"
+#include "board-htc8x60.h"
 #include "board-ruby-audio-data.h"
 #include <mach/qdsp6v2/audio_dev_ctl.h>
 
@@ -511,7 +511,7 @@ static struct q6v2audio_aic3254_ops aops = {
        .aic3254_set_mode = ruby_aic3254_set_mode,
 };
 
-void __init ruby_audio_init(void)
+void __init htc8x60_audio_init(void)
 {
 	mutex_init(&bt_sco_lock);
 	mutex_init(&mic_lock);

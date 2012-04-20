@@ -22,8 +22,7 @@
 #include <linux/gpio.h>
 #include <mach/gpio.h>
 
-#include "board-ruby.h"
-/*#include "proc_comm.h"*/
+#include "board-htc8x60.h"
 
 #include <linux/mfd/pmic8058.h>
 #include <linux/input/pmic8058-keypad.h>
@@ -119,14 +118,8 @@ static struct platform_device ruby_keypad_input_device = {
 		.platform_data	= &ruby_keypad_data,
 	},
 };
-/*
-static int ruby_reset_keys_up[] = {
-	KEY_VOLUMEUP,
-	0
-};
-*/
+
 static struct keyreset_platform_data ruby_reset_keys_pdata = {
-	/*.keys_up = ruby_reset_keys_up,*/
 	.keys_down = {
 		KEY_POWER,
 		KEY_VOLUMEDOWN,
@@ -140,7 +133,7 @@ struct platform_device ruby_reset_keys_device = {
 	.dev.platform_data = &ruby_reset_keys_pdata,
 };
 
-int __init ruby_init_keypad(void)
+int __init htc8x60_init_keypad(void)
 {
 	printk(KERN_DEBUG "%s\n", __func__);
 
