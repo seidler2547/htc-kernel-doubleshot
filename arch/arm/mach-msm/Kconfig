@@ -592,26 +592,33 @@ config MACH_MSM8X60_DRAGON
 	help
 	  Support for the Qualcomm MSM8x60 Dragon board.
 
-config MACH_SHOOTER
+config MACH_HTC8X60
 	depends on ARCH_MSM8X60
+	default n
+	bool "HTC 8X60 Common"
+	help
+	  Support for the common boards for HTC's on the 8x60 platform.
+
+config MACH_SHOOTER
+	depends on ARCH_MSM8X60 && MACH_HTC8X60
 	default n
 	bool "HTC Evo 3D CDMA"
 	help
-	  Support for the HTC Evo 3D CDMA board.
+	  Support for the HTC Evo 3D CDMA device.
 
 config MACH_SHOOTER_U
-	depends on ARCH_MSM8X60
+	depends on ARCH_MSM8X60 && MACH_HTC8X60
 	default n
 	bool "HTC Evo 3D GSM"
 	help
-	  Support for the HTC Evo 3D GSM board.
+	  Support for the HTC Evo 3D GSM device.
 
 config MACH_PYRAMID
-	depends on ARCH_MSM8X60
+	depends on ARCH_MSM8X60 && MACH_HTC8X60
 	default n
 	bool "Pyramid"
 	help
-	  Support for the Pyramid device.
+	  Support for the HTC Sensation device.
 
 config HTC_DEVICE
 	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID
