@@ -1819,6 +1819,7 @@ static int pm8058_gpios_init(void)
 	};
 
 	struct pm8058_gpio_cfg gpio_cfgs[] = {
+#ifndef CONFIG_MACH_RUBY
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 		{
 			PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET),
@@ -2015,6 +2016,118 @@ static int pm8058_gpios_init(void)
 				.vin_sel        = 2,
 				.function       = PM_GPIO_FUNC_NORMAL,
 				.inv_int_pol    = 0,
+			}
+		},
+#endif
+#else
+		{ /* FFA ethernet */
+			6,
+			{
+				.direction      = PM_GPIO_DIR_IN,
+				.pull           = PM_GPIO_PULL_DN,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			},
+		},
+		{ /* core&surf gpio expander */
+			UI_INT1_N,
+			{
+				.direction      = PM_GPIO_DIR_OUT,
+				.output_value   = 0,
+				.pull           = PM_GPIO_PULL_NO,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			},
+		},
+		{ /* FHA/keypad gpio expanders */
+			UI_INT3_N,
+			{
+				.direction      = PM_GPIO_DIR_OUT,
+				.output_value   = 0,
+				.pull           = PM_GPIO_PULL_NO,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			},
+		},
+		{ /* TouchDisc Interrupt */
+			5,
+			{
+				.direction      = PM_GPIO_DIR_OUT,
+				.output_value   = 0,
+				.pull           = PM_GPIO_PULL_NO,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+		{
+			24,
+			{
+				.direction      = PM_GPIO_DIR_OUT,
+				.output_value   = 0,
+				.pull           = PM_GPIO_PULL_NO,
+				.vin_sel        = 2,
+				.function       = PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol    = 0,
+			}
+		},
+		{ /* Audio Microphone Selector*/
+			HTC8X60_AUD_MIC_SEL,	/* 37 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= 6,	/* LDO5 2.85 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Audio Receiver Amplifier */
+			HTC8X60_AUD_HANDSET_ENO,	/* 18 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= PM_GPIO_VIN_L7,	/* LDO7 1.8 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* CamCoder Key */
+			HTC8X60_GPIO_KEY_CAMCODER,
+			{
+				.direction		= PM_GPIO_DIR_IN,
+				.pull			= PM_GPIO_PULL_UP_31P5,
+				.vin_sel		= PM_GPIO_VIN_S3,
+				.function		= PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Cam AutoFocus key */
+			HTC8X60_GPIO_KEY_CAMAF,
+			{
+				.direction		= PM_GPIO_DIR_IN,
+				.pull			= PM_GPIO_PULL_UP_1P5,
+				.vin_sel		= 2,
+				.function		= PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol	= 0,
+			}
+		},
+		{  /* LED 3v3 */
+			HTC8X60_LED_3V3,	/* 24 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 1,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= PM_GPIO_VIN_L5,	/* LDO5 2.85 V */
+				.inv_int_pol	= 0,
 			}
 		},
 #endif
@@ -2650,16 +2763,20 @@ static struct tpa2051d3_platform_data tpa2051d3_pdata = {
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_HP_EN,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
-#else
+#elif CONFIG_MACH_RUBY
+	.gpio_tpa2051_spk_en = HTC8X60_AUD_SPK_ENO,
+	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
+	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
+#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_SPK_ENO,
 	.spkr_cmd = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 #ifdef CONFIG_MACH_SHOOTER
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0x6D, 0x4D, 0x0D},
 #else
 	.hsed_cmd = {0x00, 0x0C, 0x25, 0x57, 0xCD, 0x4D, 0x0D},
-#endif /* CONFIG_MACH_SHOOTER */
+#endif
 	.rece_cmd = {0x00, 0x02, 0x25, 0x57, 0x0D, 0x4D, 0x0D},
-#endif /* CONFIG_MACH_PYRAMID */
+#endif
 };
 
 #define TPA2051D3_I2C_SLAVE_ADDR	(0xE0 >> 1)
