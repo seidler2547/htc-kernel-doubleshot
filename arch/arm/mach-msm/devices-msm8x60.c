@@ -978,7 +978,27 @@ struct platform_device msm_device_ssbi_pmic2 = {
 #endif
 
 #ifdef CONFIG_I2C_SSBI
-#ifdef CONFIG_MACH_PYRAMID
+#ifdef CONFIG_MACH_RUBY
+/* 8058 PMIC SSBI */
+#define MSM_SSBI1_PMIC1C_PHYS	0x00500000
+static struct resource msm_ssbi1_resources[] = {
+	{
+		.name   = "ssbi_base",
+		.start	= MSM_SSBI1_PMIC1C_PHYS,
+		.end	= MSM_SSBI1_PMIC1C_PHYS + SZ_4K - 1,
+		.flags	= IORESOURCE_MEM,
+	},
+};
+
+struct platform_device msm_device_ssbi1 = {
+	.name		= "msm_ssbi",
+	.id			= 0,
+	.num_resources	= ARRAY_SIZE(msm_ssbi1_resources),
+	.resource	= msm_ssbi1_resources,
+};
+#endif
+
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
 /* 8901 PMIC SSBI on /dev/i2c-7 */
 #define MSM_SSBI2_PMIC2B_PHYS	0x00C00000
 static struct resource msm_ssbi2_resources[] = {
