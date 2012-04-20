@@ -3890,18 +3890,18 @@ static unsigned int msm8x60_sdcc_slot_status(struct device *dev)
 {
 	int status;
 
-	status = gpio_request(PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1)
+	status = gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET)
 				, "SD_HW_Detect");
 	if (status) {
 		pr_err("%s:Failed to request GPIO %d\n", __func__,
-				PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 	} else {
 		status = gpio_direction_input(
-				PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 		if (!status)
 			status = !(gpio_get_value_cansleep(
-				PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1)));
-		gpio_free(PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_SDC3_DET - 1));
+				PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET)));
+		gpio_free(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 	}
 	return (unsigned int) status;
 }
@@ -3941,7 +3941,7 @@ static struct mmc_platform_data msm8x60_sdc3_data = {
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 	.status      = msm8x60_sdcc_slot_status,
 	.status_irq  = PM8058_GPIO_IRQ(PM8058_IRQ_BASE,
-				       PMIC_GPIO_SDC3_DET - 1),
+				       HTC8X60_SDC3_DET),
 	.irq_flags   = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 #endif
 	.msmsdcc_fmin	= 400000,
