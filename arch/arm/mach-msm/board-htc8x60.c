@@ -2893,8 +2893,14 @@ static struct platform_device *devices[] __initdata = {
 #endif
 	&msm_device_ssbi3,
 #endif
-#if defined(CONFIG_USB_EHCI_HCD)
+#ifdef CONFIG_USB_EHCI_HCD
 	&msm_device_otg,
+#endif
+#ifdef CONFIG_USB_GADGET
+	&msm_device_gadget_peripheral,
+#endif
+#ifdef CONFIG_USB_G_ANDROID
+	&android_usb_device,
 #endif
 #ifdef CONFIG_ANDROID_PMEM
 #ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
@@ -4316,14 +4322,6 @@ static void __init msm8x60_init(void)
 					     msm_num_footswitch_devices);
 
 	platform_add_devices(devices, ARRAY_SIZE(devices));
-
-#ifdef CONFIG_USB_GADGET
-	msm_device_gadget_peripheral.dev.parent = &msm_device_otg.dev;
-	platform_device_register(&msm_device_gadget_peripheral);
-#endif
-#ifdef CONFIG_USB_G_ANDROID
-	platform_device_register(&android_usb_device);
-#endif
 
 	platform_add_devices(asoc_devices, ARRAY_SIZE(asoc_devices));
 
