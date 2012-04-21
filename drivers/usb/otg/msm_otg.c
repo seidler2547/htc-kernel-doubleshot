@@ -1037,12 +1037,8 @@ static void msm_hsusb_vbus_power(struct msm_otg *motg, bool on)
 	if (vbus_is_on == on)
 		return;
 
-	if (motg->pdata->vbus_power) {
-		ret = motg->pdata->vbus_power(on);
-		if (!ret)
-			vbus_is_on = on;
-		return;
-	}
+	if (motg->pdata->vbus_power)
+		motg->pdata->vbus_power(on);
 
 	if (!vbus_otg) {
 		pr_err("vbus_otg is NULL.");
