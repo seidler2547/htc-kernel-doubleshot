@@ -30,6 +30,7 @@
 
 #ifdef CONFIG_USB_G_ANDROID
 #include <linux/usb/android.h>
+#include <linux/usb/msm_hsusb.h>
 #include <mach/usbdiag.h>
 #endif
 
@@ -54,7 +55,6 @@
 #include <mach/mpp.h>
 #include <mach/msm_bus_board.h>
 #include <mach/msm_dsps.h>
-#include <mach/msm_hsusb.h>
 #include <mach/msm_iomap.h>
 #include <mach/msm_memtypes.h>
 #include <mach/msm_serial_hs.h>
@@ -439,8 +439,7 @@ static struct msm_cpuidle_state msm_cstates[] __initdata = {
 		MSM_PM_SLEEP_MODE_POWER_COLLAPSE_STANDALONE},
 };
 
-#ifdef CONFIG_USB_EHCI_MSM_72K
-static void msm_hsusb_vbus_power(unsigned phy_info, int on)
+static void msm_hsusb_vbus_power(bool on)
 {
 	static struct regulator *votg_5v_switch;
 	static struct regulator *ext_5v_reg;
@@ -487,36 +486,19 @@ static void msm_hsusb_vbus_power(unsigned phy_info, int on)
 	vbus_is_on = on;
 }
 
-static struct msm_usb_host_platform_data msm_usb_host_pdata = {
-	.phy_info	= (USB_PHY_INTEGRATED | USB_PHY_MODEL_45NM),
-	.power_budget	= 390,
-};
-#endif
-
-#if defined(CONFIG_USB_GADGET_MSM_72K) || defined(CONFIG_USB_EHCI_MSM_72K)
+static int phy_init_seq[] = { 0x06, 0x36, 0x0C, 0x31, 0x31, 0x32, 0x1, 0x0E, 0x1, 0x11, -1 };
 static struct msm_otg_platform_data msm_otg_pdata = {
-	/* if usb link is in sps there is no need for
-	 * usb pclk as dayatona fabric clock will be
-	 * used instead
-	 */
-	.pemp_level		= PRE_EMPHASIS_WITH_20_PERCENT,
-	.cdr_autoreset		= CDR_AUTO_RESET_DISABLE,
-	.se1_gating		= SE1_GATING_DISABLE,
-	.bam_disable		= 1,
-#ifdef CONFIG_USB_EHCI_MSM_72K
-	.pmic_id_notif_init	= msm_hsusb_pmic_id_notif_init,
-	.phy_id_setup_init	= msm_hsusb_phy_id_setup_init,
-	.vbus_power		= msm_hsusb_vbus_power,
-#endif
-	.ldo_init		= msm_hsusb_ldo_init,
-	.ldo_enable		= msm_hsusb_ldo_enable,
-	.config_vddcx           = msm_hsusb_config_vddcx,
-	.init_vddcx             = msm_hsusb_init_vddcx,
-#ifdef CONFIG_BATTERY_MSM8X60
-	.chg_vbus_draw		= msm_charger_vbus_draw,
-#endif
+	.phy_init_seq	= phy_init_seq,
+	.vbus_power	= msm_hsusb_vbus_power,
+	.power_budget	= 750,
+	.mode		= USB_PERIPHERAL,
+	.otg_control	= OTG_PMIC_CONTROL,
+	.phy_type	= CI_45NM_INTEGRATED_PHY,
+	/* TODO: find shooter regulators */
+	.ldo_3v3_name	= "8058_l6",
+	.ldo_1v8_name	= "8058_l7",
+	.vddcx_name	= "8058_s1",
 };
-#endif
 
 #ifdef CONFIG_USB_GADGET_MSM_72K
 static struct msm_hsusb_gadget_platform_data msm_gadget_pdata = {
