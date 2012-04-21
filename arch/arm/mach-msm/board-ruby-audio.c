@@ -24,14 +24,14 @@
 #include <mach/gpio.h>
 #include <mach/dal.h>
 #include <mach/tpa2051d3.h>
-#include <mach/qdsp6v2/snddev_icodec.h>
-#include <mach/qdsp6v2/snddev_ecodec.h>
-#include <mach/qdsp6v2/snddev_hdmi.h>
+#include <mach/qdsp6v2_1x/snddev_icodec.h>
+#include <mach/qdsp6v2_1x/snddev_ecodec.h>
+#include <mach/qdsp6v2_1x/snddev_hdmi.h>
 #include <mach/htc_acoustic_8x60.h>
 
 #include "board-htc8x60.h"
 #include "board-ruby-audio-data.h"
-#include <mach/qdsp6v2/audio_dev_ctl.h>
+#include <mach/qdsp6v2_1x/audio_dev_ctl.h>
 
 static struct mutex bt_sco_lock;
 static struct mutex mic_lock;
@@ -44,15 +44,19 @@ static atomic_t aic3254_ctl = ATOMIC_INIT(0);
 #define BIT_FM_SPK	(1 << 3)
 #define BIT_FM_HS	(1 << 4)
 
+#define PM8058_GPIO_BASE			NR_MSM_GPIOS
+#define PM8058_GPIO_PM_TO_SYS(pm_gpio)		(pm_gpio + PM8058_GPIO_BASE)
+#define PMGPIO(x) (x-1)
+
 /* function prototype */
 void ruby_snddev_bmic_pamp_on(int);
 
 static uint32_t msm_codec_reset_gpio[] = {
 	/* AIC3254 Reset */
-	GPIO_CFG(RUBY_AUD_CODEC_RST, 0, GPIO_CFG_OUTPUT,
+	GPIO_CFG(HTC8X60_AUD_CODEC_RST, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_PULL_UP, GPIO_CFG_8MA),
 	/* Timpani Reset */
-	GPIO_CFG(RUBY_AUD_QTR_RESET, 0, GPIO_CFG_OUTPUT,
+	GPIO_CFG(HTC8X60_AUD_QTR_RESET, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_PULL_UP, GPIO_CFG_8MA),
 };
 
@@ -61,7 +65,7 @@ void ruby_snddev_poweramp_on(int en)
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
 		msleep(60);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_speaker_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_SPEAKER;
@@ -69,7 +73,7 @@ void ruby_snddev_poweramp_on(int en)
 	} else {
 		msleep(60);
 		set_speaker_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_SPEAKER;
 		mdelay(5);
@@ -81,14 +85,14 @@ void ruby_snddev_hsed_pamp_on(int en)
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
 		msleep(60);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_HEADSET;
 	} else {
 		msleep(60);
 		set_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_HEADSET;
 	}
@@ -98,7 +102,7 @@ void ruby_snddev_hs_spk_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_speaker_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl)) {
 			curr_rx_mode |= BIT_SPEAKER;
@@ -106,7 +110,7 @@ void ruby_snddev_hs_spk_pamp_on(int en)
 		}
 	} else {
 		set_speaker_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl)) {
 			curr_rx_mode &= ~BIT_SPEAKER;
 			curr_rx_mode &= ~BIT_HEADSET;
@@ -225,10 +229,10 @@ void ruby_snddev_emic_pamp_on(int en)
 
 	if (en) {
 		/* pull gpio high to do input mic selection */
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_MIC_SEL), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 1);
 	} else {
 		/* pull gpio down in default which input from back mic */
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_MIC_SEL), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL), 0);
 	}
 }
 
@@ -262,13 +266,13 @@ void ruby_snddev_fmspk_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_speaker_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_FM_SPK;
 	} else {
 		set_speaker_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_SPK;
 	}
@@ -278,13 +282,13 @@ void ruby_snddev_fmhs_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_FM_HS;
 	} else {
 		set_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(RUBY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_HS;
 	}
@@ -391,16 +395,16 @@ int ruby_is_msm_i2s_slave(void)
 }
 
 static uint32_t msm_spi_gpio_on[] = {
-	GPIO_CFG(RUBY_SPI_DO,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_CS,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_CLK, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_DO,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_CS,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_CLK, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 static uint32_t msm_spi_gpio_off[] = {
-	GPIO_CFG(RUBY_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_CS,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-	GPIO_CFG(RUBY_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_DO,  0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_DI,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_CS,  1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(HTC8X60_SPI_CLK, 0, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
 };
 
 void ruby_spibus_enable(int en)
@@ -450,11 +454,12 @@ void ruby_get_acoustic_tables(struct acoustic_tables *tb)
 void ruby_reset_3254(void)
 {
 	gpio_tlmm_config(msm_codec_reset_gpio[0], GPIO_CFG_ENABLE);
-	gpio_set_value(RUBY_AUD_CODEC_RST, 0);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 0);
 	mdelay(1);
-	gpio_set_value(RUBY_AUD_CODEC_RST, 1);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 1);
 }
 
+#ifdef CONFIG_MSM8X60_AUDIO_LTE
 static struct q6v2audio_analog_ops ops = {
 	.speaker_enable	        = ruby_snddev_poweramp_on,
 	.headset_enable	        = ruby_snddev_hsed_pamp_on,
@@ -480,6 +485,19 @@ static struct q6v2audio_ecodec_ops eops = {
 	.bt_sco_enable  = ruby_snddev_bt_sco_pamp_on,
 };
 
+static struct acoustic_ops acoustic = {
+	.enable_mic_bias = ruby_mic_enable,
+	.support_aic3254 = ruby_support_aic3254,
+	.support_back_mic = ruby_support_back_mic,
+	.support_audience = ruby_support_audience,
+	.get_acoustic_tables = ruby_get_acoustic_tables
+};
+
+static struct q6v2audio_aic3254_ops aops = {
+       .aic3254_set_mode = ruby_aic3254_set_mode,
+};
+#endif
+
 static struct aic3254_ctl_ops cops = {
 	.rx_amp_enable        = ruby_rx_amp_enable,
 	.reset_3254           = ruby_reset_3254,
@@ -493,23 +511,10 @@ static struct aic3254_ctl_ops cops = {
 	.lb_headset_bmic      = &LOOPBACK_Headset_BMIC_PARAM,
 };
 
-static struct acoustic_ops acoustic = {
-	.enable_mic_bias = ruby_mic_enable,
-	.support_aic3254 = ruby_support_aic3254,
-	.support_back_mic = ruby_support_back_mic,
-	.support_audience = ruby_support_audience,
-	.get_acoustic_tables = ruby_get_acoustic_tables
-};
-
 void ruby_aic3254_set_mode(int config, int mode)
 {
 	aic3254_set_mode(config, mode);
 }
-
-
-static struct q6v2audio_aic3254_ops aops = {
-       .aic3254_set_mode = ruby_aic3254_set_mode,
-};
 
 void __init htc8x60_audio_init(void)
 {
@@ -533,8 +538,8 @@ void __init htc8x60_audio_init(void)
 
 	/* Timpani Reset */
 	gpio_tlmm_config(msm_codec_reset_gpio[1], GPIO_CFG_ENABLE);
-	gpio_set_value(RUBY_AUD_QTR_RESET, 0);
+	gpio_set_value(HTC8X60_AUD_QTR_RESET, 0);
 	mdelay(1);
-	gpio_set_value(RUBY_AUD_QTR_RESET, 1);
+	gpio_set_value(HTC8X60_AUD_QTR_RESET, 1);
 
 }
