@@ -22,6 +22,7 @@
 #include <linux/usb/otg.h>
 #include <linux/wakelock.h>
 #include <linux/pm_qos_params.h>
+#include <mach/board_htc.h>
 
 /**
  * Supported USB modes
@@ -177,6 +178,9 @@ struct msm_otg_platform_data {
 	void (*setup_gpio)(enum usb_otg_state state);
 	int pmic_id_irq;
 	bool mhl_enable;
+	char *ldo_3v3_name;
+	char *ldo_1v8_name;
+	char *vddcx_name;
 	bool disable_reset_on_disconnect;
 	u32 swfi_latency;
 	bool enable_dcd;
@@ -267,6 +271,9 @@ struct msm_otg {
 #define PHY_PWR_COLLAPSED		BIT(0)
 #define PHY_RETENTIONED			BIT(1)
 #define PHY_OTG_COMP_DISABLED		BIT(2)
+	struct work_struct notifier_work;
+	enum usb_connect_type connect_type;
+	struct workqueue_struct *usb_wq;
 	struct pm_qos_request_list pm_qos_req_dma;
 	int reset_counter;
 };
