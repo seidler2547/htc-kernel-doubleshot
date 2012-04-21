@@ -75,7 +75,7 @@ config TWL4030_USB
 	  in host mode, low speed.
 
 config USB_MSM_OTG_72K
-	bool "OTG support for Legcay Qualcomm on-chip USB controller"
+	bool "OTG support for Legacy Qualcomm on-chip USB controller"
 	depends on ARCH_MSM
 	select USB_OTG_UTILS
 	default USB_MSM_72K

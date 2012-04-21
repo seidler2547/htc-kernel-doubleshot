@@ -675,7 +675,7 @@ void diag_send_msg_mask_update(smd_channel_t *ch)
 				 4 * (driver->msg_mask->msg_mask_size);
 		driver->msg_mask->stream_id = 1; /* 2, if dual stream */
 		driver->msg_mask->status = 3; /* status for valid mask */
-		driver->msg_mask->msg_mode = 0; /* Legcay mode */
+		driver->msg_mask->msg_mode = 0; /* Legacy mode */
 		driver->msg_mask->ssid_first = first;
 		driver->msg_mask->ssid_last = last;
 		memcpy(buf, driver->msg_mask, header_size);
