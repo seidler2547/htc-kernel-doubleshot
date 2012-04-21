@@ -103,11 +103,7 @@ int __init msm_add_serial_devices(unsigned uart);
 #define MFG_BUILD	1
 #define ENG_BUILD	2
 
-#if defined(CONFIG_USB_FUNCTION_MSM_HSUSB) \
-	|| defined(CONFIG_USB_MSM_72K) \
-	|| defined(CONFIG_USB_MSM_72K_MODULE) \
-	|| defined(CONFIG_USB_CI13XXX_MSM)
-
+#if defined(CONFIG_USB_MSM_OTG)
 void msm_otg_set_vbus_state(int online);
 
 enum usb_connect_type {
