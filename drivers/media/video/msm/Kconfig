@@ -254,3 +254,16 @@ config S5K3L1YX
 		4 mipi lanes, preview config = 1984 * 1508 at 30 fps,
 		snapshot config = 4000 * 3000 at 20 fps,
 		hfr video at 60, 90 and 120 fps.
+
+config MT9V113
+	bool "Sensor MT9V113 (VGA YUV)"
+	depends on MSM_CAMERA
+	---help---
+	  Support for MT9V113 Micron sensor driver.
+	  Bayer 0.3MP sensor supporting two MIPI lanes.
+
+config S5K3H1GX
+	bool "Sensor S5K3H1GX (Samsung 8MP)"
+	depends on MSM_CAMERA
+	---help---
+	  Samsung 8 MP 3H1 MIPI AF Sensor
