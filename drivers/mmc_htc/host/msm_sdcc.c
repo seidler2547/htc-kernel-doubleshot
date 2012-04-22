@@ -2591,12 +2591,12 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 		//HTC_WIFI_END
 #endif
-#ifdef CONFIG_MACH_RUBY
+/* #ifdef CONFIG_MACH_RUBY
 		if (mmc->index == 3) {
 			pr_info("ruby_wifi_power:0\n");
 			ruby_wifi_power(0);
 		}
-#endif
+#endif */
 #if defined CONFIG_MACH_BLISS || defined CONFIG_MACH_BLISSC || defined CONFIG_MACH_PRIMODS
 		if (is_wifi_slot(host->plat)) {
 			pr_info("ti_wifi_power:0, mmc->index=%d\n", mmc->index);
@@ -2637,12 +2637,12 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 		//HTC_WIFI_END
 #endif
-#ifdef CONFIG_MACH_RUBY
+/* #ifdef CONFIG_MACH_RUBY
 		if (mmc->index == 3) {
 			pr_info("ruby_wifi_power:1\n");
 			ruby_wifi_power(1);
 		}
-#endif
+#endif */
 #if defined CONFIG_MACH_BLISS || defined CONFIG_MACH_BLISSC || defined CONFIG_MACH_PRIMODS
 		if (is_wifi_slot(host->plat)) {
 			pr_info("ti_wifi_power:1, mmc->index=%d\n", mmc->index);
