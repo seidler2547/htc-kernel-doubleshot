@@ -2938,10 +2938,12 @@ static struct platform_device *devices[] __initdata = {
 #if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
 	&msm_gsbi3_qup_i2c_device,
 	&msm_gsbi12_qup_i2c_device,
-#elif defined(CONFIG_MACH_PYRAMID)
+#endif
+#if defined(CONFIG_MACH_PYRAMID)
 	&msm_gsbi8_qup_i2c_device,
 	&msm_gsbi9_qup_i2c_device,
-#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_PYRAMID)
+#endif
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_PYRAMID)
 	&msm_gsbi10_qup_i2c_device,
 #endif
 #endif
