@@ -1838,6 +1838,16 @@ CONFIG_MEDIA_SUPPORT=y
 # CONFIG_RC_CORE is not set
 
 #
+# Qualcomm MSM Camera And Video
+#
+# CONFIG_MSM_CAMERA is not set
+
+#
+# Camera Sensor Selection
+#
+# CONFIG_IMX072 is not set
+
+#
 # Graphics support
 #
 # CONFIG_DRM is not set
