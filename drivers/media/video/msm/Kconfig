@@ -1,3 +1,12 @@
+comment "Qualcomm MSM Camera And Video"
+
+menuconfig MSM_CAMERA
+	bool "Qualcomm MSM camera and video capture support"
+	depends on ARCH_MSM
+	help
+	  Say Y here to enable selecting the video adapters for
+	  Qualcomm msm camera and video encoding
+
 config MSM_CAMERA_V4L2
         bool "MSM Camera V4L2 Interface"
         depends on MSM_CAMERA
@@ -130,6 +139,13 @@ config S5K3E2FX
 	---help---
 	  Samsung 5M with Autofocus
 
+config SP3D
+	bool "Sensor SP3D (Sharp 3D module)"
+	depends on MSM_CAMERA && ARCH_MSM8X60
+	default n
+	---help---
+	SHARP 3D Module
+
 config QS_S5K4E1
 	bool "Sensor qs_s5k4e1 (Samsung 5M)"
 	depends on MSM_CAMERA && ARCH_MSM8X60 && !MSM_CAMERA_V4L2
@@ -146,6 +162,13 @@ config S5K4E1
 	  It is a Bayer 5MP sensor with auto focus and it supports
 	  two mipi lanes, required for msm7x2xA platform.
 	  Say Y here if this is msm7x2xA variant platform.
+
+config S5K6AAFX
+	bool "Sensor s5k6aafx (Samsung 1.3M)"
+	depends on MSM_CAMERA
+	default n
+	---help---
+	  Samsung 1.3M without Autofocus
 
 config DW9712_ACT
 	bool "Lens actuator dw9721"
