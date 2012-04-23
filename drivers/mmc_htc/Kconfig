@@ -29,10 +29,10 @@ config MMC_PERF_PROFILING
 
 if MMC
 
-source "drivers/mmc/core/Kconfig"
+source "drivers/mmc_htc/core/Kconfig"
 
-source "drivers/mmc/card/Kconfig"
+source "drivers/mmc_htc/card/Kconfig"
 
-source "drivers/mmc/host/Kconfig"
+source "drivers/mmc_htc/host/Kconfig"
 
 endif # MMC
