@@ -42,7 +42,6 @@ int msm_proc_comm(unsigned cmd, unsigned *data1, unsigned *data2);
 
 extern int msm_add_sdcc(unsigned int controller, struct mmc_platform_data *plat);
 
-/* ---- WIFI ---- */
 static uint32_t wifi_on_gpio_table[] = {
 	GPIO_CFG(HTC8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA), /* WLAN IRQ */
 };
@@ -157,13 +156,6 @@ int htc8x60_wifi_reset(int on)
 	return 0;
 }
 
-struct _vreg
-{
-	const char *name;
-	unsigned id;
-};
-
-/* ---- MMC ---- */
 void __init htc8x60_init_mmc()
 {
 	uint32_t id;
@@ -171,7 +163,6 @@ void __init htc8x60_init_mmc()
 
 	printk(KERN_INFO "htc8x60: %s\n", __func__);
 
-	/* SDC4: WiFi */
 	/* initial WIFI_SHUTDOWN# */
 	id = GPIO_CFG(HTC8X60_GPIO_WIFI_SHUTDOWN_N, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA);
