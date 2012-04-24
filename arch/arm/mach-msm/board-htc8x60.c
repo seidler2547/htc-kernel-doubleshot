@@ -133,6 +133,24 @@ static struct platform_device msm_tsens_device = {
 	.id = -1,
 };
 
+#ifdef CONFIG_MSM_CAMERA
+static struct i2c_board_info msm_camera_boardinfo[] __initdata = {
+#ifdef CONFIG_S5K6AAFX
+	{
+		I2C_BOARD_INFO("s5k6aafx", 0x78 >> 1),
+	},
+	{
+		I2C_BOARD_INFO("s5k6aafx", 0x5a >> 1), /* COB type */
+	},
+#endif
+#ifdef CONFIG_QS_S5K4E1
+	{
+		I2C_BOARD_INFO("qs_s5k4e1", 0x20),
+	},
+#endif
+};
+#endif
+
 #ifdef CONFIG_MSM_VPE
 static struct resource msm_vpe_resources[] = {
 	{
@@ -2913,6 +2931,13 @@ static struct i2c_registry msm8x60_i2c_devices[] __initdata = {
 		ARRAY_SIZE(msm_i2c_gsbi7_tpa2051d3_info),
 	},
 #endif
+#ifdef CONFIG_MSM_CAMERA
+	{
+		MSM_GSBI4_QUP_I2C_BUS_ID,
+		msm_camera_boardinfo,
+		ARRAY_SIZE(msm_camera_boardinfo),
+	},
+#endif
 };
 #endif /* CONFIG_I2C */
 
@@ -4563,6 +4588,10 @@ static void __init msm8x60_init(void)
 
 #ifdef CONFIG_MSM_DSPS
 	msm8x60_init_dsps();
+#endif
+
+#ifdef CONFIG_MSM_CAMERA
+	htc8x60_init_cam(engineerid);
 #endif
 
 	pm8058_platform_data.leds_pdata = &pm8058_flash_leds_data;
