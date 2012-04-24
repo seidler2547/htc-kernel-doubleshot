@@ -215,6 +215,9 @@ obj-$(CONFIG_MACH_MSM8X60_FUSN_FFA) += board-msm8x60.o mdm.o
 obj-$(CONFIG_MACH_HTC8X60) += board-htc8x60.o board-htc8x60-rfkill.o
 obj-$(CONFIG_MACH_HTC8X60) += board-htc8x60-mmc.o board-htc8x60-wifi.o
 obj-$(CONFIG_MACH_HTC8X60) += htc_acoustic_8x60.o htc_bdaddress.o
+ifdef CONFIG_MSM_CAMERA
+obj-$(CONFIG_MACH_HTC8X60) += board-htc8x60-camera.o
+endif
 obj-$(CONFIG_MACH_SHOOTER) += board-shooter-keypad.o board-shooter-panel.o
 obj-$(CONFIG_MACH_SHOOTER) += board-shooter-audio.o 
 obj-$(CONFIG_MACH_SHOOTER_U) += board-shooter-keypad.o board-shooter-panel.o

@@ -394,6 +394,7 @@ void __init htc8x60_audio_init(void);
 void __init htc8x60_init_keypad(void);
 int __init htc8x60_wifi_init(void);
 void __init htc8x60_init_panel(void);
+void __init htc8x60_init_cam(unsigned eid);
 void msm8x60_allocate_fb_region(void);
 void msm8x60_mdp_writeback(struct memtype_reserve *reserve_table);
 

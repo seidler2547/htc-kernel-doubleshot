@@ -156,6 +156,15 @@ struct msm_camera_sensor_flash_data {
 	struct msm_camera_sensor_flash_src *flash_src;
 };
 
+struct camera_flash_cfg {
+	int num_flash_levels;
+	int (*camera_flash)(int level);
+	uint16_t low_temp_limit;
+	uint16_t low_cap_limit;
+	uint8_t postpone_led_mode;
+	struct camera_flash_info *flash_info;	/* HTC jason 20110811 */
+};
+
 struct msm_camera_sensor_strobe_flash_data {
 	uint8_t flash_trigger;
 	uint8_t flash_charge; /* pin for charge */
