@@ -23,7 +23,8 @@
 #include <mach/clk.h>
 #include <mach/msm_bus.h>
 #include <mach/msm_bus_board.h>
-
+#include <mach/scm-io.h>
+#include <mach/msm_iomap.h>
 
 /* MIPI	CSI	controller registers */
 #define	MIPI_PHY_CONTROL			0x00000000
@@ -75,6 +76,8 @@
 #define	MIPI_PHY_D1_CONTROL_MIPI_DATA_PHY_SHUTDOWNB_SHFT	0x8
 #define	DBG_CSI	0
 
+#define DEFAULT_HS_IMPEDENCE 0x0F
+
 static struct clk *camio_cam_clk;
 static struct clk *camio_vfe_clk;
 static struct clk *camio_csi_src_clk;
@@ -103,6 +106,8 @@ static struct resource *csiio;
 void __iomem *csibase;
 static int vpe_clk_rate;
 struct msm_bus_scale_pdata *cam_bus_scale_table;
+static uint8_t hs_impedence_shift = DEFAULT_HS_IMPEDENCE;
+static uint8_t settle_cnt = 0x14;
 
 void msm_io_w(u32 data, void __iomem *addr)
 {
@@ -188,7 +193,7 @@ static void msm_camera_vreg_enable(void)
 		ldo15 = NULL;
 		return;
 	}
-	if (regulator_set_voltage(ldo15, 2850000, 2850000)) {
+	if (regulator_set_voltage(ldo15, 2800000, 2800000)) {
 		pr_err("%s: VREG LDO15 set voltage failed\n",  __func__);
 		goto ldo15_disable;
 	}
@@ -956,3 +961,104 @@ int msm_cam_core_reset(void)
 
 	return rc;
 }
+
+/* Dummy function for build pass */
+void msm_camio_camif_pad_reg_reset(void)
+{
+}
+
+void msm_camio_csi_misr_debug_on(void)
+{
+    msm_io_w(0x1F16, csibase + 0x28);
+}
+
+void msm_camio_csi_misr_read(void)
+{
+	pr_info("[CAM] %s: %d\n", __func__, msm_io_r(csibase + 0x60));
+}
+
+
+void msm_camio_csi_core_reset(void)
+{
+    uint32_t val;
+	/*reset csi 0 and csi 1*/
+    val = msm_io_r(MSM_MMSS_CLK_CTL_BASE + 0x210);
+    msm_io_w(val | 0x1840100, MSM_MMSS_CLK_CTL_BASE + 0x210);
+    val = msm_io_r(MSM_MMSS_CLK_CTL_BASE + 0x20C);
+    msm_io_w(val | 0x30000, MSM_MMSS_CLK_CTL_BASE + 0x20C);
+
+#if 0
+    val = msm_io_r(clkctl + 0x20C);
+    msm_io_w(val | 0x20000, clkctl + 0x20C);
+#endif
+}
+
+void msm_camio_csi_core_soft_reset(void)
+{
+    msm_io_w(MIPI_PROTOCOL_CONTROL_SW_RST_BMSK,
+    csibase + MIPI_PROTOCOL_CONTROL);
+}
+
+void msm_camio_csi_core_on(void)
+{
+    uint32_t val;
+    val = msm_io_r(MSM_MMSS_CLK_CTL_BASE  + 0x210);
+    msm_io_w(val & ~0x1840100, MSM_MMSS_CLK_CTL_BASE + 0x210);
+    val = msm_io_r(MSM_MMSS_CLK_CTL_BASE  + 0x20C);
+    msm_io_w(val & ~0x30000, MSM_MMSS_CLK_CTL_BASE + 0x20C);
+
+
+#if 0
+    val = msm_io_r(clkctl + 0x20C);
+    msm_io_w(val & ~0x20000, clkctl + 0x20C);
+#endif
+
+}
+
+int msm_camio_csi_disable_lp_rec(void)
+{
+    int rc = 0;
+    uint32_t val = 0;
+    pr_info("[CAM] msm_camio_csi_disable_lp_rec");
+    val = (settle_cnt <<
+        MIPI_PHY_D0_CONTROL2_SETTLE_COUNT_SHFT) |
+		(hs_impedence_shift << MIPI_PHY_D0_CONTROL2_HS_TERM_IMP_SHFT) |
+        (0x0 << MIPI_PHY_D0_CONTROL2_LP_REC_EN_SHFT) |
+        (0x1 << MIPI_PHY_D0_CONTROL2_ERR_SOT_HS_EN_SHFT);
+    CDBG("[CAM] %s MIPI_PHY_D0_CONTROL2 val=0x%x\n", __func__, val);
+    msm_io_w(val, csibase + MIPI_PHY_D0_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D1_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D2_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D3_CONTROL2);
+
+    val = (0x0F << MIPI_PHY_CL_CONTROL_HS_TERM_IMP_SHFT) |
+        (0x1 << MIPI_PHY_CL_CONTROL_LP_REC_EN_SHFT);
+    CDBG("[CAM] %s MIPI_PHY_CL_CONTROL val=0x%x\n", __func__, val);
+    msm_io_w(val, csibase + MIPI_PHY_CL_CONTROL);
+    return rc;
+}
+
+
+int msm_camio_csi_enable_lp_rec(void)
+{
+    int rc = 0;
+    uint32_t val = 0;
+    pr_info("[CAM] msm_camio_csi_enable_lp_rec");
+    val = (settle_cnt <<
+        MIPI_PHY_D0_CONTROL2_SETTLE_COUNT_SHFT) |
+		(hs_impedence_shift << MIPI_PHY_D0_CONTROL2_HS_TERM_IMP_SHFT) |
+        (0x1 << MIPI_PHY_D0_CONTROL2_LP_REC_EN_SHFT) |
+        (0x1 << MIPI_PHY_D0_CONTROL2_ERR_SOT_HS_EN_SHFT);
+    CDBG("[CAM] %s MIPI_PHY_D0_CONTROL2 val=0x%x\n", __func__, val);
+    msm_io_w(val, csibase + MIPI_PHY_D0_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D1_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D2_CONTROL2);
+    msm_io_w(val, csibase + MIPI_PHY_D3_CONTROL2);
+
+    val = (0x0F << MIPI_PHY_CL_CONTROL_HS_TERM_IMP_SHFT) |
+        (0x1 << MIPI_PHY_CL_CONTROL_LP_REC_EN_SHFT);
+    CDBG("[CAM] %s MIPI_PHY_CL_CONTROL val=0x%x\n", __func__, val);
+    msm_io_w(val, csibase + MIPI_PHY_CL_CONTROL);
+    return rc;
+}
+

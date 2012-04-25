@@ -568,7 +568,7 @@ static int sp3d_3D_get_R_frame(void){
 	msm_camio_csi_core_reset();
 	msm_camio_csi_core_on();
 	sp3d_config_csi_param(&sp3d_csi_params);
-	rc = msm_camio_csi_config_withReceiverDisabled(&sp3d_csi_params);
+	rc = msm_camio_csi_config(&sp3d_csi_params);
 
 	pr_info("[CAM]sp3d 3D shutter mixer setting on full resolution slave");
 #if 0
@@ -808,7 +808,7 @@ static int sp3d_start_snapshot(void){
 		msm_camio_csi_core_reset();
 		msm_camio_csi_core_on();
 		sp3d_config_csi_param(&sp3d_csi_params);
-		rc = msm_camio_csi_config_withReceiverDisabled(&sp3d_csi_params);
+		rc = msm_camio_csi_config(&sp3d_csi_params);
 		sp3d_read_shutter_status();
 		pr_info("[CAM]sp3d 2D shutter mixer setting on full resolution");
 		rc = sp3d_spi_write_table(sp3d_snapshot_regs.reg_koj_2d_shutter_full,
@@ -870,7 +870,7 @@ static int sp3d_start_snapshot(void){
 		msm_camio_csi_core_reset();
 		msm_camio_csi_core_on();
 		sp3d_config_csi_param(&sp3d_csi_params);
-		rc = msm_camio_csi_config_withReceiverDisabled(&sp3d_csi_params);
+		rc = msm_camio_csi_config(&sp3d_csi_params);
 	}
 	return 0;
 }
@@ -1168,7 +1168,7 @@ static int32_t sp3d_sensor_setting(int update_type, int rt)
 			mdelay(5);
 			pr_info("[CAM]csi_config");
 			sp3d_config_csi_param(&sp3d_csi_params);
-			rc = msm_camio_csi_config_withReceiverDisabled(&sp3d_csi_params);
+			rc = msm_camio_csi_config(&sp3d_csi_params);
 			config_csi = 1;
 			if(dmode == CAMERA_3D_MODE)
 				sp3d_3D_init_setting();
