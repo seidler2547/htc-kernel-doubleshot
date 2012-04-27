@@ -760,6 +760,34 @@ struct msm_snapshot_pp_status {
 #define CFG_GET_PICT_P_PL		25
 #define CFG_GET_AF_MAX_STEPS		26
 #define CFG_GET_PICT_MAX_EXP_LC		27
+#ifdef CONFIG_S5K3H1GX
+#define CFG_I2C_IOCTL_R_OTP		28
+#define CFG_SET_OV_LSC			29
+#define CFG_SET_SHARPNESS		30
+#define CFG_SET_SATURATION		31
+#define CFG_SET_OV_LSC_RAW_CAPTURE	32
+#define CFG_SET_ISO			33
+#define CFG_SET_COORDINATE		34
+#define CFG_RUN_AUTO_FOCUS		35
+#define CFG_CANCEL_AUTO_FOCUS		36
+#define CFG_GET_EXP_FOR_LED		37
+#define CFG_UPDATE_AEC_FOR_LED		38
+#define CFG_SET_FRONT_CAMERA_MODE	39
+#define CFG_SET_QCT_LSC_RAW_CAPTURE	40
+#define CFG_SET_QTR_SIZE_MODE		41
+#define CFG_GET_AF_STATE		42
+#define CFG_SET_DMODE			43
+#define CFG_SET_CALIBRATION		44
+#define CFG_SET_AF_MODE			45
+#define CFG_GET_SP3D_L_FRAME		46
+#define CFG_GET_SP3D_R_FRAME		47
+#define CFG_SET_FLASHLIGHT		48
+#define CFG_SEND_WB_INFO		49
+#define CFG_SET_FLASHLIGHT_EXP_DIV	50
+#define CFG_GET_ISO			51
+#define CFG_GET_EXP_GAIN		52
+#define CFG_SET_FRAMERATE		53
+#else
 #define CFG_SEND_WB_INFO    28
 #define CFG_SENSOR_INIT    29
 #define CFG_GET_3D_CALI_DATA 30
@@ -786,6 +814,7 @@ struct msm_snapshot_pp_status {
 #define CFG_SET_ISO				51
 #define CFG_SET_FLASHLIGHT_EXP_DIV 52
 #define CFG_SET_CALIBRATION		53
+#endif
 
 #define MOVE_NEAR	0
 #define MOVE_FAR	1
@@ -793,10 +822,16 @@ struct msm_snapshot_pp_status {
 #define SENSOR_PREVIEW_MODE		0
 #define SENSOR_SNAPSHOT_MODE		1
 #define SENSOR_RAW_SNAPSHOT_MODE	2
+#ifdef CONFIG_S5K3H1GX
+#define SENSOR_VIDEO_MODE		3
+#define SENSOR_VIDEO_60FPS_MODE		4
+#define SENSOR_GET_EXP 			5
+#else
 #define SENSOR_HFR_60FPS_MODE 3
 #define SENSOR_HFR_90FPS_MODE 4
 #define SENSOR_HFR_120FPS_MODE 5
 #define SENSOR_VIDEO_MODE		6
+#endif
 
 #define SENSOR_QTR_SIZE			0
 #define SENSOR_FULL_SIZE		1
@@ -876,11 +911,13 @@ struct msm_snapshot_pp_status {
 #define CAMERA_SETAE_AVERAGE		0
 #define CAMERA_SETAE_CENWEIGHT	1
 
+#ifndef CONFIG_S5K3H1GX
 #define CFG_SET_SATURATION		30
 #define CFG_SET_SHARPNESS			31
 #define CFG_SET_TOUCHAEC            32
 #define CFG_SET_AUTO_FOCUS          33
 #define CFG_SET_AUTOFLASH 34
+#endif
 
 /* QRD */
 #define CFG_SET_EXPOSURE_COMPENSATION 35

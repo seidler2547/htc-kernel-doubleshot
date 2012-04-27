@@ -25,12 +25,7 @@
 #include <linux/uaccess.h>
 #include <linux/miscdevice.h>
 #include <linux/slab.h>
-#ifdef CONFIG_MSM_CAMERA_8X60
-#include <mach/camera-8x60.h>
-#elif defined(CONFIG_MSM_CAMERA_7X30)
-#include <mach/camera-7x30.h>
-#endif
-#include <media/msm_camera_sensor.h>
+#include <mach/camera.h>
 
 #include <mach/gpio.h>
 #include "mt9v113.h"
@@ -826,7 +821,7 @@ reg_init_fail:
 	return rc;
 }
 
-int mt9v113_set_flip_mirror(struct msm_camera_sensor_info *info)
+int mt9v113_set_flip_mirror(const struct msm_camera_sensor_info *info)
 {
 	int rc = 0;
 	if (info != NULL) {
@@ -1890,7 +1885,7 @@ init_probe_fail:
 
 static int suspend_fail_retry_count_2;
 #define SUSPEND_FAIL_RETRY_MAX_2 3
-int mt9v113_sensor_open_init(struct msm_camera_sensor_info *data)
+int mt9v113_sensor_open_init(const struct msm_camera_sensor_info *data)
 {
 	int rc = 0;
 	uint16_t check_value = 0;
@@ -2433,7 +2428,7 @@ static struct i2c_driver mt9v113_i2c_driver = {
 static int suspend_fail_retry_count;
 #define SUSPEND_FAIL_RETRY_MAX 3
 
-static int mt9v113_sensor_probe(struct msm_camera_sensor_info *info,
+static int mt9v113_sensor_probe(const struct msm_camera_sensor_info *info,
 				struct msm_sensor_ctrl *s)
 {
 	uint16_t check_value = 0;
