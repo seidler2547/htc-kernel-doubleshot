@@ -720,4 +720,8 @@ int msm_camera_config_gpio_table
 	(struct msm_camera_sensor_info *sinfo, int gpio_en);
 int msm_camera_request_gpio_table
 	(struct msm_camera_sensor_info *sinfo, int gpio_en);
+
+#ifdef CONFIG_HTC_DEVICE
+void msm_mipi_csi_disable(void);
+#endif
 #endif
