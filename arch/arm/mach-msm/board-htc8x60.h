@@ -361,7 +361,6 @@
 #define HTC8X60_SP3D_MCLK		(32)
 #define HTC8X60_WEBCAM_STB		(140)
 #define HTC8X60_WEBCAM_RST		(138)
-#define HTC8X60_CAM_SEL			(141)
 #endif
 
 #ifdef CONFIG_MACH_HOLIDAY
@@ -372,6 +371,8 @@
 #define HTC8X60_CAM2_STANDBY		(102)
 #define HTC8X60_CAM2_CAM_ID		(43)
 #endif
+
+#define HTC8X60_CAM_SEL			(141)
 
 /* PMIC */
 

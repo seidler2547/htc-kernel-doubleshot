@@ -151,6 +151,16 @@ static struct i2c_board_info msm_camera_boardinfo[] __initdata = {
 		I2C_BOARD_INFO("qs_s5k4e1", 0x20),
 	},
 #endif
+#ifdef CONFIG_S5K3H1GX
+	{
+		I2C_BOARD_INFO("s5k3h1gx", 0x20 >> 1),
+	},
+#endif
+#ifdef CONFIG_MT9V113
+	{
+		I2C_BOARD_INFO("mt9v113", 0x3C),
+	},
+#endif
 };
 #endif
 
