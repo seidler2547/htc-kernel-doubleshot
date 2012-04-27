@@ -3576,6 +3576,19 @@ struct msm_sdcc_gpio {
 	bool is_enabled;
 };
 
+void msm8x60_config_gpio_table(uint32_t *table, int len)
+{
+	int n, rc;
+	for (n = 0; n < len; n++) {
+		rc = gpio_tlmm_config(table[n], GPIO_CFG_ENABLE);
+		if (rc) {
+			pr_err("%s: gpio_tlmm_config(%#x)=%d\n",
+				__func__, table[n], rc);
+			break;
+		}
+	}
+}
+
 #ifdef CONFIG_MMC_MSM_SDC1_SUPPORT
 static struct msm_sdcc_gpio sdc1_gpio_cfg[] = {
 	{159, "sdc1_dat_0"},
@@ -3606,19 +3619,6 @@ static uint32_t sdc1_on_gpio_table[] = {
 	GPIO_CFG(167, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_14MA), /* CLK */
 	GPIO_CFG(168, 1, GPIO_CFG_OUTPUT, GPIO_CFG_PULL_UP, GPIO_CFG_10MA), /* CMD */
 };
-
-static void config_gpio_table(uint32_t *table, int len)
-{
-	int n, rc;
-	for (n = 0; n < len; n++) {
-		rc = gpio_tlmm_config(table[n], GPIO_CFG_ENABLE);
-		if (rc) {
-			pr_err("[CAM] %s: gpio_tlmm_config(%#x)=%d\n",
-				__func__, table[n], rc);
-			break;
-		}
-	}
-}
 #endif
 
 #ifdef CONFIG_MMC_MSM_SDC2_SUPPORT
@@ -4304,7 +4304,8 @@ static uint32_t msm_rpm_get_swfi_latency(void)
 static void __init msm8x60_init_mmc(void)
 {
 #ifdef CONFIG_MMC_MSM_SDC1_SUPPORT
-	config_gpio_table(sdc1_on_gpio_table, ARRAY_SIZE(sdc1_on_gpio_table));
+	msm8x60_config_gpio_table(sdc1_on_gpio_table,
+				ARRAY_SIZE(sdc1_on_gpio_table));
 
 	/* SDCC1 : eMMC card connected */
 	sdcc_vreg_data[0].vdd_data = &sdcc_vdd_reg_data[0];
