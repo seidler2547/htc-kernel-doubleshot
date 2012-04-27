@@ -16,19 +16,6 @@
 
 unsigned engid;
 
-static void config_gpio_table(uint32_t *table, int len)
-{
-	int n, rc;
-	for (n = 0; n < len; n++) {
-		rc = gpio_tlmm_config(table[n], GPIO_CFG_ENABLE);
-		if (rc) {
-			pr_err("[CAM] %s: gpio_tlmm_config(%#x)=%d\n",
-				__func__, table[n], rc);
-			break;
-		}
-	}
-}
-
 #ifdef CONFIG_QS_S5K4E1
 static uint32_t camera_off_gpio_table_liteon[] = {
 	GPIO_CFG(HTC8X60_CAM_I2C_SDA, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),/*i2c*/
@@ -419,11 +406,11 @@ static void htc8x60_seccam_clk_switch(void)
 static int htc8x60_config_camera_on_gpios(void)
 {
 	if (engid == 7) {
-		config_gpio_table(camera_on_gpio_table_liteon,
-			ARRAY_SIZE(camera_on_gpio_table_liteon));
+		msm8x60_config_gpio_table(camera_on_gpio_table_liteon,
+					ARRAY_SIZE(camera_on_gpio_table_liteon));
 	} else {
-		config_gpio_table(camera_on_gpio_table_sp3d,
-			ARRAY_SIZE(camera_on_gpio_table_sp3d));
+		msm8x60_config_gpio_table(camera_on_gpio_table_sp3d,
+					ARRAY_SIZE(camera_on_gpio_table_sp3d));
 	}
 
 	return 0;
@@ -611,4 +598,3 @@ void __init htc8x60_init_cam(unsigned eid)
 	platform_device_register(&msm_camera_sensor_qs_s5k4e1);
 #endif
 }
-

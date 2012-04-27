@@ -59,19 +59,6 @@ static uint32_t wifi_off_gpio_table[] = {
 	GPIO_CFG(HTC8X60_GPIO_WIFI_IRQ, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_4MA), /* WLAN IRQ */
 };
 
-static void config_gpio_table(uint32_t *table, int len)
-{
-	int n, rc;
-	for (n = 0; n < len; n++) {
-		rc = gpio_tlmm_config(table[n], GPIO_CFG_ENABLE);
-		if (rc) {
-			pr_err("%s: gpio_tlmm_config(%#x)=%d\n",
-				__func__, table[n], rc);
-			break;
-		}
-	}
-}
-
 /* BCM4329 returns wrong sdio_vsn(1) when we read cccr,
    we use predefined value (sdio_vsn=2) here to initial sdio driver well */
 static struct embedded_sdio_data htc8x60_wifi_emb_data = {
@@ -143,13 +130,13 @@ int htc8x60_wifi_power(int on)
 	if (on) {
 		//SDC4_CMD_PULL = Pull Up, SDC4_DATA_PULL = Pull up
 		writel(0x1FDB, SDC4_HDRV_PULL_CTL_ADDR);
-		config_gpio_table(wifi_on_gpio_table,
-				  ARRAY_SIZE(wifi_on_gpio_table));
+		msm8x60_config_gpio_table(wifi_on_gpio_table,
+					ARRAY_SIZE(wifi_on_gpio_table));
 	} else {
 		//SDC4_CMD_PULL = Pull Down, SDC4_DATA_PULL = Pull Down
 		writel(0x0BDB, SDC4_HDRV_PULL_CTL_ADDR);
-		config_gpio_table(wifi_off_gpio_table,
-				  ARRAY_SIZE(wifi_off_gpio_table));
+		msm8x60_config_gpio_table(wifi_off_gpio_table,
+					ARRAY_SIZE(wifi_off_gpio_table));
 	}
 	mdelay(1); //Delay 1 ms, Recommand by Hardware
 	gpio_set_value(HTC8X60_GPIO_WIFI_SHUTDOWN_N, on); /* WIFI_SHUTDOWN */
