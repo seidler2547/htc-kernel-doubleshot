@@ -64,14 +64,7 @@
 #include <linux/wakelock.h>
 #include <linux/slab.h>
 
-#ifdef CONFIG_MSM_CAMERA_8X60
-#include <mach/camera-8x60.h>
-#elif defined(CONFIG_MSM_CAMERA_7X30)
-#include <mach/camera-7x30.h>
-#else
 #include <mach/camera.h>
-#endif
-#include <media/msm_camera_sensor.h>
 
 #include <mach/gpio.h>
 #include <mach/vreg.h>
@@ -162,7 +155,7 @@ enum s5k3h1gx_test_mode_t {
 enum s5k3h1gx_resolution_t {
 	QTR_SIZE,
 	FULL_SIZE,
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 	QVGA_SIZE,
 #endif
 	VIDEO_SIZE,
@@ -618,7 +611,7 @@ static int32_t s5k3h1gx_write_exp_gain
 
 		s5k3h1gx_ctrl->my_reg_gain = gain;
 		s5k3h1gx_ctrl->my_reg_line_count = (uint16_t)line;
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		if (s5k3h1gx_ctrl->prev_res == QTR_SIZE) {
 #endif
 		if (sinfo->csi_if)
@@ -637,7 +630,7 @@ static int32_t s5k3h1gx_write_exp_gain
 			ll_pck = SENSOR_VIDEO_SIZE_WIDTH_FAST +
 				SENSOR_HRZ_VIDEO_BLK_PIXELS_FAST;
 		}
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		else {/* s5k3h1gx_ctrl->prev_res == FULL_SIZE */
 
 		fl_lines = SENSOR_FULL_SIZE_HEIGHT +
@@ -831,7 +824,7 @@ static int32_t s5k3h1gx_setting(int rt)
 		if (rc < 0)
 			return rc;
 
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		/* Apply sensor mirror/flip */
 		if (sinfo->mirror_mode) {
 			pr_info("[CAM] s5k3h1gx_setting() , Apply sensor mirror/flip\n");
@@ -887,7 +880,7 @@ static int32_t s5k3h1gx_setting(int rt)
 		if (rc < 0)
 			return rc;
 
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		/* Apply sensor mirror/flip */
 		if (sinfo->mirror_mode) {
 			pr_info("[CAM] s5k3h1gx_setting() , Apply sensor mirror/flip\n");
@@ -1027,7 +1020,7 @@ static int32_t s5k3h1gx_set_sensor_mode(int mode,
 	switch (mode) {
 	case SENSOR_PREVIEW_MODE:
 	case SENSOR_VIDEO_MODE:
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		s5k3h1gx_ctrl->prev_res = res; /* VIDEO_SIZE, FULL_SIZE, QTR_SIZE */
 #endif
 		rc = s5k3h1gx_video_config(mode);
@@ -1037,7 +1030,7 @@ static int32_t s5k3h1gx_set_sensor_mode(int mode,
 		pr_info("[CAM]KPI PA: start sensor snapshot config\n");
 		/* Check V-sync frame timer Start */
 		sinfo->kpi_sensor_start = ktime_to_ns(ktime_get());
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		s5k3h1gx_ctrl->pict_res = res;
 #endif
 		rc = s5k3h1gx_snapshot_config(mode);
@@ -1047,7 +1040,7 @@ static int32_t s5k3h1gx_set_sensor_mode(int mode,
 		pr_info("[CAM]KPI PA: start sensor snapshot config\n");
 		/* Check V-sync frame timer Start */
 		sinfo->kpi_sensor_start = ktime_to_ns(ktime_get());
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 		s5k3h1gx_ctrl->pict_res = res;
 #endif
 		rc = s5k3h1gx_raw_snapshot_config(mode);
@@ -1314,7 +1307,7 @@ static int s5k3h1gx_i2c_read_fuseid(struct sensor_cfg_data *cdata)
 	return 0;
 }
 
-static int s5k3h1gx_sensor_open_init(struct msm_camera_sensor_info *data)
+static int s5k3h1gx_sensor_open_init(const struct msm_camera_sensor_info *data)
 {
 	int32_t rc = 0;
 	struct msm_camera_sensor_info *sinfo = s5k3h1gx_pdev->dev.platform_data;
@@ -1847,7 +1840,7 @@ static int s5k3h1gx_sensor_release(void)
 
 
 /*HTC_START Horng 20110905*/
-#ifdef CONFIG_MSM_CAMERA_8X60
+#ifdef CONFIG_MSM_CAMERA
 	msm_mipi_csi_disable();
 #endif
 /*HTC_END*/
@@ -1866,7 +1859,7 @@ static int s5k3h1gx_sensor_release(void)
 	return rc;
 }
 
-static int s5k3h1gx_sensor_probe(struct msm_camera_sensor_info *info,
+static int s5k3h1gx_sensor_probe(const struct msm_camera_sensor_info *info,
   struct msm_sensor_ctrl *s)
 {
 	int rc = 0;
@@ -1889,7 +1882,7 @@ static int s5k3h1gx_sensor_probe(struct msm_camera_sensor_info *info,
 	rc = s5k3h1gx_common_init(info);
 	if (rc < 0)
 		goto probe_fail;
-#ifndef CONFIG_MSM_CAMERA_8X60
+#ifndef CONFIG_MSM_CAMERA
   if (info->camera_main_set_probe != NULL)
     info->camera_main_set_probe(true);
 #endif
@@ -1900,7 +1893,7 @@ static int s5k3h1gx_sensor_probe(struct msm_camera_sensor_info *info,
 	s->s_config  = s5k3h1gx_sensor_config;
 	s5k3h1gx_sysfs_init();
 
-#ifndef CONFIG_MSM_CAMERA_8X60
+#ifndef CONFIG_MSM_CAMERA
 	info->preview_skip_frame = s5k3h1gx_preview_skip_frame;
 #endif
 
@@ -1916,13 +1909,13 @@ probe_done:
 
 static int __s5k3h1gx_probe(struct platform_device *pdev)
 {
-#ifndef CONFIG_MSM_CAMERA_8X60
+#ifndef CONFIG_MSM_CAMERA
 	struct msm_camera_sensor_info *sdata = pdev->dev.platform_data;
 #endif
 	pr_info("[CAM]s5k3h1gx_probe\n");
 	s5k3h1gx_pdev = pdev;
 
-#ifndef CONFIG_MSM_CAMERA_8X60
+#ifndef CONFIG_MSM_CAMERA
 	if (sdata->camera_main_get_probe != NULL) {
 		if (sdata->camera_main_get_probe()) {
 			pr_info("[CAM]__s5k3h1gx_probe camera main get probed already.\n");
