@@ -658,6 +658,47 @@ static void msm_camio_csi_disable(void)
 		release_mem_region(camio_ext.csiphy, camio_ext.csisz);
 	}
 }
+
+#ifdef CONFIG_HTC_DEVICE
+void msm_mipi_csi_disable(void)
+{
+uint32_t val;
+
+#ifndef CONFIG_MACH_VERDI_LTE
+	/*clear IRQ bits referred from csi_config */
+	/*msm_io_w(0xFFF7F3FF, csibase + MIPI_INTERRUPT_STATUS);*/
+	free_irq(camio_ext.csiirq, 0);
+#endif
+
+	val = (settle_cnt <<
+		MIPI_PHY_D0_CONTROL2_SETTLE_COUNT_SHFT) |
+		(0x0F << MIPI_PHY_D0_CONTROL2_HS_TERM_IMP_SHFT) |
+		(0x0 << MIPI_PHY_D0_CONTROL2_LP_REC_EN_SHFT) |
+		(0x1 << MIPI_PHY_D0_CONTROL2_ERR_SOT_HS_EN_SHFT);
+	CDBG("[CAM] %s MIPI_PHY_D0_CONTROL2 val=0x%x\n", __func__, val);
+	msm_io_w(val, csibase + MIPI_PHY_D0_CONTROL2);
+	msm_io_w(val, csibase + MIPI_PHY_D1_CONTROL2);
+	msm_io_w(val, csibase + MIPI_PHY_D2_CONTROL2);
+	msm_io_w(val, csibase + MIPI_PHY_D3_CONTROL2);
+
+	val = (0x0F << MIPI_PHY_CL_CONTROL_HS_TERM_IMP_SHFT) |
+		(0x0 << MIPI_PHY_CL_CONTROL_LP_REC_EN_SHFT);
+	CDBG("[CAM] %s MIPI_PHY_CL_CONTROL val=0x%x\n", __func__, val);
+	msm_io_w(val, csibase + MIPI_PHY_CL_CONTROL);
+	msleep(10);
+
+	val = msm_io_r(csibase + MIPI_PHY_D1_CONTROL);
+	val &= ~((0x1 << MIPI_PHY_D1_CONTROL_MIPI_CLK_PHY_SHUTDOWNB_SHFT) |
+		(0x1 << MIPI_PHY_D1_CONTROL_MIPI_DATA_PHY_SHUTDOWNB_SHFT));
+	CDBG("[CAM] %s MIPI_PHY_D1_CONTROL val=0x%x\n", __func__, val);
+	msm_io_w(val, csibase + MIPI_PHY_D1_CONTROL);
+	usleep_range(5000, 6000);
+
+	iounmap(csibase);
+	release_mem_region(camio_ext.csiphy, camio_ext.csisz);
+}
+#endif
+
 void msm_camio_disable(struct platform_device *pdev)
 {
 	CDBG("disable mipi\n");
