@@ -26,6 +26,8 @@
 #define HTC8X60_PROJECT_NAME	"pyramid"
 #elif defined(CONFIG_MACH_RUBY)
 #define HTC8X60_PROJECT_NAME	"ruby"
+#elif defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_PROJECT_NAME	"holiday"
 #endif
 
 /* deal with memory allocation */
