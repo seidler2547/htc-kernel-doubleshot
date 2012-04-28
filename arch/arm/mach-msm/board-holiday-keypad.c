@@ -22,7 +22,7 @@
 #include <linux/gpio.h>
 #include <mach/gpio.h>
 
-#include "board-holiday.h"
+#include "board-htc8x60.h"
 /*#include "proc_comm.h"*/
 
 #include <linux/mfd/pmic8058.h>
@@ -109,14 +109,8 @@ static struct platform_device holiday_keypad_input_device = {
 		.platform_data	= &holiday_keypad_data,
 	},
 };
-/*
-static int holiday_reset_keys_up[] = {
-	KEY_VOLUMEUP,
-	0
-};
-*/
+
 static struct keyreset_platform_data holiday_reset_keys_pdata = {
-	/*.keys_up = holiday_reset_keys_up,*/
 	.keys_down = {
 		KEY_POWER,
 		KEY_VOLUMEDOWN,
@@ -130,7 +124,7 @@ struct platform_device holiday_reset_keys_device = {
 	.dev.platform_data = &holiday_reset_keys_pdata,
 };
 
-int __init holiday_init_keypad(void)
+int __init htc8x60_init_keypad(void)
 {
 	printk(KERN_DEBUG "%s\n", __func__);
 

@@ -32,7 +32,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-holiday.h"
+#include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm_8x60/mdp_hw.h"
 #if defined (CONFIG_FB_MSM_MDP_ABL)
@@ -1121,7 +1121,7 @@ static int holiday_esd_fixup(uint32_t data)
 }
 #endif
 
-void __init holiday_init_panel(struct resource msm_fb_resources[], int num_resources)
+void __init htc8x60_init_panel(struct resource msm_fb_resources[], int num_resources)
 {
 #ifdef HOY_ESD_FIXUP
 	if (panel_type == PANEL_ID_HOY_SONY_OTM)

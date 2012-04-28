@@ -32,7 +32,7 @@
 #include <mach/qdsp6v2_1x/q6asm.h>
 #include <mach/htc_acoustic_8x60.h>
 
-#include "board-holiday.h"
+#include "board-htc8x60.h"
 #include "board-holiday-audio-data.h"
 #include <linux/a1026.h>
 
@@ -648,7 +648,7 @@ static struct q6v2audio_aic3254_ops aops = {
 	   .aic3254_set_mode = holiday_aic3254_set_mode,
 };
 
-void __init holiday_audio_init(void)
+void __init htc8x60_audio_init(void)
 {
 	int i = 0;
 	mutex_init(&bt_sco_lock);
