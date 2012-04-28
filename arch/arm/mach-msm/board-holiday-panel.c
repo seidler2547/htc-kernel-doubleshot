@@ -15,10 +15,12 @@
 
 #include <asm/io.h>
 #include <asm/mach-types.h>
+#include <linux/bootmem.h>
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
+#include <linux/ion.h>
 #include <linux/leds.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -34,7 +36,7 @@
 #include "../devices.h"
 #include "../board-htc8x60.h"
 #include "../devices-msm8x60.h"
-#include "../../../../drivers/video/msm_8x60/mdp_hw.h"
+#include "../../../../drivers/video/msm/mdp_hw.h"
 #if defined (CONFIG_FB_MSM_MDP_ABL)
 #include <linux/fb.h>
 #endif
@@ -613,7 +615,7 @@ static int holiday_mdp_gamma(void)
 #endif
 
 static int mdp_core_clk_rate_table[] = {
-	59080000,
+	85330000,
 	128000000,
 	160000000,
 	200000000,
@@ -621,6 +623,110 @@ static int mdp_core_clk_rate_table[] = {
 
 /* [DISPLAY]: bus scale */
 #ifdef CONFIG_MSM_BUS_SCALING
+static struct msm_bus_vectors rotator_init_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab = 0,
+		.ib = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab = 0,
+		.ib = 0,
+	},
+};
+
+static struct msm_bus_vectors rotator_ui_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = 0,
+		.ib  = 0,
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1024 * 600 * 4 * 2 * 60),
+		.ib  = (1024 * 600 * 4 * 2 * 60 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_vga_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (640 * 480 * 2 * 2 * 30),
+		.ib  = (640 * 480 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_720p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1280 * 736 * 2 * 2 * 30),
+		.ib  = (1280 * 736 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_vectors rotator_1080p_vectors[] = {
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_SMI,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+	{
+		.src = MSM_BUS_MASTER_ROTATOR,
+		.dst = MSM_BUS_SLAVE_EBI_CH0,
+		.ab  = (1920 * 1088 * 2 * 2 * 30),
+		.ib  = (1920 * 1088 * 2 * 2 * 30 * 1.5),
+	},
+};
+
+static struct msm_bus_paths rotator_bus_scale_usecases[] = {
+	{
+		ARRAY_SIZE(rotator_init_vectors),
+		rotator_init_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_ui_vectors),
+		rotator_ui_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_vga_vectors),
+		rotator_vga_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_720p_vectors),
+		rotator_720p_vectors,
+	},
+	{
+		ARRAY_SIZE(rotator_1080p_vectors),
+		rotator_1080p_vectors,
+	},
+};
+
+struct msm_bus_scale_pdata rotator_bus_scale_pdata = {
+	rotator_bus_scale_usecases,
+	ARRAY_SIZE(rotator_bus_scale_usecases),
+	.name = "rotator",
+};
+
 static struct msm_bus_vectors mdp_init_vectors[] = {
 	/* For now, 0th array entry is reserved.
 	 * Please leave 0 as is and don't use it
@@ -748,14 +854,13 @@ static struct msm_bus_paths mdp_bus_scale_usecases[] = {
 		mdp_1080p_vectors,
 	},
 };
+
 static struct msm_bus_scale_pdata mdp_bus_scale_pdata = {
 	mdp_bus_scale_usecases,
 	ARRAY_SIZE(mdp_bus_scale_usecases),
 	.name = "mdp",
 };
-#endif
 
-#ifdef CONFIG_MSM_BUS_SCALING
 static struct msm_bus_vectors dtv_bus_init_vectors[] = {
 	/* For now, 0th array entry is reserved.
 	 * Please leave 0 as is and don't use it
@@ -838,12 +943,31 @@ static struct msm_panel_common_pdata mdp_pdata = {
 #ifdef CONFIG_MSM_BUS_SCALING
 	.mdp_bus_scale_table = &mdp_bus_scale_pdata,
 #endif
+	.mdp_rev = MDP_REV_41,
+#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
+	.mem_hid = ION_CP_WB_HEAP_ID,
+#else
+	.mem_hid = MEMTYPE_EBI1,
+#endif
 	.mdp_color_enhance = holiday_mdp_color_enhance,
 	/* .mdp_gamma = holiday_mdp_gamma, */
 #if defined (CONFIG_FB_MSM_MDP_ABL)
 	.abl_gamma_tbl = &gamma_tbl,
 #endif
 };
+
+
+void __init msm8x60_mdp_writeback(struct memtype_reserve* reserve_table)
+{
+	mdp_pdata.ov0_wb_size = MSM_FB_OVERLAY0_WRITEBACK_SIZE;
+	mdp_pdata.ov1_wb_size = MSM_FB_OVERLAY1_WRITEBACK_SIZE;
+#if defined(CONFIG_ANDROID_PMEM) && !defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov0_wb_size;
+	reserve_table[mdp_pdata.mem_hid].size +=
+		mdp_pdata.ov1_wb_size;
+#endif
+}
 
 /* [DISPLAY]: supply panel power */
 static struct regulator *l19_2v85;
@@ -883,12 +1007,12 @@ static void holiday_panel_power(int on)
 		}
 
 		/* LCM Reset */
-		rc = gpio_request(HOLIDAY_GPIO_LCM_RST_N,
+		rc = gpio_request(GPIO_LCM_RST_N,
 			"LCM_RST_N");
 		if (rc) {
 			PR_DISP_ERR("%s:LCM gpio %d request"
 				"failed\n", __func__,
-				 HOLIDAY_GPIO_LCM_RST_N);
+				 GPIO_LCM_RST_N);
 			return;
 		}
 
@@ -911,7 +1035,7 @@ static void holiday_panel_power(int on)
 					" l19_2v85\n", __func__);
 			return;
 		}
-		hr_msleep(5);
+		msleep(5);
 
 		if (regulator_enable(l20_1v8)) {
 			PR_DISP_ERR("%s: Unable to enable the regulator:"
@@ -923,23 +1047,23 @@ static void holiday_panel_power(int on)
 			init = 2;
 			return;
 		} else {
-			hr_msleep(10);
-			gpio_set_value(HOLIDAY_GPIO_LCM_RST_N, 1);
-			hr_msleep(1);
-			gpio_set_value(HOLIDAY_GPIO_LCM_RST_N, 0);
-			hr_msleep(1);
-			gpio_set_value(HOLIDAY_GPIO_LCM_RST_N, 1);
-			hr_msleep(20);
+			msleep(10);
+			gpio_set_value(GPIO_LCM_RST_N, 1);
+			msleep(1);
+			gpio_set_value(GPIO_LCM_RST_N, 0);
+			msleep(1);
+			gpio_set_value(GPIO_LCM_RST_N, 1);
+			msleep(20);
 		}
 	} else {
-		gpio_set_value(HOLIDAY_GPIO_LCM_RST_N, 0);
-		hr_msleep(5);
+		gpio_set_value(GPIO_LCM_RST_N, 0);
+		msleep(5);
 		if (regulator_disable(l20_1v8)) {
 			PR_DISP_ERR("%s: Unable to enable the regulator:"
 				" l20_1v8\n", __func__);
 			return;
 		}
-		hr_msleep(5);
+		msleep(5);
 		if (regulator_disable(l19_2v85)) {
 			PR_DISP_ERR("%s: Unable to enable the regulator:"
 					" l19_2v85\n", __func__);
@@ -973,13 +1097,13 @@ static int mipi_panel_power(int on)
 
 /* [DISPLAY]: prepare for MDP and DSI */
 static uint32_t lcd_gpio_table[] = {
-	GPIO_CFG(HOLIDAY_GPIO_LCM_ID0, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-	GPIO_CFG(HOLIDAY_GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
-	GPIO_CFG(HOLIDAY_GPIO_LCM_TE, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA)
+	GPIO_CFG(GPIO_LCM_ID0, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+	GPIO_CFG(GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA),
+	GPIO_CFG(GPIO_LCM_TE, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_DOWN, GPIO_CFG_2MA)
 };
 
 static struct mipi_dsi_platform_data mipi_pdata = {
-	.vsync_gpio = HOLIDAY_GPIO_LCM_TE,
+	.vsync_gpio = GPIO_LCM_TE,
 	.dsi_power_save = mipi_panel_power,
 };
 
@@ -1000,26 +1124,44 @@ static int msm_fb_detect_panel(const char *name)
 			}
 		}
 	}
-#ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL
-	else if (!strcmp(name, "hdmi_msm"))
-		return 0;
-#endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
 
 	PR_DISP_WARN("%s: not supported '%s'", __func__, name);
 	return -ENODEV;
 }
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.detect_client = msm_fb_detect_panel,
-	.blt_mode = 1,
-	.width = 53,
-	.height = 95,
+//	.blt_mode = 1,
+//	.width = 53,
+//	.height = 95,
 };
+
+static struct resource msm_fb_resources[] = {
+	{
+		.flags  = IORESOURCE_DMA,
+	 }
+ };
 
 static struct platform_device msm_fb_device = {
 	.name   = "msm_fb",
 	.id	 = 0,
+	.num_resources     = ARRAY_SIZE(msm_fb_resources),
+	.resource          = msm_fb_resources,
 	.dev.platform_data = &msm_fb_pdata,
 };
+
+void __init msm8x60_allocate_fb_region(void)
+{
+	void *addr;
+	unsigned long size;
+
+	size = MSM_FB_SIZE;
+	addr = alloc_bootmem_align(size, 0x1000);
+	msm_fb_resources[0].start = __pa(addr);
+	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
+	pr_info("allocating %lu bytes at %p (%lx physical) for fb\n",
+		size, addr, __pa(addr));
+
+}
 
 /* parameters for backlight value mapping */
 #define BACKLIGHT_MAX 255
@@ -1105,7 +1247,7 @@ static int holiday_esd_fixup(uint32_t data)
 		pwrVal = mipi_orise_read_power();
 		if (0x9C != pwrVal) {
 			PR_DISP_INFO("%s: power status of driver IC = 0x%02X\n", __func__, pwrVal);
-			hr_msleep(1);
+			msleep(1);
 			pwrVal = mipi_orise_read_power();
 			if (0x9C != pwrVal) {
 				PR_DISP_INFO("%s: power status of driver IC = 0x%02X\n", __func__, pwrVal);
@@ -1121,15 +1263,12 @@ static int holiday_esd_fixup(uint32_t data)
 }
 #endif
 
-void __init htc8x60_init_panel(struct resource msm_fb_resources[], int num_resources)
+void __init htc8x60_init_panel(void)
 {
 #ifdef HOY_ESD_FIXUP
 	if (panel_type == PANEL_ID_HOY_SONY_OTM)
 		mipi_pdata.esd_fixup = holiday_esd_fixup;
 #endif
-
-	msm_fb_device.resource = msm_fb_resources;
-	msm_fb_device.num_resources = num_resources;
 
 	platform_add_devices(display_devices, ARRAY_SIZE(display_devices));
 
