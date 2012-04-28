@@ -38,6 +38,7 @@
 
 #define PM8058_GPIO_BASE					NR_MSM_GPIOS
 #define PM8058_GPIO_PM_TO_SYS(pm_gpio)		(pm_gpio + PM8058_GPIO_BASE)
+#define PMGPIO(x) (x-1)
 
 static struct mutex bt_sco_lock;
 static struct mutex mic_lock;
@@ -65,7 +66,7 @@ static atomic_t aic3254_ctl = ATOMIC_INIT(0);
 void holiday_snddev_bmic_pamp_on(int en);
 
 static uint32_t msm_aic3254_reset_gpio[] = {
-	GPIO_CFG(HOLIDAY_AUD_CODEC_RST, 0, GPIO_CFG_OUTPUT,
+	GPIO_CFG(HTC8X60_AUD_CODEC_RST, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_PULL_UP, GPIO_CFG_8MA),
 };
 
@@ -76,16 +77,16 @@ static uint32_t msm_snddev_gpio[] = {
 };
 
 static uint32_t msm_a1026_gpio[] = {
-	GPIO_CFG(HOLIDAY_GPIO_AUD_A1026_INT, 0, GPIO_CFG_INPUT,
+	GPIO_CFG(HTC8X60_GPIO_AUD_A1026_INT, 0, GPIO_CFG_INPUT,
 		GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-	GPIO_CFG(HOLIDAY_GPIO_AUD_A1026_WAKEUP, 0, GPIO_CFG_OUTPUT,
+	GPIO_CFG(HTC8X60_GPIO_AUD_A1026_WAKEUP, 0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_PULL_UP, GPIO_CFG_8MA),
 };
 
 static uint32_t msm_a1026_na_gpio[] = {
-	GPIO_CFG(HOLIDAY_GPIO_AUD_A1026_INT, 0, GPIO_CFG_INPUT,
+	GPIO_CFG(HTC8X60_GPIO_AUD_A1026_INT, 0, GPIO_CFG_INPUT,
 		GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-	GPIO_CFG(HOLIDAY_GPIO_AUD_A1026_WAKEUP, 0, GPIO_CFG_INPUT,
+	GPIO_CFG(HTC8X60_GPIO_AUD_A1026_WAKEUP, 0, GPIO_CFG_INPUT,
 		GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
 };
 
@@ -93,14 +94,14 @@ void holiday_snddev_poweramp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		msleep(50);
 		set_speaker_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_SPEAKER;
 	} else {
 		set_speaker_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_SPEAKER;
 	}
@@ -110,14 +111,14 @@ void holiday_snddev_hsed_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		msleep(50);
 		set_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_HEADSET;
 	} else {
 		set_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_HEADSET;
 	}
@@ -127,7 +128,7 @@ void holiday_snddev_hs_spk_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		msleep(50);
 		set_speaker_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl)) {
@@ -136,7 +137,7 @@ void holiday_snddev_hs_spk_pamp_on(int en)
 		}
 	} else {
 		set_speaker_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl)) {
 			curr_rx_mode &= ~BIT_SPEAKER;
 			curr_rx_mode &= ~BIT_HEADSET;
@@ -203,13 +204,13 @@ void holiday_imic_pamp_on_with_audience(int en)
 
 		/* select internal mic path */
 		if (call_state) {
-			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 0);
+			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 0);
 			ret = pm8058_micbias_enable(OTHC_MICBIAS_1, OTHC_SIGNAL_ALWAYS_ON);
 			if (ret)
 				pr_aud_err("%s: Enabling back mic power failed\n", __func__);
 		} else {
 			if (!force_a1026_on)
-				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 1);
+				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 1);
 		}
 	} else {
 		ret = pm8058_micbias_enable(OTHC_MICBIAS_0, OTHC_SIGNAL_OFF);
@@ -262,9 +263,9 @@ void holiday_snddev_bmic_pamp_on(int en)
 			pr_aud_err("%s: Enabling back mic power failed\n", __func__);
 
 		/* select internal mic path */
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL1), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL1), 0);
 		if (support_audience && !force_a1026_on)
-			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 1);
+			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 1);
 	} else {
 		ret = pm8058_micbias_enable(OTHC_MICBIAS_1, OTHC_SIGNAL_OFF);
 		if (ret)
@@ -282,17 +283,17 @@ void holiday_snddev_emic_pamp_on(int en)
 
 	call_state = msm_get_call_state();
 	/*
-	external micbias should be controlled by headset driver with HOLIDAY_mic_enable
+	external micbias should be controlled by headset driver with HTC8X60_mic_enable
 	turn on with headset plugged in and turn off when headset unplugged.
 	*/
 	if (en) {
 		/* select internal mic path */
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL1), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL1), 1);
 		if (support_audience) {
 			if (call_state)
-				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 0);
+				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 0);
 			else
-				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 1);
+				gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 1);
 		}
 	}
 }
@@ -313,9 +314,9 @@ void holiday_snddev_stereo_mic_pamp_on(int en)
 			pr_aud_err("%s: Enabling back mic power failed\n", __func__);
 
 		/* select internal mic path */
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL1), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL1), 0);
 		if (support_audience)
-			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 1);
+			gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 1);
 	} else {
 		ret = pm8058_micbias_enable(OTHC_MICBIAS_0, OTHC_SIGNAL_OFF);
 		if (ret)
@@ -331,13 +332,13 @@ void holiday_snddev_fmspk_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_speaker_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_FM_SPK;
 	} else {
 		set_speaker_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_SPK;
 	}
@@ -347,13 +348,13 @@ void holiday_snddev_fmhs_pamp_on(int en)
 {
 	pr_aud_info("%s %d\n", __func__, en);
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 1);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 1);
 		set_headset_amp(1);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode |= BIT_FM_HS;
 	} else {
 		set_headset_amp(0);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_HANDSET_ENO), 0);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO), 0);
 		if (!atomic_read(&aic3254_ctl))
 			curr_rx_mode &= ~BIT_FM_HS;
 	}
@@ -436,24 +437,24 @@ int holiday_is_msm_i2s_slave(void)
 void holiday_spibus_enable(int en)
 {
 	uint32_t msm_spi_gpio_on[] = {
-		GPIO_CFG(HOLIDAY_SPI_DO,  1, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_DO,  1, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_DI,  1, GPIO_CFG_INPUT,
+		GPIO_CFG(HTC8X60_SPI_DI,  1, GPIO_CFG_INPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_CS,  1, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_CS,  1, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_CLK, 1, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_CLK, 1, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 	};
 
 	uint32_t msm_spi_gpio_off[] = {
-		GPIO_CFG(HOLIDAY_SPI_DO,  0, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_DO,  0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_DI,  0, GPIO_CFG_INPUT,
+		GPIO_CFG(HTC8X60_SPI_DI,  0, GPIO_CFG_INPUT,
 			GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_CS,  0, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_CS,  0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
-		GPIO_CFG(HOLIDAY_SPI_CLK, 0, GPIO_CFG_OUTPUT,
+		GPIO_CFG(HTC8X60_SPI_CLK, 0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_PULL_DOWN, GPIO_CFG_8MA),
 	};
 	pr_debug("%s %d\n", __func__, en);
@@ -475,14 +476,14 @@ void holiday_spibus_enable(int en)
 void holiday_a1026_hw_reset(void)
 {
 	/* Reset A1026 chip */
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_A1026_RST), 0);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_A1026_RST), 0);
 
 	/* Enable A1026 clock */
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_A1026_CLK), 1);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_A1026_CLK), 1);
 	mdelay(1);
 
 	/* Take out of reset */
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_A1026_RST), 1);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_A1026_RST), 1);
 }
 
 /*
@@ -494,7 +495,7 @@ int holiday_set_mic_state(char miccase)
 	int rc = 0;
 	unsigned int cmd_msg = 0;
 
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 0);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 0);
 	force_a1026_on = 1;
 
 	switch (miccase) {
@@ -521,10 +522,10 @@ int holiday_set_mic_state(char miccase)
 
 void holiday_selmic(int en)
 {
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 0);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 0);
 	force_a1026_on = 1;
 	if (en) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL1), en);
+		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL1), en);
 	}
 }
 
@@ -539,16 +540,16 @@ void holiday_a1026_recovery(void)
 	/*holiday a1026 chip broken. Enable sel2 to bypass a1026 chip.*/
 	pr_aud_info("Audience(A1026) chip failed. Start bypass machanism to recovery TX voice.\n");
 	support_audience = 0;
-	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HOLIDAY_AUD_MIC_SEL2), 1);
+	gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2), 1);
 }
 #endif
 
 void holiday_reset_3254(void)
 {
 	gpio_tlmm_config(msm_aic3254_reset_gpio[0], GPIO_CFG_ENABLE);
-	gpio_set_value(HOLIDAY_AUD_CODEC_RST, 0);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 0);
 	mdelay(1);
-	gpio_set_value(HOLIDAY_AUD_CODEC_RST, 1);
+	gpio_set_value(HTC8X60_AUD_CODEC_RST, 1);
 }
 
 static void __init audience_gpio_init(void)
