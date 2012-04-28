@@ -1446,7 +1446,7 @@ static struct htc_headset_8x60_platform_data htc_headset_8x60_data = {
 	.adc_remote	= {0, 1251, 1430, 3411, 4543, 6807},
 };
 
-#if !defined(CONFIG_MACH_PYRAMID) && !defined(CONFIG_MACH_RUBY)
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 static struct htc_headset_8x60_platform_data htc_headset_8x60_data_xb = {
 	.adc_mpp	= PM8058_MPP_PM_TO_SYS(XOADC_MPP_10),
 	.adc_amux	= PM_MPP_AIN_AMUX_CH5,
@@ -1849,7 +1849,7 @@ static int pm8058_gpios_init(void)
 	};
 
 	struct pm8058_gpio_cfg gpio_cfgs[] = {
-#ifndef CONFIG_MACH_RUBY
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 		{
 			PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET),
@@ -2048,8 +2048,10 @@ static int pm8058_gpios_init(void)
 				.inv_int_pol    = 0,
 			}
 		},
+#endif /* CONFIG_MACH_PYRAMID */
 #endif
-#else
+
+#if defined(CONFIG_MACH_RUBY)
 		{ /* FFA ethernet */
 			6,
 			{
@@ -2159,6 +2161,103 @@ static int pm8058_gpios_init(void)
 				.vin_sel	= 6,	/* LDO5 2.85 V */
 				.inv_int_pol	= 0,
 			}
+		},
+#endif
+
+#if defined(CONFIG_MACH_HOLIDAY)
+		{ /* Audio Microphone Selector 1*/
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL1),	/* 37 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= 6,	/* LDO5 2.85 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Audio Microphone Selector 2*/
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_MIC_SEL2),	/* 16 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= 6,	/* LDO5 2.85 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Audio a1026 RST */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_A1026_RST),	/* 19 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 1,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= PM8058_GPIO_VIN_L7,	/* LDO7 1.8 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Audio Receiver Amplifier */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_HANDSET_ENO),	/* 18 */
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 0,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= PM8058_GPIO_VIN_L7,	/* LDO7 1.8 V */
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* Green LED */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_GREEN_LED),
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 1,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.pull		= PM_GPIO_PULL_NO,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_2,
+				.vin_sel	= PM8058_GPIO_VIN_L5,
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* AMBER */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AMBER_LED),
+			{
+				.direction	= PM_GPIO_DIR_OUT,
+				.output_value	= 1,
+				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+				.pull		= PM_GPIO_PULL_NO,
+				.out_strength	= PM_GPIO_STRENGTH_HIGH,
+				.function	= PM_GPIO_FUNC_2,
+				.vin_sel	= PM8058_GPIO_VIN_L5,
+				.inv_int_pol	= 0,
+			}
+		},
+		{ /* cm3628 P/L-sensor */
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_PLS_INT),
+			{
+				.direction	= PM_GPIO_DIR_IN,
+				.pull		= PM_GPIO_PULL_NO,
+				.vin_sel	= PM8058_GPIO_VIN_L7,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol	= 0,
+			}
+		},
+		{
+			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES),
+			{
+				.direction	= PM_GPIO_DIR_IN,
+				.pull		= PM_GPIO_PULL_NO,
+				.vin_sel	= PM8058_GPIO_VIN_L5, /* 2.85 V */
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.inv_int_pol	= 0,
+			},
 		},
 #endif
 	};
@@ -2773,7 +2872,7 @@ static struct i2c_board_info __initdata mpu3050_GSBI10_boardinfo_XB[] = {
 };
 #endif
 
-#ifndef CONFIG_MACH_RUBY
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 static int isl29028_power(int pwr_device, uint8_t enable)
 {
 	return 0;
@@ -2847,7 +2946,7 @@ static struct tpa2051d3_platform_data tpa2051d3_pdata = {
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_HP_EN,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
-#elif defined(CONFIG_MACH_RUBY)
+#elif defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 	.gpio_tpa2051_spk_en = HTC8X60_AUD_HANDSET_ENO,
 	.spkr_cmd = {0x00, 0x82, 0x00, 0x07, 0xCD, 0x4F, 0x0D},
 	.hsed_cmd = {0x00, 0x8C, 0x20, 0x57, 0xCD, 0x4F, 0x0D},
@@ -4212,25 +4311,6 @@ static int msm_sdc3_get_wpswitch(struct device *dev)
 #ifdef CONFIG_MMC_MSM_CARD_HW_DETECTION
 static unsigned int msm8x60_sdcc_slot_status(struct device *dev)
 {
-#ifdef CONFIG_MACH_RUBY
-	struct platform_device *pdev;
-	int status;
-	pdev = container_of(dev, struct platform_device, dev);
-
-	status = gpio_request(HTC8X60_SD_DETECT_PIN
-				, "SD_HW_Detect");
-	if (status) {
-		pr_err("%s:Failed to request GPIO %d\n", __func__,
-				HTC8X60_SD_DETECT_PIN);
-	} else {
-		status = !(gpio_get_value_cansleep(
-			HTC8X60_SD_DETECT_PIN));
-		/*pr_info("%s: WP Status for Slot %d = %d\n", __func__,
-							pdev->id, status);*/
-		gpio_free(HTC8X60_SD_DETECT_PIN);
-	}
-	return (unsigned int) status;
-#else
 	int status;
 
 	status = gpio_request(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET)
@@ -4247,7 +4327,6 @@ static unsigned int msm8x60_sdcc_slot_status(struct device *dev)
 		gpio_free(PM8058_GPIO_PM_TO_SYS(HTC8X60_SDC3_DET));
 	}
 	return (unsigned int) status;
-#endif
 }
 #endif
 #endif
@@ -4586,7 +4665,7 @@ static void __init msm8x60_init(void)
 	if (system_rev >= 1) {
 		htc_headset_pmic_data.key_gpio =
 			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_PRES);
-#if !defined(CONFIG_MACH_PYRAMID) && !defined(CONFIG_MACH_RUBY)
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 		htc_headset_pmic_data.key_enable_gpio =
 			PM8058_GPIO_PM_TO_SYS(HTC8X60_AUD_REMO_EN);
 		htc_headset_8x60.dev.platform_data =

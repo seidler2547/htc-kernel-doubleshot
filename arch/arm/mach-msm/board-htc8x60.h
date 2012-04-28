@@ -126,26 +126,36 @@
 #endif
 
 /* Direct Keys */
-#define HTC8X60_GPIO_SW_LCM_3D       (64)
-#define HTC8X60_GPIO_SW_LCM_2D       (68)
+#define HTC8X60_GPIO_KEY_POWER       (125)
+
 #ifdef CONFIG_MACH_PYRAMID
 #define HTC8X60_GPIO_KEY_VOL_DOWN	(189)
 #define HTC8X60_GPIO_KEY_VOL_UP		(188)
-#elif defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_RUBY)
+#endif
+
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 #define HTC8X60_GPIO_KEY_VOL_DOWN    (103)
 #define HTC8X60_GPIO_KEY_VOL_UP      (104)
-#ifndef CONFIG_MACH_RUBY
+#endif
+
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
+#define HTC8X60_GPIO_SW_LCM_3D       (64)
+#define HTC8X60_GPIO_SW_LCM_2D       (68)
 #define HTC8X60_GPIO_KEY_CAM_STEP2   (115)
 #define HTC8X60_GPIO_KEY_CAM_STEP1   (123)
-#else
+#endif
+
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_RUBY)
 #define HTC8X60_GPIO_KEY_CAPTURE     (94)
 #endif
-#endif
-#define HTC8X60_GPIO_KEY_POWER       (125)
 
 /* Battery */
 #define HTC8X60_GPIO_MBAT_IN		   (61)
+#ifdef CONFIG_MACH_HOLIDAY
+#define HTC8X60_GPIO_CHG_INT		   (124)
+#else
 #define HTC8X60_GPIO_CHG_INT		   (126)
+#endif
 
 /* Wifi */
 #define HTC8X60_GPIO_WIFI_IRQ              (46)
@@ -168,16 +178,16 @@
 #define HTC8X60_GPIO_CPU_WIMAX_UART_EN     (157)
 
 /* Sensors */
-#ifndef CONFIG_MACH_RUBY
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_RUBY)
 #define HTC8X60_SENSOR_I2C_SDA		(72)
 #define HTC8X60_SENSOR_I2C_SCL		(73)
 #define HTC8X60_GYRO_INT		(127)
 #else
-#define HTC8X60_SENSOR_I2C_SCL	(115)
-#define HTC8X60_SENSOR_I2C_SDA	(116)
+#define HTC8X60_SENSOR_I2C_SCL		(115)
+#define HTC8X60_SENSOR_I2C_SDA		(116)
 #define HTC8X60_GYRO_INT		(126)
-#define HTC8X60_COMPASS_INT	(128)
-#define HTC8X60_GSENSOR_INT_N	(127)
+#define HTC8X60_COMPASS_INT		(128)
+#define HTC8X60_GSENSOR_INT_N		(127)
 
 #define HTC8X60_LAYOUTS	{ \
 			{ { 0,  1, 0}, {-1,  0,  0}, {0, 0, 1} }, \
@@ -194,36 +204,48 @@
 /* Microp */
 
 /* TP */
-#define HTC8X60_TP_I2C_SDA           (51)
-#define HTC8X60_TP_I2C_SCL           (52)
-#ifdef CONFIG_TOUCHSCREEN_ATMEL
-#ifdef CONFIG_MACH_RUBY
-#define HTC8X60_TP_ATT_N                (117)
-#else
-#define HTC8X60_TP_ATT_N             (57)
-#endif
-#elif defined(CONFIG_TOUCHSCREEN_CYPRESS_TMA)
-#define HTC8X60_TP_ATT_N             (65)
-#define HTC8X60_TP_ATT_N_XB          (50)
+#define HTC8X60_TP_I2C_SDA		(51)
+#define HTC8X60_TP_I2C_SCL		(52)
+
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
+#define HTC8X60_TP_ATT_N		(57)
 #endif
 
+#ifdef CONFIG_MACH_PYRAMID
+#define HTC8X60_TP_ATT_N		(65)
+#define HTC8X60_TP_ATT_N_XB		(50)
+#endif
+
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_TP_ATT_N		(117)
+#endif
+
+
 /* LCD */
-#ifndef CONFIG_MACH_RUBY
-#define GPIO_LCM_ID	50
-#define GPIO_LCM_RST_N	66
-#else
+#if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U) || defined(CONFIG_MACH_PYRAMID)
+#define GPIO_LCM_ID		50
+#define GPIO_LCM_RST_N		66
+#endif
+
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 #define GPIO_LCM_RST_N		(137)
 #define GPIO_LCM_ID0		(64)
 #define GPIO_LCM_ID1		(65)
+#define GPIO_LCM_TE		(28)
 #endif
 
 /* Audio */
-#ifndef CONFIG_MACH_RUBY
-#define HTC8X60_AUD_CODEC_RST        (67)
-#define HTC8X60_AUD_CDC_LDO_SEL      (116)
-#else
+#ifdef CONFIG_MACH_RUBY
 #define HTC8X60_AUD_CODEC_RST        (118)
 #define HTC8X60_AUD_QTR_RESET        (158)
+#elif defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_AUD_CODEC_RST		(118)
+#define HTC8X60_GPIO_AUD_A1026_WAKEUP	(70)
+#define HTC8X60_GPIO_AUD_A1026_INT	(94)
+#define HTC8X60_AUD_A1026_CLK   -1
+#else
+#define HTC8X60_AUD_CODEC_RST        (67)
+#define HTC8X60_AUD_CDC_LDO_SEL      (116)
 #endif
 
 /* BT */
@@ -232,7 +254,11 @@
 #define HTC8X60_GPIO_BT_UART1_RX       (54)
 #define HTC8X60_GPIO_BT_UART1_CTS      (55)
 #define HTC8X60_GPIO_BT_UART1_RTS      (56)
+#ifdef CONFIG_MACH_HOLIDAY
+#define HTC8X60_GPIO_BT_SHUTDOWN_N     (57)
+#else
 #define HTC8X60_GPIO_BT_SHUTDOWN_N     (100)
+#endif
 #define HTC8X60_GPIO_BT_CHIP_WAKE      (130)
 #define HTC8X60_GPIO_BT_RESET_N        (142)
 
@@ -244,7 +270,7 @@
 #define HTC8X60_GPIO_MHL_USB_SW         (99)
 
 /* USB and UART */
-#ifdef CONFIG_MACH_RUBY
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 #define HTC8X60_GPIO_UART_RX           (105)
 #define HTC8X60_GPIO_UART_TX           (106)
 #endif
@@ -252,10 +278,10 @@
 /* Camera */
 
 /* Flashlight */
-#ifndef CONFIG_MACH_RUBY
-#define HTC8X60_FLASH_EN             (29)
-#else
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 #define HTC8X60_FLASH_EN             (138)
+#else
+#define HTC8X60_FLASH_EN             (29)
 #endif
 #define HTC8X60_TORCH_EN             (30)
 
@@ -269,9 +295,27 @@
 #define HTC8X60_SPI_CLK                (36)
 
 /* SD */
-#ifdef CONFIG_MACH_RUBY
-#define HTC8X60_SD_DETECT_PIN		(37)
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_SDC3_DET		(37)
 #define HTC8X60_PSNENOR_INTz		(123)
+#endif
+
+/* LTE */
+#if defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_AP2MDM_STATUS		(136)
+#define HTC8X60_MDM2AP_STATUS		(134)
+#define HTC8X60_MDM2AP_WAKEUP		(40)
+#define HTC8X60_MDM2AP_ERRFATAL		(133)
+#define HTC8X60_AP2MDM_ERRFATAL		(93)
+
+#define HTC8X60_AP2MDM_PMIC_RESET_N	(131)
+#define HTC8X60_AP2MDM_KPDPWR_N		(38)
+#define HTC8X60_AP2PMIC_TMPNI_CKEN	(141)
+
+#define HTC8X60_MDM2AP_VDDMIN		(140)
+#define HTC8X60_MDM2AP_SYNC		(129)
+#define HTC8X60_AP2MDM_WAKEUP		(135)
+#define HTC8X60_MDM2AP_VFR		(29)
 #endif
 
 /* LCM */
@@ -316,13 +360,21 @@
 #define HTC8X60_CAM_SEL			(141)
 #endif
 
+#ifdef CONFIG_MACH_HOLIDAY
+#define HTC8X60_CLK_SWITCH		(44)
+#define HTC8X60_CAM1_RST		(49)
+#define HTC8X60_CAM1_VCM_PD		(58)
+#define HTC8X60_CAM2_RST		(101)
+#define HTC8X60_CAM2_STANDBY		(102)
+#define HTC8X60_CAM2_CAM_ID		(43)
+#endif
 
 /* PMIC */
 
 /* PMIC GPIO definition */
 #define PMGPIO(x) (x-1)
 
-#ifndef CONFIG_MACH_RUBY
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #define HTC8X60_AUD_HP_EN          PMGPIO(18)
 #define HTC8X60_AUD_QTR_RESET      PMGPIO(21)
 #define HTC8X60_TP_RST             PMGPIO(23)
@@ -332,6 +384,7 @@
 #define HTC8X60_SDC3_DET           PMGPIO(34)
 #define HTC8X60_AUD_REMO_PRES      PMGPIO(37)
 #define HTC8X60_WIFI_BT_SLEEP_CLK  PMGPIO(38)
+#endif
 
 #if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 #define HTC8X60_VOL_UP             (104)
@@ -354,7 +407,9 @@
 #elif defined(CONFIG_MACH_SHOOTER_U)
 #define HTC8X60_TORCH_SET1         PMGPIO(40)
 #endif
-#elif defined (CONFIG_MACH_PYRAMID)
+#endif
+
+#if defined(CONFIG_MACH_PYRAMID)
 #define HTC8X60_VOL_UP             PMGPIO(16)
 #define HTC8X60_VOL_DN             PMGPIO(17)
 #define HTC8X60_HAP_ENABLE         PMGPIO(19)
@@ -362,24 +417,39 @@
 #define HTC8X60_PS_VOUT            PMGPIO(35)
 #endif
 
-#else
+#if defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 #define HTC8X60_VOL_UP			(104)
 #define HTC8X60_VOL_DN			(103)
 #define HTC8X60_AUD_REMO_PRES		PMGPIO(7)
+#define HTC8X60_AUD_HANDSET_ENO		PMGPIO(18)
+#define HTC8X60_TP_RST			PMGPIO(23)
+#define HTC8X60_CHG_STAT		PMGPIO(33)
+#define HTC8X60_WIFI_BT_SLEEP_CLK	PMGPIO(38)
+#endif
+
+#if defined(CONFIG_MACH_RUBY)
 #define HTC8X60_WIFI_BT_FAST_CLK	PMGPIO(8)
 #define HTC8X60_H2W_CABLE_IN2		PMGPIO(9)
 #define HTC8X60_H2W_IO2_DAT		PMGPIO(10)
 #define HTC8X60_PSENSOR_PVT_INTz	PMGPIO(15)
-#define HTC8X60_AUD_HANDSET_ENO		PMGPIO(18)
 #define HTC8X60_GPIO_KEY_CAMCODER	PMGPIO(22)
-#define HTC8X60_TP_RST			PMGPIO(23)
 #define HTC8X60_LED_3V3			PMGPIO(24)
-#define HTC8X60_CHG_STAT		PMGPIO(33)
 #define HTC8X60_H2W_IO1_CLK		PMGPIO(34)
 #define HTC8X60_GPIO_KEY_CAMAF		PMGPIO(35)
-#define HTC8X60_AUD_MIC_SEL		PMGPIO(37)
-#define HTC8X60_WIFI_BT_SLEEP_CLK	PMGPIO(38)
 #define HTC8X60_H2W_CABLE_IN1		PMGPIO(36)
+#define HTC8X60_AUD_MIC_SEL		PMGPIO(37)
+#endif
+
+#if defined(CONFIG_MACH_HOLIDAY)
+#define HTC8X60_AUD_MIC_SEL2		PMGPIO(16)
+#define HTC8X60_AUD_A1026_RST		PMGPIO(19)
+/* #define HTC8X60_AUD_QTR_RESET	  PMGPIO(21) */
+#define HTC8X60_PS_VOUT			PMGPIO(22)
+#define HTC8X60_GREEN_LED		PMGPIO(24)
+#define HTC8X60_AMBER_LED		PMGPIO(25)
+#define HTC8X60_PLS_INT			PMGPIO(35)
+#define HTC8X60_AUD_MIC_SEL1		PMGPIO(37)
+#define HTC8X60_WIFI_BT_SLEEP_CLK	PMGPIO(38)
 #endif
 
 /* NFC */
