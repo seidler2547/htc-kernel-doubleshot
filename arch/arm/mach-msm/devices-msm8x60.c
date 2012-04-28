@@ -998,7 +998,7 @@ struct platform_device msm_device_ssbi1 = {
 };
 #endif
 
-#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY)
+#if defined(CONFIG_MACH_PYRAMID) || defined(CONFIG_MACH_RUBY) || defined(CONFIG_MACH_HOLIDAY)
 /* 8901 PMIC SSBI on /dev/i2c-7 */
 #define MSM_SSBI2_PMIC2B_PHYS	0x00C00000
 static struct resource msm_ssbi2_resources[] = {
