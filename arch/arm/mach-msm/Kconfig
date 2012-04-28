@@ -628,8 +628,15 @@ config MACH_RUBY
 	help
 	  Support for the HTC Amaze 4G device.
 
+config MACH_HOLIDAY
+	depends on ARCH_MSM8X60 && MACH_HTC8X60
+	default n
+	bool "Holiday"
+	help
+	  Support for the Holiday device.
+
 config HTC_DEVICE
-	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID  || MACH_RUBY
+	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID  || MACH_RUBY || MACH_HOLIDAY
 	bool
 
 config MACH_MSM8960_SIM
