@@ -112,6 +112,9 @@ struct pm8xxx_mpp_init_info {
 }
 
 unsigned engineerid, mem_size_mb;
+#ifdef CONFIG_MACH_HOLIDAY
+unsigned skuid;
+#endif
 
 static struct resource ram_console_resources[] = {
 	{
@@ -4783,6 +4786,9 @@ static void __init htc8x60_fixup(struct machine_desc *desc, struct tag *tags,
 	mem_size_mb = parse_tag_memsize((const struct tag *)tags);
 	printk(KERN_DEBUG "%s: mem_size_mb=%u\n", __func__, mem_size_mb);
 	engineerid = parse_tag_engineerid(tags);
+#ifdef CONFIG_MACH_HOLIDAY
+	skuid = parse_tag_skuid(tags);
+#endif
 	mi->nr_banks = 1;
 	mi->bank[0].start = CONFIG_PHYS_OFFSET;
 	mi->bank[0].size = 0x23800000;
