@@ -2648,7 +2648,6 @@ static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 #endif /* CONFIG_TOUCHSCREEN_ATMEL */
 
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_TMA
-#ifdef CONFIG_MACH_PYRAMID
 static int htc8x60_ts_cy8c_set_rst(int on)
 {
 	struct pm8058_gpio_cfg {
@@ -2686,22 +2685,16 @@ static int htc8x60_ts_cy8c_set_rst(int on)
 	};
 	return pm8xxx_gpio_config(tp_rst[on].gpio,	&tp_rst[on].cfg);
 }
-#endif
 
 static int htc8x60_ts_cy8c_power(int on)
 {
 	printk(KERN_INFO "%s():\n", __func__);
 	if (on)
-#ifdef CONFIG_MACH_PYRAMID
 		htc8x60_ts_cy8c_set_rst(1);
-#else
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(HTC8X60_TP_RST), 1);
-#endif
 
 	return 0;
 }
 
-#ifdef CONFIG_MACH_PYRAMID
 static int htc8x60_ts_cy8c_reset(void)
 {
 	printk(KERN_INFO "[TP] HW reset touch.\n");
@@ -2716,10 +2709,8 @@ static int htc8x60_ts_cy8c_reset(void)
 
 	return 0;
 }
-#endif
 
 struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
-#ifdef CONFIG_MACH_PYRAMID
 	{
 		.version = 0x0C,
 		.timeout = 1,
@@ -2733,9 +2724,14 @@ struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = htc8x60_ts_cy8c_power,
-		.gpio_irq = HTC8X60_TP_ATT_N_XB,
-		/*.filter_level = {40, 80, 942, 982},*/
 		.reset = htc8x60_ts_cy8c_reset,
+#ifdef CONFIG_MACH_PYRAMID
+		.gpio_irq = HTC8X60_TP_ATT_N_XB,
+#else
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.unlock_attr = 1,
+		.filter_level = {15, 30, 992, 1007},
+#endif
 	},
 
 	{
@@ -2750,10 +2746,16 @@ struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = htc8x60_ts_cy8c_power,
+		.reset = htc8x60_ts_cy8c_reset,
+#ifdef CONFIG_MACH_PYRAMID
 		.gpio_irq = HTC8X60_TP_ATT_N_XB,
-		/*.filter_level = {40, 80, 942, 982},*/
-	},
+#else
+		.gpio_irq = HTC8X60_TP_ATT_N,
+		.unlock_attr = 1,
+		.filter_level = {15, 30, 992, 1007},
 #endif
+	},
+
 	{
 		.version = 0x00,
 		.timeout = 1,
@@ -2766,9 +2768,9 @@ struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
 		.abs_width_min = 0,
 		.abs_width_max = 512,
 		.power = htc8x60_ts_cy8c_power,
+		.reset = htc8x60_ts_cy8c_reset,
 #ifdef CONFIG_MACH_PYRAMID
 		.gpio_irq = HTC8X60_TP_ATT_N_XB,
-		.reset = htc8x60_ts_cy8c_reset,
 #else
 		.gpio_irq = HTC8X60_TP_ATT_N,
 		.unlock_attr = 1,
@@ -2777,7 +2779,6 @@ struct cy8c_i2c_platform_data htc8x60_ts_cy8c_data[] = {
 	},
 };
 
-#ifdef CONFIG_MACH_PYRAMID
 #define PVT_VERSION	0x80
 
 static void htc8x60_ts_cy8c_set_system_rev(uint8_t rev)
@@ -2791,7 +2792,6 @@ static void htc8x60_ts_cy8c_set_system_rev(uint8_t rev)
 		for (i = 0; i < sizeof(htc8x60_ts_cy8c_data)/sizeof(struct cy8c_i2c_platform_data); i++)
 			htc8x60_ts_cy8c_data[i].auto_reset = 1;
 }
-#endif
 
 static struct i2c_board_info msm_i2c_gsbi5_info[] = {
 	{
@@ -4737,7 +4737,7 @@ static void __init msm8x60_init(void)
 
 	register_i2c_devices();
 	htc8x60_init_panel();
-#if defined(CONFIG_TOUCHSCREEN_CYPRESS_TMA) && defined(CONFIG_MACH_PYRAMID)
+#if defined(CONFIG_TOUCHSCREEN_CYPRESS_TMA)
 	htc8x60_ts_cy8c_set_system_rev(system_rev);
 #endif
 	msm_pm_set_platform_data(msm_pm_data, ARRAY_SIZE(msm_pm_data));
