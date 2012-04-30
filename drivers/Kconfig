@@ -93,6 +93,7 @@ source "drivers/uwb/Kconfig"
 if !HTC_DEVICE
 source "drivers/mmc/Kconfig"
 endif
+
 if HTC_DEVICE
 source "drivers/mmc_htc/Kconfig"
 endif

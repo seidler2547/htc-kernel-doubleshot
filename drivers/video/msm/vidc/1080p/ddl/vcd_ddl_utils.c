@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -12,6 +12,8 @@
  */
 #include <linux/memory_alloc.h>
 #include <mach/msm_subsystem_map.h>
+#include <mach/peripheral-loader.h>
+#include <linux/delay.h>
 #include "vcd_ddl_utils.h"
 #include "vcd_ddl.h"
 #include "vcd_res_tracker_api.h"
@@ -23,8 +25,6 @@ struct time_data {
 };
 static struct time_data proc_time[MAX_TIME_DATA];
 #define DDL_MSG_TIME(x...) printk(KERN_DEBUG x)
-
-#define DDL_FW_CHANGE_ENDIAN
 
 static unsigned int vidc_mmu_subsystem[] =	{
 		MSM_SUBSYSTEM_VIDEO, MSM_SUBSYSTEM_VIDEO_FWARE};
@@ -289,45 +289,68 @@ void ddl_list_buffers(struct ddl_client_context *ddl)
 }
 #endif
 
-#ifdef DDL_FW_CHANGE_ENDIAN
-static void ddl_fw_change_endian(u8 *fw, u32 fw_size)
-{
-	u32 i = 0;
-	u8  temp;
-	for (i = 0; i < fw_size; i = i + 4) {
-		temp = fw[i];
-		fw[i] = fw[i+3];
-		fw[i+3] = temp;
-		temp = fw[i+1];
-		fw[i+1] = fw[i+2];
-		fw[i+2] = temp;
-	}
-	return;
-}
-#endif
-
 u32 ddl_fw_init(struct ddl_buf_addr *dram_base)
 {
-
 	u8 *dest_addr;
-
 	dest_addr = DDL_GET_ALIGNED_VITUAL(*dram_base);
-	if (vidc_video_codec_fw_size > dram_base->buffer_size ||
-		!vidc_video_codec_fw)
-		return false;
 	DDL_MSG_LOW("FW Addr / FW Size : %x/%d", (u32)vidc_video_codec_fw,
 		vidc_video_codec_fw_size);
-	memcpy(dest_addr, vidc_video_codec_fw,
-		vidc_video_codec_fw_size);
-#ifdef DDL_FW_CHANGE_ENDIAN
-	ddl_fw_change_endian(dest_addr, vidc_video_codec_fw_size);
-#endif
+	if (res_trk_check_for_sec_session() && res_trk_is_cp_enabled()) {
+		if (res_trk_enable_footswitch()) {
+			pr_err("Failed to enable footswitch");
+			return false;
+		}
+		if(res_trk_enable_iommu_clocks()) {
+			res_trk_disable_footswitch();
+			pr_err("Failed to enable iommu clocks\n");
+			return false;
+		}
+		dram_base->pil_cookie = pil_get("vidc");
+		if(res_trk_disable_iommu_clocks())
+			pr_err("Failed to disable iommu clocks\n");
+		if (IS_ERR_OR_NULL(dram_base->pil_cookie)) {
+			pr_err("pil_get failed\n");
+			return false;
+		}
+	} else {
+		if (vidc_video_codec_fw_size > dram_base->buffer_size ||
+				!vidc_video_codec_fw)
+			return false;
+		memcpy(dest_addr, vidc_video_codec_fw,
+				vidc_video_codec_fw_size);
+	}
 	return true;
 }
 
-void ddl_fw_release(void)
+void ddl_fw_release(struct ddl_buf_addr *dram_base)
 {
-	res_trk_close_secure_session();
+	void *cookie = dram_base->pil_cookie;
+   if (res_trk_is_cp_enabled() &&
+         res_trk_check_for_sec_session()) {
+      res_trk_close_secure_session();
+      if (IS_ERR_OR_NULL(cookie)){
+         pr_err("Invalid params");
+         return;
+      }
+      if (res_trk_enable_footswitch()) {
+         pr_err("Failed to enable footswitch");
+         return;
+      }
+      if(res_trk_enable_iommu_clocks()) {
+         res_trk_disable_footswitch();
+         pr_err("Failed to enable iommu clocks\n");
+         return;
+      }
+      pil_put(cookie);
+      if(res_trk_disable_iommu_clocks())
+         pr_err("Failed to disable iommu clocks\n");
+      if(res_trk_disable_footswitch())
+         pr_err("Failed to disable footswitch\n");
+   } else {
+         if (res_trk_check_for_sec_session())
+            res_trk_close_secure_session();
+		res_trk_release_fw_addr();
+   }
 }
 
 void ddl_set_core_start_time(const char *func_name, u32 index)

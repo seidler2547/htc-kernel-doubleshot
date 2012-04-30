@@ -384,7 +384,7 @@ void *setup_smi_region(void)
 static struct android_pmem_platform_data android_pmem_smipool_pdata = {
 	.name = "pmem_smipool",
 	.allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-	.cached = 0,
+	.cached = 1,
 	.memory_type = MEMTYPE_SMI,
 	.request_region = request_smi_region,
 	.release_region = release_smi_region,
