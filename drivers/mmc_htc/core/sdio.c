@@ -328,7 +328,9 @@ static unsigned mmc_sdio_get_max_clock(struct mmc_card *card)
 		max_dtr = card->cis.max_dtr;
 	}
 
-	if (card->type == MMC_TYPE_SD_COMBO)
+	if (card->type == MMC_TYPE_SDIO_WIMAX)
+		max_dtr = 49152000;
+	else if (card->type == MMC_TYPE_SD_COMBO)
 		max_dtr = min(max_dtr, mmc_sd_get_max_clock(card));
 
 	return max_dtr;
