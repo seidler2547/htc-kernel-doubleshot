@@ -639,6 +639,10 @@ config HTC_DEVICE
 	default y if MACH_SHOOTER || MACH_SHOOTER_U || MACH_PYRAMID  || MACH_RUBY || MACH_HOLIDAY
 	bool
 
+config WIMAX_DEVICE
+	default y if MACH_SHOOTER
+	bool
+
 config MACH_MSM8960_SIM
 	depends on ARCH_MSM8960
 	bool "MSM8960 Simulator"
