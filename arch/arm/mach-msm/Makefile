@@ -220,7 +220,7 @@ ifdef CONFIG_MSM_CAMERA
 obj-$(CONFIG_MACH_HTC8X60) += board-htc8x60-camera.o
 endif
 obj-$(CONFIG_MACH_SHOOTER) += board-shooter-keypad.o board-shooter-panel.o
-obj-$(CONFIG_MACH_SHOOTER) += board-shooter-audio.o 
+obj-$(CONFIG_MACH_SHOOTER) += board-shooter-audio.o board-htc8x60-wimax.o
 obj-$(CONFIG_MACH_SHOOTER_U) += board-shooter-keypad.o board-shooter-panel.o
 obj-$(CONFIG_MACH_SHOOTER_U) += board-shooter-audio.o
 obj-$(CONFIG_MACH_PYRAMID) += board-pyramid-keypad.o board-pyramid-panel.o
