@@ -354,7 +354,7 @@ struct msmsdcc_host {
 	struct mmc_platform_data *plat;
 
 	unsigned int		oldstat;
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
     unsigned long       irq_time;
 #endif
 
@@ -420,7 +420,7 @@ static inline int msmsdcc_lpm_disable(struct mmc_host *mmc)
 }
 #endif
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 extern int mmc_wimax_get_status(void);
 extern void mmc_wimax_enable_host_wakeup(int on);
 extern int mmc_wimax_get_irq_log(void);

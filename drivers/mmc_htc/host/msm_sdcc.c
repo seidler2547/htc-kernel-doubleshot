@@ -253,7 +253,7 @@ EXPORT_SYMBOL(msmsdcc_enable_clocks);
 int
 msmsdcc_get_sdc_clocks(struct msmsdcc_host *host)
 {
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 #if SDC_CLK_VERBOSE
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 /*			if (printk_ratelimit())
@@ -543,7 +543,7 @@ msmsdcc_switch_clock(struct mmc_host *mmc, int on)
 	u32 clk = 0;
 
 	if (on && !host->clks_on) {
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 			mmc_wimax_enable_host_wakeup(0);
 #endif
@@ -579,7 +579,7 @@ msmsdcc_switch_clock(struct mmc_host *mmc, int on)
 				writel_relaxed(0, host->base + MMCIMASK0);
 			msmsdcc_delay(host);
 		}
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 			mmc_wimax_enable_host_wakeup(1);
 #endif
@@ -1680,11 +1680,11 @@ msmsdcc_irq(int irq, void *dev_id)
 	u32			status;
 	int			ret = 0;
 	int			timer = 0;
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	static unsigned long irq_count = 0;
 #endif
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	if (is_wimax_platform(host->plat)) {
 		if (mmc_wimax_get_irq_log()) {
 			if (host->irq_time == 0)
@@ -1892,7 +1892,7 @@ msmsdcc_irq(int irq, void *dev_id)
 
 	spin_unlock(&host->lock);
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	if (mmc_wimax_get_irq_log()) {
 		if (is_wimax_platform(host->plat) && time_after(jiffies, host->irq_time)) {
 			pr_info("[WIMAX][MMC] %s: %s irq count %lu\n",
@@ -2467,13 +2467,13 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	if (ios->clock) {
 		spin_lock_irqsave(&host->lock, flags);
 		if (!host->clks_on) {
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 			if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 				mmc_wimax_enable_host_wakeup(0);
 #endif
 			msmsdcc_setup_clocks(host, true);
 			host->clks_on = 1;
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 			if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 				if (host->clks_on) {
@@ -2608,7 +2608,7 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			if (host->plat->cfg_mpm_sdiowakeup)
 				host->plat->cfg_mpm_sdiowakeup(
 					mmc_dev(mmc), SDC_DAT1_DISABLE);
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 			if (is_wimax_platform(host->plat)) {
 				if (printk_ratelimit())
@@ -2709,12 +2709,12 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			}
 			mb();
 		}
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 			mmc_wimax_enable_host_wakeup(1);
 #endif
 		msmsdcc_setup_clocks(host, false);
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 			if (!host->clks_on)
@@ -3960,7 +3960,7 @@ static void msmsdcc_early_suspend(struct early_suspend *h)
 		container_of(h, struct msmsdcc_host, early_suspend);
 	unsigned long flags;
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 	if (is_wimax_platform(host->plat))
 		pr_info("[WIMAX] [MMC] %s: %s enter\n", mmc_hostname(host->mmc), __func__);
@@ -3972,7 +3972,7 @@ static void msmsdcc_early_suspend(struct early_suspend *h)
 	host->mmc->caps &= ~MMC_CAP_NEEDS_POLL;
 	spin_unlock_irqrestore(&host->lock, flags);
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 	if (is_wimax_platform(host->plat))
 		pr_info("[WIMAX] [MMC] %s: %s leave\n", mmc_hostname(host->mmc), __func__);
@@ -3986,7 +3986,7 @@ static void msmsdcc_late_resume(struct early_suspend *h)
 		container_of(h, struct msmsdcc_host, early_suspend);
 	unsigned long flags;
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 	if (is_wimax_platform(host->plat))
 		pr_info("[WIMAX] [MMC] %s: %s enter\n", mmc_hostname(host->mmc), __func__);
@@ -3999,7 +3999,7 @@ static void msmsdcc_late_resume(struct early_suspend *h)
 		mmc_detect_change(host->mmc, 0);
 		spin_unlock_irqrestore(&host->lock, flags);
 	}
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 	if (is_wimax_platform(host->plat))
 		pr_info("[WIMAX] [MMC] %s: %s leave\n", mmc_hostname(host->mmc), __func__);
@@ -4336,7 +4336,7 @@ msmsdcc_probe(struct platform_device *pdev)
 		pm_qos_add_request(&host->pm_qos_req_dma,
 			PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 	if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 		if (host->clks_on)
@@ -4469,7 +4469,7 @@ msmsdcc_probe(struct platform_device *pdev)
 	 * and thus depending on the GPIO status, it prevents TCXO shutdown
 	 * during idle-power collapse.
 	 */
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 			if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 				if (printk_ratelimit())
@@ -4888,11 +4888,11 @@ static int msmsdcc_suspend(struct device *dev)
 
 /* HTC_WIFI_START */
 			/*Disable suspend function for wifi slot*/
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 			if (!is_wifi_slot(host->plat) && !is_wimax_platform(host->plat))
 #else
 			if (!is_wifi_slot(host->plat))
-#endif /* CONFIG_WIMAX */
+#endif /* CONFIG_WIMAX_DEVICE */
 /* HTC_CSP_END */
 
 				rc = mmc_suspend_host(mmc);
@@ -4970,13 +4970,13 @@ static int msmsdcc_resume(struct device *dev)
 
 /* HTC_WIFI_START */
 
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 			/*Disable resume function for wifi slot & wimax */
 			if (!is_wifi_slot(host->plat) && mmc->card && !host->eject && !is_wimax_platform(host->plat))
 #else
 			/*Disable resume function for wifi slot */
 			if (!is_wifi_slot(host->plat) && mmc->card && !host->eject)
-#endif /* CONFIG_WIMAX */
+#endif /* CONFIG_WIMAX_DEVICE */
 /* HTC_WIFI_END */
 				mmc_resume_host(mmc);
 
@@ -5057,7 +5057,7 @@ msmsdcc_runtime_resume(struct device *dev)
 #endif
 		spin_lock_irqsave(&host->lock, flags);
 		if (host->sdcc_irq_disabled) {
-#ifdef CONFIG_WIMAX
+#ifdef CONFIG_WIMAX_DEVICE
 	#if SDC_CLK_VERBOSE
 			if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 				if (printk_ratelimit())
@@ -5095,7 +5095,7 @@ static int msmsdcc_pm_suspend(struct device *dev)
 	int rc = 0;
 
 #if SDC_CLK_VERBOSE
-	#ifdef CONFIG_WIMAX
+	#ifdef CONFIG_WIMAX_DEVICE
 	if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 	{
 		printk(KERN_INFO "[WIMAX] [MMC] %s: %s enter,", mmc_hostname(host->mmc), __func__);
@@ -5127,7 +5127,7 @@ static int msmsdcc_pm_resume(struct device *dev)
 	int rc = 0;
 
 #if SDC_CLK_VERBOSE
-	#ifdef CONFIG_WIMAX
+	#ifdef CONFIG_WIMAX_DEVICE
 	if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
 	{
 		printk(KERN_INFO "[WIMAX] [MMC] %s: %s enter,", mmc_hostname(host->mmc), __func__);
