@@ -342,8 +342,8 @@ int mmc_wimax_power(int on)
 		mdelay(3);
                 gpio_set_value(HTC8X60_GPIO_V_WIMAX_1V2_RF_EN, 1); /* V_WIMAX_1V2_RF_EN */
                 mdelay(130);
-                config_gpio_table(wimax_uart_on_gpio_table, ARRAY_SIZE(wimax_uart_on_gpio_table));// Configure UART3 TX/RX
-                config_gpio_table(wimax_on_gpio_table, ARRAY_SIZE(wimax_on_gpio_table));
+                msm8x60_config_gpio_table(wimax_uart_on_gpio_table, ARRAY_SIZE(wimax_uart_on_gpio_table));// Configure UART3 TX/RX
+                msm8x60_config_gpio_table(wimax_on_gpio_table, ARRAY_SIZE(wimax_on_gpio_table));
 		mdelay(3);
                 gpio_set_value(HTC8X60_GPIO_WIMAX_EXT_RST, 1);     /* WIMAX_EXT_RSTz */
 	}
@@ -351,8 +351,8 @@ int mmc_wimax_power(int on)
 	{
 	        /*Power OFF sequence*/
 		gpio_set_value(HTC8X60_GPIO_WIMAX_EXT_RST, 0);     /* WIMAX_EXT_RSTz */
-		config_gpio_table(wimax_uart_off_gpio_table, ARRAY_SIZE(wimax_uart_off_gpio_table));// Configure UART3 TX/RX
-	        config_gpio_table(wimax_off_gpio_table, ARRAY_SIZE(wimax_off_gpio_table));
+		msm8x60_config_gpio_table(wimax_uart_off_gpio_table, ARRAY_SIZE(wimax_uart_off_gpio_table));// Configure UART3 TX/RX
+	        msm8x60_config_gpio_table(wimax_off_gpio_table, ARRAY_SIZE(wimax_off_gpio_table));
 		mdelay(5);
 	        gpio_set_value(HTC8X60_GPIO_V_WIMAX_1V2_RF_EN, 0); /* V_WIMAX_1V2_RF_EN */
 		mdelay(3);
@@ -380,7 +380,7 @@ int mmc_wimax_uart_switch(int uart)
         
     }
     else if (wimax_uart_switch == 1) { // enable WIMAX UART to USB
-        config_gpio_table(wimax_uart_off_gpio_table,
+        msm8x60_config_gpio_table(wimax_uart_off_gpio_table,
 			  ARRAY_SIZE(wimax_uart_off_gpio_table)); // Disable UART3 to GPIO
 
         gpio_set_value(HTC8X60_GPIO_CPU_WIMAX_UART_EN, 0);
@@ -388,7 +388,7 @@ int mmc_wimax_uart_switch(int uart)
         gpio_set_value(HTC8X60_GPIO_MHL_USB_EN, 1);
     }
     else if (wimax_uart_switch == 2) { // enable WIMAX_UART to MSM
-        config_gpio_table(wimax_uart_on_gpio_table,
+        msm8x60_config_gpio_table(wimax_uart_on_gpio_table,
 			  ARRAY_SIZE(wimax_uart_on_gpio_table)); // Enable UART3 to ALT1
 
         gpio_set_value(HTC8X60_GPIO_CPU_WIMAX_UART_EN, 1);
@@ -466,13 +466,13 @@ void __init htc8x60_init_mmc()
 	msm_add_sdcc(2, &mmc_wimax_data);
 
 	// re-initialize wimax GPIO
-	config_gpio_table(wimax_off_gpio_table, ARRAY_SIZE(wimax_off_gpio_table));
+	msm8x60_config_gpio_table(wimax_off_gpio_table, ARRAY_SIZE(wimax_off_gpio_table));
 
 	// Configure UART3 TX/RX
-	config_gpio_table(wimax_uart_off_gpio_table, ARRAY_SIZE(wimax_uart_off_gpio_table));
+	msm8x60_config_gpio_table(wimax_uart_off_gpio_table, ARRAY_SIZE(wimax_uart_off_gpio_table));
 
 	//initial WiMAX pin
-	config_gpio_table(wimax_initial_gpio_table, ARRAY_SIZE(wimax_initial_gpio_table));
+	msm8x60_config_gpio_table(wimax_initial_gpio_table, ARRAY_SIZE(wimax_initial_gpio_table));
 #endif
 
 	/* initial WIFI_SHUTDOWN# */
