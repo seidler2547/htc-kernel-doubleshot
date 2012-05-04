@@ -426,8 +426,8 @@ static struct acoustic_ops acoustic = {
 	.enable_mic_bias = pyramid_mic_enable,
 	.support_aic3254 = pyramid_support_aic3254,
 	.support_back_mic = pyramid_support_back_mic,
-/*
 	.get_acoustic_tables = pyramid_get_acoustic_tables,
+/*
 	.support_beats = pyramid_support_beats,
 	.enable_beats = pyramid_enable_beats,
 */

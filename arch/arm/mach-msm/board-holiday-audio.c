@@ -620,8 +620,10 @@ static struct acoustic_ops acoustic = {
 	.support_back_mic = holiday_support_back_mic,
 	.support_audience = holiday_support_audience,
 	.get_acoustic_tables = holiday_get_acoustic_tables,
+/*
 	.support_beats = holiday_support_beats,
 	.enable_beats = holiday_enable_beats,
+*/
 	.set_q6_effect = holiday_set_q6_effect_mode,
 };
 
