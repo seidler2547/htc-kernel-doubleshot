@@ -530,10 +530,10 @@ static void htc8x60_config_camera_off_gpios(void)
 {
 #if defined(CONFIG_MACH_SHOOTER) || defined(CONFIG_MACH_SHOOTER_U)
 	if (engid == 7) {
-		config_gpio_table(camera_off_gpio_table_liteon,
+		msm8x60_config_gpio_table(camera_off_gpio_table_liteon,
 			ARRAY_SIZE(camera_off_gpio_table_liteon));
 	} else {
-		config_gpio_table(camera_off_gpio_table_sp3d,
+		msm8x60_config_gpio_table(camera_off_gpio_table_sp3d,
 			ARRAY_SIZE(camera_off_gpio_table_sp3d));
 	}
 	gpio_set_value(HTC8X60_SP3D_SPI_DO, 0);
