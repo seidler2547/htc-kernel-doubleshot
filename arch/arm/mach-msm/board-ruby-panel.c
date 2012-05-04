@@ -95,7 +95,6 @@ static void ruby_panel_power(int on)
 			return;
 		}
 
-		//gpio_direction_output(GPIO_LCM_RST_N, 0);
 		init = 1;
 	}
 
@@ -161,12 +160,10 @@ fail:
 
 static uint32_t lcd_on_gpio[] = {
 	GPIO_CFG(GPIO_LCM_ID0, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-//	GPIO_CFG(GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t lcd_off_gpio[] = {
 	GPIO_CFG(GPIO_LCM_ID0, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-//	GPIO_CFG(GPIO_LCM_ID1, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static int mipi_panel_power(int on)
@@ -567,8 +564,8 @@ static int msm_fb_detect_panel(const char *name)
 
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.detect_client = msm_fb_detect_panel,
-//	.width = 53,
-//	.height = 95,
+	.width = 53,
+	.height = 95,
 };
 
 static struct resource msm_fb_resources[] = {
