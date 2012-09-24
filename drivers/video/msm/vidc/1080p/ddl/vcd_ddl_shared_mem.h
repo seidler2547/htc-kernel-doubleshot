@@ -73,6 +73,11 @@ enum vidc_sm_mpeg4_profileinfo {
 	VIDC_SM_PROFILE_INFO_MAX      = 0x7fffffff
 };
 
+enum vidc_sm_num_stuff_bytes_consume_info {
+        VIDC_SM_NUM_STUFF_BYTES_CONSUME_ALL  = 0x0,
+        VIDC_SM_NUM_STUFF_BYTES_CONSUME_NONE = 0xffffffff
+};
+
 void vidc_sm_get_extended_decode_status(struct ddl_buf_addr *shared_mem,
 	u32 *more_field_needed,
 	u32 *resl_change);
